@@ -1,0 +1,6 @@
+NT, NR prefix
+histogram of die rolls
+undo?
+classify 'unknown' cards; interval for each card type?
+Better: quantum cards: track each uncertainty with a pseudo card,
+  so when taker or getter reveals its nature the other side is also resolved.
