@@ -98,7 +98,14 @@ public class SOCDiscard extends SOCMessage
      */
     public String toCmd()
     {
-        return toCmd(game, resources.getAmount(SOCResourceConstants.CLAY), resources.getAmount(SOCResourceConstants.ORE), resources.getAmount(SOCResourceConstants.SHEEP), resources.getAmount(SOCResourceConstants.WHEAT), resources.getAmount(SOCResourceConstants.WOOD), resources.getAmount(SOCResourceConstants.UNKNOWN));
+	// return toCmd(game,resources);
+        return toCmd(game,
+		     resources.getAmount(SOCResourceConstants.CLAY),
+		     resources.getAmount(SOCResourceConstants.ORE),
+		     resources.getAmount(SOCResourceConstants.SHEEP),
+		     resources.getAmount(SOCResourceConstants.WHEAT),
+		     resources.getAmount(SOCResourceConstants.WOOD),
+		     resources.getAmount(SOCResourceConstants.UNKNOWN));
     }
 
     /**
@@ -111,7 +118,13 @@ public class SOCDiscard extends SOCMessage
      */
     public static String toCmd(String ga, SOCResourceSet rs)
     {
-        return toCmd(ga, rs.getAmount(SOCResourceConstants.CLAY), rs.getAmount(SOCResourceConstants.ORE), rs.getAmount(SOCResourceConstants.SHEEP), rs.getAmount(SOCResourceConstants.WHEAT), rs.getAmount(SOCResourceConstants.WOOD), rs.getAmount(SOCResourceConstants.UNKNOWN));
+        return toCmd(ga,
+		     rs.getAmount(SOCResourceConstants.CLAY),
+		     rs.getAmount(SOCResourceConstants.ORE),
+		     rs.getAmount(SOCResourceConstants.SHEEP),
+		     rs.getAmount(SOCResourceConstants.WHEAT),
+		     rs.getAmount(SOCResourceConstants.WOOD),
+		     rs.getAmount(SOCResourceConstants.UNKNOWN));
     }
 
     /**

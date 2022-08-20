@@ -91,8 +91,7 @@ public class SOCDiscoveryPick extends SOCMessage
     {
         String cmd = DISCOVERYPICK + sep + ga;
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
         {
             cmd += (sep2 + rs.getAmount(i));
         }
@@ -119,10 +118,7 @@ public class SOCDiscoveryPick extends SOCMessage
         {
             ga = st.nextToken();
 
-            /**
-             * Note: this only works if SOCResourceConstants.CLAY == 1
-             */
-            for (int i = 1; i <= SOCResourceConstants.WOOD; i++)
+            for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
             {
                 rs.setAmount(Integer.parseInt(st.nextToken()), i);
             }

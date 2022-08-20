@@ -21,6 +21,7 @@
 package soc.message;
 
 import java.util.StringTokenizer;
+import soc.game.SOCResourceConstants;
 
 
 /**
@@ -33,12 +34,12 @@ public class SOCPlayerElement extends SOCMessage
     /**
      * player element types
      */
-    public static final int CLAY = 1;
-    public static final int ORE = 2;
-    public static final int SHEEP = 3;
-    public static final int WHEAT = 4;
-    public static final int WOOD = 5;
-    public static final int UNKNOWN = 6;
+    public static final int  CLAY = SOCResourceConstants.CLAY; // needs to sync with SOCResourceConstants
+    public static final int   ORE = SOCResourceConstants.ORE;
+    public static final int SHEEP = SOCResourceConstants.SHEEP;
+    public static final int WHEAT = SOCResourceConstants.WHEAT;
+    public static final int  WOOD = SOCResourceConstants.WOOD;
+    public static final int UNKNOWN = SOCResourceConstants.UNKNOWN;
     public static final int ROADS = 10;
     public static final int SETTLEMENTS = 11;
     public static final int CITIES = 12;

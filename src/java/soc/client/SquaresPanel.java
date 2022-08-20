@@ -51,17 +51,17 @@ public class SquaresPanel extends Panel
         setFont(new Font("Helvetica", Font.PLAIN, 10));
 
         give = new ColorSquare[5];
-        give[0] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.CLAY);
-        give[1] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.ORE);
+        give[0] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.ORE);
+        give[1] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.WHEAT);
         give[2] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.SHEEP);
-        give[3] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.WHEAT);
+        give[3] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.CLAY);
         give[4] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.WOOD);
 
         get = new ColorSquare[5];
-        get[0] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.CLAY);
-        get[1] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.ORE);
+        get[0] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.ORE);
+        get[1] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.WHEAT);
         get[2] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.SHEEP);
-        get[3] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.WHEAT);
+        get[3] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.CLAY);
         get[4] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.WOOD);
 
         for (int i = 0; i < 5; i++)

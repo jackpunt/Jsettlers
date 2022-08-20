@@ -36,24 +36,31 @@ import java.util.Vector;
 public class SOCBoard implements Serializable, Cloneable
 {
     public static final int DESERT_HEX = 0;
-    public static final int CLAY_HEX = 1;
-    public static final int ORE_HEX = 2;
-    public static final int SHEEP_HEX = 3;
-    public static final int WHEAT_HEX = 4;
-    public static final int WOOD_HEX = 5;
+    public static final int  CLAY_HEX = SOCResourceConstants.CLAY; // these need to sync with SOCResourceConstants!
+    public static final int   ORE_HEX = SOCResourceConstants.ORE;
+    public static final int SHEEP_HEX = SOCResourceConstants.SHEEP;
+    public static final int WHEAT_HEX = SOCResourceConstants.WHEAT;
+    public static final int  WOOD_HEX = SOCResourceConstants.WOOD;
+    public static final int  LAND_HEX = SOCResourceConstants.MAX;
     public static final int WATER_HEX = 6;
-    public static final int MISC_PORT_HEX = 7;
-    public static final int CLAY_PORT_HEX = 8;
-    public static final int ORE_PORT_HEX = 9;
-    public static final int SHEEP_PORT_HEX = 10;
-    public static final int WHEAT_PORT_HEX = 11;
-    public static final int WOOD_PORT_HEX = 12;
-    public static final int MISC_PORT = 0;
-    public static final int CLAY_PORT = 1;
-    public static final int ORE_PORT = 2;
-    public static final int SHEEP_PORT = 3;
-    public static final int WHEAT_PORT = 4;
-    public static final int WOOD_PORT = 5;
+
+    // we believe these are never actually used... (hexLayout[] = 7..12)
+    public static final int  MISC_PORT_HEX =  7; // 3-for-1 port
+    public static final int  CLAY_PORT_HEX =  CLAY_HEX+MISC_PORT_HEX;
+    public static final int   ORE_PORT_HEX =   ORE_HEX+MISC_PORT_HEX;
+    public static final int SHEEP_PORT_HEX = SHEEP_HEX+MISC_PORT_HEX;
+    public static final int WHEAT_PORT_HEX = WHEAT_HEX+MISC_PORT_HEX;
+    public static final int  WOOD_PORT_HEX =  WOOD_HEX+MISC_PORT_HEX;
+
+    // these used only on end-points:
+    public static final int MISC_PORT = 0;// include 3:1 ports
+    public static final int MIN_PORT = 1; // start with 2:1 resource ports
+//      public static final int CLAY_PORT = 1;
+//      public static final int ORE_PORT = 2;
+//      public static final int SHEEP_PORT = 3;
+//      public static final int WHEAT_PORT = 4;
+//      public static final int WOOD_PORT = 5;
+    public static final int MAX_PORT = 5;
 
     /**
      * largest value for a hex
@@ -172,19 +179,19 @@ public class SOCBoard implements Serializable, Cloneable
     };
     private int[] numToHexID = 
     {
-        0x17, 0x39, 0x5B, 0x7D,
+              0x17, 0x39, 0x5B, 0x7D,
         
-        0x15, 0x37, 0x59, 0x7B, 0x9D,
+           0x15, 0x37, 0x59, 0x7B, 0x9D,
         
         0x13, 0x35, 0x57, 0x79, 0x9B, 0xBD,
         
-        0x11, 0x33, 0x55, 0x77, 0x99, 0xBB, 0xDD,
+     0x11, 0x33, 0x55, 0x77, 0x99, 0xBB, 0xDD,
         
         0x31, 0x53, 0x75, 0x97, 0xB9, 0xDB,
         
-        0x51, 0x73, 0x95, 0xB7, 0xD9,
+           0x51, 0x73, 0x95, 0xB7, 0xD9,
         
-        0x71, 0x93, 0xB5, 0xD7
+              0x71, 0x93, 0xB5, 0xD7
     };
 
     /**
@@ -262,15 +269,15 @@ public class SOCBoard implements Serializable, Cloneable
         settlements = new Vector(20);
         cities = new Vector(16);
 
-        /**
-         * initialize the port vector
+        /**plus
+         * initialize the port Vectors; holds Vector of coords for each port tile
          */
         ports = new Vector[6];
-        ports[MISC_PORT] = new Vector(8);
+        ports[MISC_PORT] = new Vector(8); // 8 elements (2 coords per 4 misc port-hex)
 
-        for (i = CLAY_PORT; i <= WOOD_PORT; i++)
+        for (i = MIN_PORT; i <= MAX_PORT; i++)
         {
-            ports[i] = new Vector(2);
+            ports[i] = new Vector(2); // 2 elements (2 coords per resource port-hex)
         }
 
         /**
@@ -348,28 +355,35 @@ public class SOCBoard implements Serializable, Cloneable
      */
     public void makeNewBoard()
     {
-        int[] landHex = { 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5 };
-        int[] portHex = { 0, 0, 0, 0, 1, 2, 3, 4, 5 };
+	// there are 8 water, 8 port, 19 land tiles: 37 total
+        // 19 land tiles:
+	int[] landHex = { DESERT_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+			  SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, 
+			  WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, 
+			  WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, };
+	// 8 port tiles:
+        int[] portHex = { MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
+			  CLAY_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX };
+	
+	// A,B,C,...Q; indicating which die roll activates this resource tile:
+	// 0-9 -> [2-6,8-12]  (also -1 for the desert)
         int[] number = { 3, 0, 4, 1, 5, 7, 6, 9, 8, 2, 5, 7, 6, 2, 3, 4, 1, 8 };
+	// place shuffled stack on hex map in this order: (these are the grid numbers)
         int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
         int i;
         int j;
         int idx;
         int tmp;
 
-        // shuffle the land hexes
-        for (j = 0; j < 10; j++)
-        {
-            for (i = 0; i < landHex.length; i++)
+	for (i = 0; i < landHex.length; i++)
             {
-                // Swap a random card below the ith card with the ith card
-                idx = Math.abs(rand.nextInt() % (landHex.length - i));
+		// Select ith card from random idx in range [i..length)  : (idx<length)
+                idx = i+rand.nextInt(landHex.length - i);
                 tmp = landHex[idx];
                 landHex[idx] = landHex[i];
                 landHex[i] = tmp;
             }
-        }
-
+	
         int cnt = 0;
 
         for (i = 0; i < landHex.length; i++)
@@ -392,23 +406,19 @@ public class SOCBoard implements Serializable, Cloneable
         }
 
         // shuffle the ports
-        for (j = 0; j < 10; j++)
-        {
-            for (i = 1; i < portHex.length; i++) // don't swap 0 with 0!
-            {
-                // Swap a random card below the ith card with the ith card
-                idx = Math.abs(rand.nextInt() % (portHex.length - i));
-                tmp = portHex[idx];
-                portHex[idx] = portHex[i];
-                portHex[i] = tmp;
-            }
-        }
+	for (i = 0; i < portHex.length; i++) {
+	    // select a card not yet assigned:
+	    idx = i + rand.nextInt(portHex.length - i);
+	    tmp = portHex[idx];
+	    portHex[idx] = portHex[i];
+	    portHex[i] = tmp;	// put it in the i-th slot
+	}
 
-        // place the ports
-        placePort(portHex[0], 0, 3);
-        placePort(portHex[1], 2, 4);
-        placePort(portHex[2], 8, 4);
-        placePort(portHex[3], 9, 2);
+        // set ports in place and orientation: the ports
+        placePort(portHex[0],  0, 3);
+        placePort(portHex[1],  2, 4);
+        placePort(portHex[2],  8, 4);
+        placePort(portHex[3],  9, 2);
         placePort(portHex[4], 21, 5);
         placePort(portHex[5], 22, 2);
         placePort(portHex[6], 32, 6);
@@ -416,6 +426,7 @@ public class SOCBoard implements Serializable, Cloneable
         placePort(portHex[8], 35, 6);
 
         // fill out the ports[] vectors
+	// coordinates of port vertices:
         ports[portHex[0]].addElement(new Integer(0x27));
         ports[portHex[0]].addElement(new Integer(0x38));
 
@@ -444,6 +455,26 @@ public class SOCBoard implements Serializable, Cloneable
         ports[portHex[8]].addElement(new Integer(0xB6));
     }
 
+    /* ***************************************
+        ports are represented in binary like this:
+        (port facing)           (kind of port)
+              \--> [0 0 0][0 0 0 0] <--/
+        kind of port:
+        1 : clay
+        2 : ore
+        3 : sheep
+        4 : wheat
+        5 : wood
+        port facing:
+        6___    ___1
+            \/\/
+            /  \
+       5___|    |___2
+           |    |
+            \  /
+        4___/\/\___3
+    *****************************************/
+
     /**
      * Auxillary method for placing the port hexes
      */
@@ -451,12 +482,12 @@ public class SOCBoard implements Serializable, Cloneable
     {
         if (port == 0)
         {
-            // generic port
-            hexLayout[hex] = face + 6;
+            // generic port, MISC_PORT, 3:1 port
+            hexLayout[hex] = face + 6;// add 6 to face to indicate MISC_PORT
         }
         else
         {
-            hexLayout[hex] = (face << 4) + port;
+            hexLayout[hex] = (face << 4) + port; // else code face in high bits!
         }
     }
 
@@ -628,7 +659,10 @@ public class SOCBoard implements Serializable, Cloneable
     }
 
     /**
-     * Given a hex number, return the type of hex
+     * Given a hex number, return the type of hex.
+     * In practice, only care if is a resource versus port/water hex.
+     * (or desert, when placing robber).
+     * the higher values (MAX_PORT_HEX and greater) are not used.
      *
      * @param hex  the number of a hex
      *
@@ -638,36 +672,15 @@ public class SOCBoard implements Serializable, Cloneable
     {
         int hexType = hexLayout[hex];
 
-        if (hexType < 7)
-        {
+        if (hexType < 7) {
             return hexType;
-        }
-        else if ((hexType >= 7) && (hexType <= 12))
-        {
+        } else if ((hexType >= 7) && (hexType <= 12)) {
+	    // remove MISC_PORT 'facing' info:
             return MISC_PORT_HEX;
         }
-        else
-        {
-            switch (hexType & 7)
-            {
-            case 1:
-                return CLAY_PORT_HEX;
-
-            case 2:
-                return ORE_PORT_HEX;
-
-            case 3:
-                return SHEEP_PORT_HEX;
-
-            case 4:
-                return WHEAT_PORT_HEX;
-
-            case 5:
-                return WOOD_PORT_HEX;
-            }
-        }
-
-        return -1;
+	int rv = (hexType & 7);
+	// remove resource port facing info:
+	return ((rv >= 1) && (rv <= 5)) ? MISC_PORT_HEX + rv : -1;
     }
 
     /**

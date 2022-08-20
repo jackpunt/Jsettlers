@@ -84,19 +84,20 @@ class SOCDiscardDialog extends Dialog implements ActionListener, MouseListener
         add(discardBut);
         discardBut.addActionListener(this);
 
+	int m1 = -SOCResourceConstants.MIN;
         keep = new ColorSquare[5];
-        keep[0] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.CLAY);
-        keep[1] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.ORE);
-        keep[2] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.SHEEP);
-        keep[3] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.WHEAT);
-        keep[4] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.WOOD);
+        keep[m1+SOCResourceConstants.CLAY] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.CLAY);
+        keep[m1+SOCResourceConstants.ORE] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.ORE);
+        keep[m1+SOCResourceConstants.SHEEP] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.SHEEP);
+        keep[m1+SOCResourceConstants.WHEAT] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.WHEAT);
+        keep[m1+SOCResourceConstants.WOOD] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.WOOD);
 
         disc = new ColorSquare[5];
-        disc[0] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.CLAY);
-        disc[1] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.ORE);
-        disc[2] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.SHEEP);
-        disc[3] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.WHEAT);
-        disc[4] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.WOOD);
+        disc[m1+SOCResourceConstants.CLAY] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.CLAY);
+        disc[m1+SOCResourceConstants.ORE] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.ORE);
+        disc[m1+SOCResourceConstants.SHEEP] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.SHEEP);
+        disc[m1+SOCResourceConstants.WHEAT] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.WHEAT);
+        disc[m1+SOCResourceConstants.WOOD] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.WOOD);
 
         for (int i = 0; i < 5; i++)
         {
@@ -121,11 +122,12 @@ class SOCDiscardDialog extends Dialog implements ActionListener, MouseListener
              */
             SOCPlayer player = playerInterface.getGame().getPlayer(playerInterface.getClient().getNickname());
             SOCResourceSet resources = player.getResources();
-            keep[0].setIntValue(resources.getAmount(SOCResourceConstants.CLAY));
-            keep[1].setIntValue(resources.getAmount(SOCResourceConstants.ORE));
-            keep[2].setIntValue(resources.getAmount(SOCResourceConstants.SHEEP));
-            keep[3].setIntValue(resources.getAmount(SOCResourceConstants.WHEAT));
-            keep[4].setIntValue(resources.getAmount(SOCResourceConstants.WOOD));
+	    int m1 = -SOCResourceConstants.MIN;
+            keep[m1+SOCResourceConstants.CLAY].setIntValue(resources.getAmount(SOCResourceConstants.CLAY));
+            keep[m1+SOCResourceConstants.ORE].setIntValue(resources.getAmount(SOCResourceConstants.ORE));
+            keep[m1+SOCResourceConstants.SHEEP].setIntValue(resources.getAmount(SOCResourceConstants.SHEEP));
+            keep[m1+SOCResourceConstants.WHEAT].setIntValue(resources.getAmount(SOCResourceConstants.WHEAT));
+            keep[m1+SOCResourceConstants.WOOD].setIntValue(resources.getAmount(SOCResourceConstants.WOOD));
 
             discardBut.requestFocus();
         }
@@ -194,7 +196,12 @@ class SOCDiscardDialog extends Dialog implements ActionListener, MouseListener
 
         if (target == discardBut)
         {
-            SOCResourceSet rsrcs = new SOCResourceSet(disc[0].getIntValue(), disc[1].getIntValue(), disc[2].getIntValue(), disc[3].getIntValue(), disc[4].getIntValue(), 0);
+	    int m1 = -SOCResourceConstants.MIN;
+            SOCResourceSet rsrcs = new SOCResourceSet(disc[m1+SOCResourceConstants.CLAY].getIntValue(),
+						      disc[m1+SOCResourceConstants.ORE].getIntValue(),
+						      disc[m1+SOCResourceConstants.SHEEP].getIntValue(),
+						      disc[m1+SOCResourceConstants.WHEAT].getIntValue(),
+						      disc[m1+SOCResourceConstants.WOOD].getIntValue(), 0);
 
             if (rsrcs.getTotal() == numDiscards)
             {

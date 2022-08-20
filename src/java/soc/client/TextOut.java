@@ -1,15 +1,40 @@
+package soc.client;
+import javax.swing.JScrollPane;
+import javax.swing.JScrollBar;
+import javax.swing.JTextArea;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Color;
 
-class TextOut extends JScrollPane {
+public class TextOut extends JScrollPane {
     int towidth = 280;
     int maxlen = 0;
     JTextArea texta = new JTextArea();;
     StringBuffer texto = new StringBuffer();
     // JScrollPane scrollPane;
     JScrollBar vscrollBar;
+    public void setFont(Font f) { if (texta!=null) texta.setFont(f);}
+    public void setBackground(Color c) {
+	super.setBackground(c);
+	if (texta!=null) texta.setBackground(c);
+    }
+    public void setForeground(Color c) {
+	super.setForeground(c);
+	if (texta!=null) texta.setForeground(c);
+    }
+    public void setEditable(boolean x) {
+	if (texta!=null) texta.setEditable(x);
+    }
+
+    public TextOut(int height, int towidth, int maxlines) {
+	this(towidth);
+	setLength(maxlines*30);
+    }
 
     TextOut(int towidth) {
 	// super( VERTICAL_SCROLLBAR_ALWAYS, HORIZONTAL_SCROLLBAR_ALWAYS);
-	super( VERTICAL_SCROLLBAR_ALWAYS, HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	//super( VERTICAL_SCROLLBAR_ALWAYS, HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	super( VERTICAL_SCROLLBAR_ALWAYS, HORIZONTAL_SCROLLBAR_NEVER);
 	setViewportView(texta);
 	this.towidth = towidth;
 	setMinimumSize(new Dimension(towidth, 40));
@@ -32,6 +57,10 @@ class TextOut extends JScrollPane {
 	texto.setLength(0);
 	outMore(str);
     }
+    public synchronized void append(String str) {
+	outMore(str);
+    }
+
     public void outMore(String str) {
 	int strlen = str.length();
 	int txtlen = texto.length();
@@ -40,7 +69,7 @@ class TextOut extends JScrollPane {
 	    // if (end > txtlen) end = txtlen;
 	    texto.delete(0, end);
 	}
-	texto.append(str+"\n");
+	texto.append(str);
 	// System.out.println("VscrollMax0 = "+vscrollBar.getMaximum());
 	texta.setText(texto.toString());
 	repaint();

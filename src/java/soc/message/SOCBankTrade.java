@@ -20,6 +20,8 @@
  **/
 package soc.message;
 
+import soc.disableDebug.D;	// debug 
+
 import soc.game.SOCResourceConstants;
 import soc.game.SOCResourceSet;
 
@@ -106,14 +108,12 @@ public class SOCBankTrade extends SOCMessage
     {
         String cmd = BANKTRADE + sep + ga;
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
         {
             cmd += (sep2 + give.getAmount(i));
         }
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
         {
             cmd += (sep2 + get.getAmount(i));
         }
@@ -138,19 +138,21 @@ public class SOCBankTrade extends SOCMessage
 
         StringTokenizer st = new StringTokenizer(s, sep2);
 
+	D.ebugPrintln("BankTrade.parseDataStr - "+s);
+
         try
         {
             ga = st.nextToken();
 
             /**
-             * Note: this only works if SOCResourceConstants.CLAY == 1
+             * Note: this only works if SOCResourceConstants.MIN == 1, MAX == 6
              */
-            for (int i = 1; i <= SOCResourceConstants.WOOD; i++)
+            for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
             {
                 give.setAmount(Integer.parseInt(st.nextToken()), i);
             }
 
-            for (int i = 1; i <= SOCResourceConstants.WOOD; i++)
+            for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
             {
                 get.setAmount(Integer.parseInt(st.nextToken()), i);
             }

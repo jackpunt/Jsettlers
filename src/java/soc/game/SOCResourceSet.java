@@ -27,7 +27,7 @@ import java.io.Serializable;
  * This represents a collection of
  * clay, ore, sheep, wheat, and wood resources.
  */
-public class SOCResourceSet implements Serializable, Cloneable
+public class SOCResourceSet implements Serializable, Cloneable, SOCResourceConstants
 {
     public static final SOCResourceSet EMPTY_SET = new SOCResourceSet();
 
@@ -72,8 +72,7 @@ public class SOCResourceSet implements Serializable, Cloneable
      */
     public void clear()
     {
-        for (int i = SOCResourceConstants.MIN;
-                i < SOCResourceConstants.MAXPLUSONE; i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAXPLUSONE; i++)
         {
             resources[i] = 0;
         }
@@ -96,8 +95,7 @@ public class SOCResourceSet implements Serializable, Cloneable
     {
         int sum = 0;
 
-        for (int i = SOCResourceConstants.MIN;
-                i < SOCResourceConstants.MAXPLUSONE; i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAXPLUSONE; i++)
         {
             sum += resources[i];
         }
@@ -141,19 +139,18 @@ public class SOCResourceSet implements Serializable, Cloneable
          * to zero, and then take the difference away
          * from the UNKNOWN resources
          */
-        if (amt > resources[rtype])
-        {
-            resources[SOCResourceConstants.UNKNOWN] -= (amt - resources[rtype]);
-            resources[rtype] = 0;
-        }
-        else
-        {
-            resources[rtype] -= amt;
-        }
+	resources[rtype] -= amt;
+	if (resources[rtype] < 0) {
+	    resources[UNKNOWN] += resources[rtype];
+	    resources[rtype] = 0;
+	}
 
-        if (resources[SOCResourceConstants.UNKNOWN] < 0)
+        if (resources[UNKNOWN] < 0)
         {
-            System.err.println("RESOURCE < 0 : RESOURCE TYPE=" + rtype);
+	    // this happens when RobotNegotiator is looking for a trade; often wants more than anyone has:
+//  	    System.err.println("RESOURCE < 0 : RESOURCE TYPE=" + rtype + " amt="+amt+" UNK="+resources[UNKNOWN]);
+//  	    new IllegalArgumentException().printStackTrace(System.err);
+//  	    resources[UNKNOWN] = 0; // this seems right...
         }
     }
 
@@ -177,50 +174,16 @@ public class SOCResourceSet implements Serializable, Cloneable
      *
      * @param rs  the resource set
      */
-    public void subtract(SOCResourceSet rs)
-    {
-        resources[SOCResourceConstants.CLAY] -= rs.getAmount(SOCResourceConstants.CLAY);
-
-        if (resources[SOCResourceConstants.CLAY] < 0)
-        {
-            resources[SOCResourceConstants.CLAY] = 0;
-        }
-
-        resources[SOCResourceConstants.ORE] -= rs.getAmount(SOCResourceConstants.ORE);
-
-        if (resources[SOCResourceConstants.ORE] < 0)
-        {
-            resources[SOCResourceConstants.ORE] = 0;
-        }
-
-        resources[SOCResourceConstants.SHEEP] -= rs.getAmount(SOCResourceConstants.SHEEP);
-
-        if (resources[SOCResourceConstants.SHEEP] < 0)
-        {
-            resources[SOCResourceConstants.SHEEP] = 0;
-        }
-
-        resources[SOCResourceConstants.WHEAT] -= rs.getAmount(SOCResourceConstants.WHEAT);
-
-        if (resources[SOCResourceConstants.WHEAT] < 0)
-        {
-            resources[SOCResourceConstants.WHEAT] = 0;
-        }
-
-        resources[SOCResourceConstants.WOOD] -= rs.getAmount(SOCResourceConstants.WOOD);
-
-        if (resources[SOCResourceConstants.WOOD] < 0)
-        {
-            resources[SOCResourceConstants.WOOD] = 0;
-        }
-
-        resources[SOCResourceConstants.UNKNOWN] -= rs.getAmount(SOCResourceConstants.UNKNOWN);
-
-        if (resources[SOCResourceConstants.UNKNOWN] < 0)
-        {
-            resources[SOCResourceConstants.UNKNOWN] = 0;
-        }
+    public void subtract(SOCResourceSet rs) {
+	for (int i = MIN; i<MAXPLUSONE; i++) {
+	    subtract(rs.getAmount(i),i); // !! may also remove from .UNKNOWN !!
+//  	    resources[SOCResourceConstants.CLAY] -= rs.getAmount(SOCResourceConstants.CLAY);
+//  	    if (resources[SOCResourceConstants.CLAY] < 0) {
+//  		resources[SOCResourceConstants.CLAY] = 0;
+//  	    }
+	}
     }
+
 
     /**
      * @return true if each resource type in set A is >= each resource type in set B
@@ -230,7 +193,12 @@ public class SOCResourceSet implements Serializable, Cloneable
      */
     static public boolean gte(SOCResourceSet a, SOCResourceSet b)
     {
-        return ((a.getAmount(SOCResourceConstants.CLAY) >= b.getAmount(SOCResourceConstants.CLAY)) && (a.getAmount(SOCResourceConstants.ORE) >= b.getAmount(SOCResourceConstants.ORE)) && (a.getAmount(SOCResourceConstants.SHEEP) >= b.getAmount(SOCResourceConstants.SHEEP)) && (a.getAmount(SOCResourceConstants.WHEAT) >= b.getAmount(SOCResourceConstants.WHEAT)) && (a.getAmount(SOCResourceConstants.WOOD) >= b.getAmount(SOCResourceConstants.WOOD)) && (a.getAmount(SOCResourceConstants.UNKNOWN) >= b.getAmount(SOCResourceConstants.UNKNOWN)));
+        return ((a.getAmount(SOCResourceConstants.CLAY) >= b.getAmount(SOCResourceConstants.CLAY))
+		&& (a.getAmount(SOCResourceConstants.ORE) >= b.getAmount(SOCResourceConstants.ORE))
+		&& (a.getAmount(SOCResourceConstants.SHEEP) >= b.getAmount(SOCResourceConstants.SHEEP))
+		&& (a.getAmount(SOCResourceConstants.WHEAT) >= b.getAmount(SOCResourceConstants.WHEAT))
+		&& (a.getAmount(SOCResourceConstants.WOOD) >= b.getAmount(SOCResourceConstants.WOOD))
+		&& (a.getAmount(SOCResourceConstants.UNKNOWN) >= b.getAmount(SOCResourceConstants.UNKNOWN)));
     }
 
     /**
@@ -241,7 +209,12 @@ public class SOCResourceSet implements Serializable, Cloneable
      */
     static public boolean lte(SOCResourceSet a, SOCResourceSet b)
     {
-        return ((a.getAmount(SOCResourceConstants.CLAY) <= b.getAmount(SOCResourceConstants.CLAY)) && (a.getAmount(SOCResourceConstants.ORE) <= b.getAmount(SOCResourceConstants.ORE)) && (a.getAmount(SOCResourceConstants.SHEEP) <= b.getAmount(SOCResourceConstants.SHEEP)) && (a.getAmount(SOCResourceConstants.WHEAT) <= b.getAmount(SOCResourceConstants.WHEAT)) && (a.getAmount(SOCResourceConstants.WOOD) <= b.getAmount(SOCResourceConstants.WOOD)) && (a.getAmount(SOCResourceConstants.UNKNOWN) <= b.getAmount(SOCResourceConstants.UNKNOWN)));
+        return ((a.getAmount(SOCResourceConstants.CLAY) <= b.getAmount(SOCResourceConstants.CLAY))
+		&& (a.getAmount(SOCResourceConstants.ORE) <= b.getAmount(SOCResourceConstants.ORE))
+		&& (a.getAmount(SOCResourceConstants.SHEEP) <= b.getAmount(SOCResourceConstants.SHEEP))
+		&& (a.getAmount(SOCResourceConstants.WHEAT) <= b.getAmount(SOCResourceConstants.WHEAT))
+		&& (a.getAmount(SOCResourceConstants.WOOD) <= b.getAmount(SOCResourceConstants.WOOD))
+		&& (a.getAmount(SOCResourceConstants.UNKNOWN) <= b.getAmount(SOCResourceConstants.UNKNOWN)));
     }
 
     /**
@@ -281,14 +254,15 @@ public class SOCResourceSet implements Serializable, Cloneable
      */
     public boolean equals(Object anObject)
     {
-        if ((anObject instanceof SOCResourceSet) && (((SOCResourceSet) anObject).getAmount(SOCResourceConstants.CLAY) == resources[SOCResourceConstants.CLAY]) && (((SOCResourceSet) anObject).getAmount(SOCResourceConstants.ORE) == resources[SOCResourceConstants.ORE]) && (((SOCResourceSet) anObject).getAmount(SOCResourceConstants.SHEEP) == resources[SOCResourceConstants.SHEEP]) && (((SOCResourceSet) anObject).getAmount(SOCResourceConstants.WHEAT) == resources[SOCResourceConstants.WHEAT]) && (((SOCResourceSet) anObject).getAmount(SOCResourceConstants.WOOD) == resources[SOCResourceConstants.WOOD]) && (((SOCResourceSet) anObject).getAmount(SOCResourceConstants.UNKNOWN) == resources[SOCResourceConstants.UNKNOWN]))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return
+	    ((anObject instanceof SOCResourceSet)
+	     && (((SOCResourceSet) anObject).getAmount(CLAY) == resources[CLAY])
+	     && (((SOCResourceSet) anObject).getAmount(ORE) == resources[ORE])
+	     && (((SOCResourceSet) anObject).getAmount(SHEEP) == resources[SHEEP])	// int 
+
+	     && (((SOCResourceSet) anObject).getAmount(WHEAT) == resources[WHEAT])
+	     && (((SOCResourceSet) anObject).getAmount(WOOD) == resources[WOOD])
+	     && (((SOCResourceSet) anObject).getAmount(UNKNOWN) == resources[UNKNOWN]));
     }
 
     /**
@@ -296,7 +270,11 @@ public class SOCResourceSet implements Serializable, Cloneable
      */
     public int hashCode()
     {
-        return this.toString().hashCode();
+	int hc = 0;
+	// hc = this.toShortString().hashCode();
+	for (int i = MIN; i < MAXPLUSONE; i++)
+	    hc += (resources[i]<<(2*i));
+        return hc;
     }
 
     /**
@@ -315,13 +293,9 @@ public class SOCResourceSet implements Serializable, Cloneable
      *
      * @param set  the set to copy
      */
-    public void setAmounts(SOCResourceSet set)
+    public void setAmounts(SOCResourceSet rs)
     {
-        resources[SOCResourceConstants.CLAY] = set.getAmount(SOCResourceConstants.CLAY);
-        resources[SOCResourceConstants.ORE] = set.getAmount(SOCResourceConstants.ORE);
-        resources[SOCResourceConstants.SHEEP] = set.getAmount(SOCResourceConstants.SHEEP);
-        resources[SOCResourceConstants.WHEAT] = set.getAmount(SOCResourceConstants.WHEAT);
-        resources[SOCResourceConstants.WOOD] = set.getAmount(SOCResourceConstants.WOOD);
-        resources[SOCResourceConstants.UNKNOWN] = set.getAmount(SOCResourceConstants.UNKNOWN);
+	for (int i = MIN; i < MAXPLUSONE; i++)
+	    resources[i] = rs.getAmount(i);
     }
 }

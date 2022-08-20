@@ -57,10 +57,10 @@ class SOCMonopolyDialog extends Dialog implements ActionListener
 
         rsrcBut = new Button[5];
 
-        rsrcBut[0] = new Button("Clay");
-        rsrcBut[1] = new Button("Ore");
+        rsrcBut[0] = new Button("Ore");
+        rsrcBut[1] = new Button("Wheat");
         rsrcBut[2] = new Button("Sheep");
-        rsrcBut[3] = new Button("Wheat");
+        rsrcBut[3] = new Button("Clay");
         rsrcBut[4] = new Button("Wood");
 
         for (int i = 0; i < 5; i++)
@@ -134,7 +134,7 @@ class SOCMonopolyDialog extends Dialog implements ActionListener
             if (target == rsrcBut[i])
             {
                 /**
-                 * Note: This only works if SOCResourceConstants.CLAY == 1
+                 * Note: This only works if SOCResourceConstants.MIN == 1, MAX == 6
                  */
                 pi.getClient().monopolyPick(pi.getGame(), i + 1);
                 dispose();

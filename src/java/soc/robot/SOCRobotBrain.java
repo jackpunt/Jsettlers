@@ -628,8 +628,8 @@ public class SOCRobotBrain extends Thread
                             boolean[] offeredTo = ourCurrentOffer.getTo();
                             SOCResourceSet getSet = ourCurrentOffer.getGetSet();
 
-                            for (int rsrcType = SOCResourceConstants.CLAY;
-                                    rsrcType <= SOCResourceConstants.WOOD;
+                            for (int rsrcType = SOCResourceConstants.MIN;
+                                    rsrcType < SOCResourceConstants.MAX;
                                     rsrcType++)
                             {
                                 if (getSet.getAmount(rsrcType) > 0)
@@ -1032,21 +1032,28 @@ public class SOCRobotBrain extends Thread
                                 //
                                 // first convert known resources to unknown resources
                                 //
-                                rs.add(rs.getAmount(SOCResourceConstants.CLAY), SOCResourceConstants.UNKNOWN);
-                                rs.setAmount(0, SOCResourceConstants.CLAY);
-                                rs.add(rs.getAmount(SOCResourceConstants.ORE), SOCResourceConstants.UNKNOWN);
-                                rs.setAmount(0, SOCResourceConstants.ORE);
-                                rs.add(rs.getAmount(SOCResourceConstants.SHEEP), SOCResourceConstants.UNKNOWN);
-                                rs.setAmount(0, SOCResourceConstants.SHEEP);
-                                rs.add(rs.getAmount(SOCResourceConstants.WHEAT), SOCResourceConstants.UNKNOWN);
-                                rs.setAmount(0, SOCResourceConstants.WHEAT);
-                                rs.add(rs.getAmount(SOCResourceConstants.WOOD), SOCResourceConstants.UNKNOWN);
-                                rs.setAmount(0, SOCResourceConstants.WOOD);
+				int mv = ((SOCPlayerElement)mes).getValue();
+				for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++) {
+				    int ra = Math.min(rs.getAmount(i), mv);
+				    rs.subtract(ra, i); 
+				    rs.add(ra, SOCResourceConstants.UNKNOWN);
+				}
+
+//                                  rs.add(rs.getAmount(SOCResourceConstants.CLAY), SOCResourceConstants.UNKNOWN);
+//                                  rs.setAmount(0, SOCResourceConstants.CLAY);
+//                                  rs.add(rs.getAmount(SOCResourceConstants.ORE), SOCResourceConstants.UNKNOWN);
+//                                  rs.setAmount(0, SOCResourceConstants.ORE);
+//                                  rs.add(rs.getAmount(SOCResourceConstants.SHEEP), SOCResourceConstants.UNKNOWN);
+//                                  rs.setAmount(0, SOCResourceConstants.SHEEP);
+//                                  rs.add(rs.getAmount(SOCResourceConstants.WHEAT), SOCResourceConstants.UNKNOWN);
+//                                  rs.setAmount(0, SOCResourceConstants.WHEAT);
+//                                  rs.add(rs.getAmount(SOCResourceConstants.WOOD), SOCResourceConstants.UNKNOWN);
+//                                  rs.setAmount(0, SOCResourceConstants.WOOD);
 
                                 /**
                                  * then remove the unknown resources
                                  */
-                                pl.getResources().subtract(((SOCPlayerElement) mes).getValue(), SOCResourceConstants.UNKNOWN);
+                                pl.getResources().subtract(mv, SOCResourceConstants.UNKNOWN);
 
                                 break;
                             }
@@ -1150,8 +1157,8 @@ public class SOCRobotBrain extends Thread
                             ///
                             SOCResourceSet giveSet = offer.getGiveSet();
 
-                            for (int rsrcType = SOCResourceConstants.CLAY;
-                                    rsrcType <= SOCResourceConstants.WOOD;
+                            for (int rsrcType = SOCResourceConstants.MIN;
+                                    rsrcType < SOCResourceConstants.MAX;
                                     rsrcType++)
                             {
                                 if (giveSet.getAmount(rsrcType) > 0)
@@ -1167,8 +1174,8 @@ public class SOCRobotBrain extends Thread
                             ///
                             SOCResourceSet getSet = offer.getGetSet();
 
-                            for (int rsrcType = SOCResourceConstants.CLAY;
-                                    rsrcType <= SOCResourceConstants.WOOD;
+                            for (int rsrcType = SOCResourceConstants.MIN;
+                                    rsrcType < SOCResourceConstants.MAX;
                                     rsrcType++)
                             {
                                 if (getSet.getAmount(rsrcType) > 0)
@@ -1221,11 +1228,11 @@ public class SOCRobotBrain extends Thread
                             if (ourResponseToOffer >= 0)
                             {
                                 int delayLength = Math.abs(rand.nextInt() % 500) + 3500;
-                                pause(delayLength);
-
+				// pause(delayLength);
                                 switch (ourResponseToOffer)
                                 {
                                 case SOCRobotNegotiator.ACCEPT_OFFER:
+				    pause(delayLength);
                                     client.acceptOffer(game, offer.getFrom());
 
                                     ///
@@ -1237,7 +1244,7 @@ public class SOCRobotBrain extends Thread
                                     break;
 
                                 case SOCRobotNegotiator.REJECT_OFFER:
-
+				    pause(delayLength/3);
                                     if (!waitingForTradeResponse)
                                     {
                                         client.rejectOffer(game);
@@ -1246,7 +1253,7 @@ public class SOCRobotBrain extends Thread
                                     break;
 
                                 case SOCRobotNegotiator.COUNTER_OFFER:
-
+				    pause(delayLength);
                                     if (!makeCounterOffer(offer))
                                     {
                                         client.rejectOffer(game);
@@ -1287,8 +1294,8 @@ public class SOCRobotBrain extends Thread
                             ///
                             SOCResourceSet getSet = ourPlayerData.getCurrentOffer().getGetSet();
 
-                            for (int rsrcType = SOCResourceConstants.CLAY;
-                                    rsrcType <= SOCResourceConstants.WOOD;
+                            for (int rsrcType = SOCResourceConstants.MIN;
+                                    rsrcType < SOCResourceConstants.MAX;
                                     rsrcType++)
                             {
                                 if ((getSet.getAmount(rsrcType) > 0) && (!negotiator.wantsAnotherOffer(rejector, rsrcType)))
@@ -1346,8 +1353,8 @@ public class SOCRobotBrain extends Thread
                                         //
                                         SOCResourceSet getSet = offer.getGetSet();
 
-                                        for (int rsrcType = SOCResourceConstants.CLAY;
-                                                rsrcType <= SOCResourceConstants.WOOD;
+                                        for (int rsrcType = SOCResourceConstants.MIN;
+                                                rsrcType < SOCResourceConstants.MAX;
                                                 rsrcType++)
                                         {
                                             if ((getSet.getAmount(rsrcType) > 0) && (!negotiator.wantsAnotherOffer(rejector, rsrcType)))
@@ -1707,8 +1714,8 @@ public class SOCRobotBrain extends Thread
                                             SOCResourceSet ourResources = ourPlayerData.getResources();
                                             int numNeededResources = 0;
 
-                                            for (int resource = SOCResourceConstants.CLAY;
-                                                    resource <= SOCResourceConstants.WOOD;
+                                            for (int resource = SOCResourceConstants.MIN;
+                                                    resource < SOCResourceConstants.MAX;
                                                     resource++)
                                             {
                                                 int diff = targetResources.getAmount(resource) - ourResources.getAmount(resource);
@@ -2512,7 +2519,7 @@ public class SOCRobotBrain extends Thread
         SOCPlayerNumbers playerNumbers = new SOCPlayerNumbers();
         int probTotal;
         int bestProbTotal;
-        boolean[] ports = new boolean[SOCBoard.WOOD_PORT + 1];
+        boolean[] ports = new boolean[SOCBoard.MAX_PORT + 1];
         SOCBuildingSpeedEstimate estimate = new SOCBuildingSpeedEstimate();
         int[] prob = SOCNumberProbabilities.INT_VALUES;
 
@@ -2547,8 +2554,8 @@ public class SOCRobotBrain extends Thread
                 D.ebugPrintln("]");
                 D.ebugPrint("ports: ");
 
-                for (int portType = SOCBoard.MISC_PORT;
-                        portType <= SOCBoard.WOOD_PORT; portType++)
+                for (int portType = SOCBoard.MIN_PORT;
+                        portType <= SOCBoard.MAX_PORT; portType++)
                 {
                     if (board.getPortCoordinates(portType).contains(firstNodeInt))
                     {
@@ -2635,8 +2642,8 @@ public class SOCRobotBrain extends Thread
                          */
                         D.ebugPrint("ports: ");
 
-                        for (int portType = SOCBoard.MISC_PORT;
-                                portType <= SOCBoard.WOOD_PORT; portType++)
+                        for (int portType = SOCBoard.MIN_PORT;
+                                portType <= SOCBoard.MAX_PORT; portType++)
                         {
                             if ((board.getPortCoordinates(portType).contains(firstNodeInt)) || (board.getPortCoordinates(portType).contains(secondNodeInt)))
                             {
@@ -2741,7 +2748,7 @@ public class SOCRobotBrain extends Thread
 
         Integer firstSettlementInt = new Integer(firstSettlement);
 
-        for (int portType = SOCBoard.MISC_PORT; portType <= SOCBoard.WOOD_PORT;
+        for (int portType = SOCBoard.MIN_PORT; portType <= SOCBoard.MAX_PORT;
                 portType++)
         {
             if (board.getPortCoordinates(portType).contains(firstSettlementInt))
@@ -2808,7 +2815,7 @@ public class SOCRobotBrain extends Thread
 
         Integer secondSettlementInt = new Integer(secondSettlement);
 
-        for (int portType = SOCBoard.MISC_PORT; portType <= SOCBoard.WOOD_PORT;
+        for (int portType = SOCBoard.MIN_PORT; portType <= SOCBoard.MAX_PORT;
                 portType++)
         {
             if (board.getPortCoordinates(portType).contains(secondSettlementInt))
@@ -2882,7 +2889,7 @@ public class SOCRobotBrain extends Thread
         SOCBoard board = game.getBoard();
         SOCResourceSet emptySet = new SOCResourceSet();
         SOCPlayerNumbers playerNumbers = new SOCPlayerNumbers();
-        boolean[] ports = new boolean[SOCBoard.WOOD_PORT + 1];
+        boolean[] ports = new boolean[SOCBoard.MAX_PORT + 1];
         SOCBuildingSpeedEstimate estimate = new SOCBuildingSpeedEstimate();
         int probTotal;
         int bestProbTotal;
@@ -2936,7 +2943,7 @@ public class SOCRobotBrain extends Thread
                 D.ebugPrint("ports: ");
 
                 for (int portType = SOCBoard.MISC_PORT;
-                        portType <= SOCBoard.WOOD_PORT; portType++)
+                        portType <= SOCBoard.MAX_PORT; portType++)
                 {
                     if ((board.getPortCoordinates(portType).contains(firstNodeInt)) || (board.getPortCoordinates(portType).contains(secondNodeInt)))
                     {
@@ -3161,8 +3168,8 @@ public class SOCRobotBrain extends Thread
                 /**
                  * check out good 2:1 ports
                  */
-                for (int portType = SOCBoard.CLAY_PORT;
-                        portType <= SOCBoard.WOOD_PORT; portType++)
+                for (int portType = SOCBoard.MIN_PORT;
+                        portType <= SOCBoard.MAX_PORT; portType++)
                 {
                     /**
                      * if the chances of rolling a number on the resource is better than 1/3,
@@ -3228,11 +3235,11 @@ public class SOCRobotBrain extends Thread
          * Find the best scoring node
          */
         BoardNodeScorePair bestNodePair = new BoardNodeScorePair(0, 0);
-        Enumeration enum = twoAway.keys();
+        Enumeration enumr = twoAway.keys();
 
-        while (enum.hasMoreElements())
+        while (enumr.hasMoreElements())
         {
-            Integer coord = (Integer) enum.nextElement();
+            Integer coord = (Integer) enumr.nextElement();
             Integer score = (Integer) twoAway.get(coord);
 
             D.ebugPrintln("Considering " + Integer.toHexString(coord.intValue()) + " with a score of " + score);
@@ -3316,7 +3323,7 @@ public class SOCRobotBrain extends Thread
 
             resourceEstimates[0] = 0;
 
-            // look at each hex
+            // look at each land hex (ignore ports)
             for (int i = 0; i < 37; i++)
             {
                 int hexNumber = board.getNumberOnHexFromNumber(i);
@@ -3733,8 +3740,8 @@ public class SOCRobotBrain extends Thread
              */
             SOCResourceSet leftOvers = ourPlayerData.getResources().copy();
 
-            for (int rsrc = SOCResourceConstants.CLAY;
-                    rsrc <= SOCResourceConstants.WOOD; rsrc++)
+            for (int rsrc = SOCResourceConstants.MIN;
+                    rsrc < SOCResourceConstants.MAX; rsrc++)
             {
                 if (leftOvers.getAmount(rsrc) > targetResources.getAmount(rsrc))
                 {
@@ -3764,6 +3771,7 @@ public class SOCRobotBrain extends Thread
                 SOCResourceConstants.WOOD
             };
 
+	    // sort resourceOrder by rollsPerResource:
             for (int j = 4; j >= 0; j--)
             {
                 for (int i = 0; i < j; i++)
@@ -3835,8 +3843,9 @@ public class SOCRobotBrain extends Thread
             int cnt = 0;
 
             // System.err.println("resources="+ourPlayerData.getResources());
-            for (int rsrcType = SOCResourceConstants.CLAY;
-                    rsrcType <= SOCResourceConstants.WOOD; rsrcType++)
+            for (int rsrcType = SOCResourceConstants.MIN;
+                    rsrcType < SOCResourceConstants.MAX;
+		    rsrcType++)
             {
                 for (int i = ourPlayerData.getResources().getAmount(rsrcType);
                         i != 0; i--)
@@ -3853,7 +3862,7 @@ public class SOCRobotBrain extends Thread
             for (; numDiscards > 0; numDiscards--)
             {
                 // System.err.println("numDiscards="+numDiscards+"|hand.size="+hand.size());
-                int idx = Math.abs(rand.nextInt() % hand.size());
+		int idx = rand.nextInt(hand.size());
 
                 // System.err.println("idx="+idx);
                 discards.add(1, ((Integer) hand.elementAt(idx)).intValue());
@@ -3861,8 +3870,8 @@ public class SOCRobotBrain extends Thread
             }
         }
 
-        //D.ebugPrintln("!!! DISCARDING !!!");
-        //D.ebugPrintln("discards="+discards);
+        D.ebugPrintln("!!! DISCARDING !!!");
+        D.ebugPrintln("discards="+discards);
         client.discard(game, discards);
     }
 
@@ -4032,7 +4041,7 @@ public class SOCRobotBrain extends Thread
          */
         int[] resourceEstimates = estimateResourceRarity();
 
-        for (int portType = SOCBoard.CLAY_PORT; portType <= SOCBoard.WOOD_PORT;
+        for (int portType = SOCBoard.MIN_PORT; portType <= SOCBoard.MAX_PORT;
                 portType++)
         {
             /**
@@ -4143,8 +4152,7 @@ public class SOCRobotBrain extends Thread
             /**
              * get rid of the negative numbers
              */
-            for (int rt = SOCResourceConstants.CLAY;
-                    rt <= SOCResourceConstants.WOOD; rt++)
+            for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++)
             {
                 if (give.getAmount(rt) < 0)
                 {
@@ -4183,8 +4191,8 @@ public class SOCRobotBrain extends Thread
          * go through the resources one by one, and generate all possible
          * resource sets that result from trading that type of resource
          */
-        for (int giveResource = SOCResourceConstants.CLAY;
-                giveResource <= SOCResourceConstants.WOOD; giveResource++)
+        for (int giveResource = SOCResourceConstants.MIN;
+                giveResource < SOCResourceConstants.MAX; giveResource++)
         {
             /**
              * find the ratio at which we can trade
@@ -4213,8 +4221,8 @@ public class SOCRobotBrain extends Thread
                  * trade the resource that we're looking at for one
                  * of every other resource
                  */
-                for (int getResource = SOCResourceConstants.CLAY;
-                        getResource <= SOCResourceConstants.WOOD;
+                for (int getResource = SOCResourceConstants.MIN;
+                        getResource < SOCResourceConstants.MAX;
                         getResource++)
                 {
                     if (getResource != giveResource)
@@ -4441,8 +4449,8 @@ public class SOCRobotBrain extends Thread
         {
             int mostNeededResource = -1;
 
-            for (int resource = SOCResourceConstants.CLAY;
-                    resource <= SOCResourceConstants.WOOD; resource++)
+            for (int resource = SOCResourceConstants.MIN;
+                    resource < SOCResourceConstants.MAX; resource++)
             {
                 if (rsCopy.getAmount(resource) < targetResources.getAmount(resource))
                 {
@@ -4474,8 +4482,8 @@ public class SOCRobotBrain extends Thread
         int bestResourceCount = 0;
         int bestResource = 0;
 
-        for (int resource = SOCResourceConstants.CLAY;
-                resource <= SOCResourceConstants.WOOD; resource++)
+        for (int resource = SOCResourceConstants.MIN;
+                resource < SOCResourceConstants.MAX; resource++)
         {
             //D.ebugPrintln("$$ resource="+resource);
             int freeResourceCount = 0;

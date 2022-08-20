@@ -23,6 +23,7 @@ package soc.client;
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
 import soc.game.SOCResourceSet;
+import soc.game.SOCResourceConstants;
 import soc.game.SOCTradeOffer;
 
 import java.awt.Button;
@@ -323,12 +324,12 @@ public class TradeOfferPanel extends Panel
             toWhom2.setText(names2);
 
             /**
-             * Note: this only works if SOCResourceConstants.CLAY == 1
+             * Note: this only works if SOCResourceConstants.MIN == 1, MAX==6
              */
             for (int i = 0; i < 5; i++)
             {
-                giveInt[i] = give.getAmount(i + 1);
-                getInt[i] = get.getAmount(i + 1);
+                giveInt[i] = give.getAmount(i + 1); // i+MIN
+                getInt[i] = get.getAmount(i + 1); // i+MIN
             }
             squares.setValues(giveInt, getInt);
 
@@ -376,8 +377,8 @@ public class TradeOfferPanel extends Panel
                 clearBut.setBounds(inset + 5 + buttonW, top + 12 + (2 * squaresHeight), buttonW, buttonH);
                 cancelBut.setBounds(inset + (2 * (5 + buttonW)), top + 12 + (2 * squaresHeight), buttonW, buttonH);
 
-                balloon.setBounds(0, 0, w, h);
                 offerBox.setBounds(0, top + 22 + squaresHeight, w, squaresHeight + 15);
+                balloon.setBounds(0, 0, w, h);
             }
             else
             {
@@ -386,17 +387,17 @@ public class TradeOfferPanel extends Panel
                 int buttonW = 48;
                 int buttonH = 18;
 
-                toWhom1.setBounds(inset, top, w - 20, 14);
-                toWhom2.setBounds(inset, top + 14, w - 20, 14);
-                giveLab.setBounds(inset, top + 32, giveW, lineH);
-                getLab.setBounds(inset, top + 32 + lineH, giveW, lineH);
+                toWhom1.setBounds(inset, top, w - 20, 14); // first line of names
+                toWhom2.setBounds(inset, top + 14, w - 20, 14);	// second line of names
+                giveLab.setBounds(inset, top + 32, giveW, lineH); // I Give: X X X X X
+                getLab.setBounds(inset, top + 32 + lineH, giveW, lineH); // I Get: X X X X X
                 squares.setLocation(inset + giveW, top + 32);
                 squares.doLayout();
                 
                 if (offered)
                 {
                     int squaresHeight = squares.getBounds().height + 8;
-                    acceptBut.setBounds(inset, top + 32 + squaresHeight, buttonW, buttonH);
+                    acceptBut.setBounds(inset, top + 32 + squaresHeight, buttonW, buttonH); // Button
                     rejectBut.setBounds(inset + 5 + buttonW, top + 32 + squaresHeight, buttonW, buttonH);
                     offerBut.setBounds(inset + (2 * (5 + buttonW)), top + 32 + squaresHeight, buttonW, buttonH);
                 }
@@ -441,8 +442,17 @@ public class TradeOfferPanel extends Panel
                         getSum += get[i];
                     }
 
-                    SOCResourceSet giveSet = new SOCResourceSet(give[0], give[1], give[2], give[3], give[4], 0);
-                    SOCResourceSet getSet = new SOCResourceSet(get[0], get[1], get[2], get[3], get[4], 0);
+		    int m1 = - SOCResourceConstants.MIN;
+		    SOCResourceSet giveSet = new SOCResourceSet(give[m1+SOCResourceConstants.CLAY],
+								give[m1+SOCResourceConstants.ORE],
+								give[m1+SOCResourceConstants.SHEEP],
+								give[m1+SOCResourceConstants.WHEAT],
+								give[m1+SOCResourceConstants.WOOD], 0);
+		    SOCResourceSet getSet = new SOCResourceSet(get[m1+SOCResourceConstants.CLAY],
+							       get[m1+SOCResourceConstants.ORE],
+							       get[m1+SOCResourceConstants.SHEEP],
+							       get[m1+SOCResourceConstants.WHEAT],
+							       get[m1+SOCResourceConstants.WOOD], 0);
                     
                     if (!player.getResources().contains(giveSet))
                     {

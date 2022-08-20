@@ -160,7 +160,7 @@ public class SOCPossibleSettlement extends SOCPossiblePiece
            D.ebugPrint("PFLAGS:");
            boolean portFlags[] = player.getPortFlags();
            if (D.ebugOn) {
-             for (int port = SOCBoard.MISC_PORT; port <= SOCBoard.WOOD_PORT; port++) {
+             for (int port = SOCBoard.MISC_PORT; port <= SOCBoard.MAX_PORT; port++) {
                D.ebugPrint(portFlags[port]+",");
              }
            }
@@ -179,8 +179,8 @@ public class SOCPossibleSettlement extends SOCPossiblePiece
            //  get new ports
            //
            Integer coordInteger = new Integer(this.getCoordinates());
-           boolean newPortFlags[] = new boolean[SOCBoard.WOOD_PORT+1];
-           for (int port = SOCBoard.MISC_PORT; port <= SOCBoard.WOOD_PORT; port++) {
+           boolean newPortFlags[] = new boolean[SOCBoard.MAX_PORT+1];
+           for (int port = SOCBoard.MISC_PORT; port <= SOCBoard.MAX_PORT; port++) {
              newPortFlags[port] = player.getPortFlag(port);
              if (player.getGame().getBoard().getPortCoordinates(port).contains(coordInteger)) {
                newPortFlags[port] = true;

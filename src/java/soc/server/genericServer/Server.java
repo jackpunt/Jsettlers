@@ -238,50 +238,41 @@ public abstract class Server extends Thread implements Serializable, Cloneable
             svr = s;
         }
 
-        public void run()
-        {
-            while (svr.isUp())
-            {
+        public void run() {
+            while (svr.isUp()) {
                 //D.ebugPrintln("treater server is up");
                 Command c = null;
 
-                synchronized (inQueue)
-                {
-                    if (inQueue.size() > 0)
-                    {
+                synchronized (inQueue) {
+//  		    while (inQueue.size() <= 0) {
+//  			try {
+//  			    inQueue.wait(1000);
+//  			} catch (InterruptedException ex) {}
+//  		    }
+                    if (inQueue.size() > 0) {
                         //D.ebugPrintln("treater getting command");
                         c = (Command) inQueue.elementAt(0);
                         inQueue.removeElementAt(0);
                     }
                 }
 
-                try
-                {
-                    if (c != null)
-                    {
+                try {
+                    if (c != null) {
                         svr.processCommand(c.str, c.con);
                     }
-                }
-                catch (Exception e)
-                {
+                } catch (Exception e) {
                     System.out.println("Exception in treater (processCommand) - " + e);
                 }
 
                 yield();
 
-                synchronized (inQueue)
-                {
-                    if (inQueue.size() == 0)
-                    {
-                        try
-                        {
+		// hokey NO-OP!
+                synchronized (inQueue) {
+                    if (inQueue.size() == 0) {
+			try {
                             //D.ebugPrintln("treater waiting");
                             inQueue.wait(1000);
-                        }
-                        catch (Exception ex)
-                        {
-                            ;
-                        }
+                        } catch (Exception ex) {}
                     }
                 }
             }

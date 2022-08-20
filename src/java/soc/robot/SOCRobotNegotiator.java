@@ -20,7 +20,7 @@
  **/
 package soc.robot;
 
-import soc.disableDebug.D;
+import soc.disableDebug.D;		// isableD
 
 import soc.game.SOCBoard;
 import soc.game.SOCGame;
@@ -145,8 +145,8 @@ public class SOCRobotNegotiator
     {
         D.ebugPrintln("*** resetIsSelling (true for every resource the player has) ***");
 
-        for (int rsrcType = SOCResourceConstants.CLAY;
-                rsrcType <= SOCResourceConstants.WOOD; rsrcType++)
+        for (int rsrcType = SOCResourceConstants.MIN;
+                rsrcType < SOCResourceConstants.MAX; rsrcType++)
         {
             for (int pn = 0; pn < SOCGame.MAXPLAYERS; pn++)
             {
@@ -165,8 +165,8 @@ public class SOCRobotNegotiator
     {
         D.ebugPrintln("*** resetWantsAnotherOffer (all false) ***");
 
-        for (int rsrcType = SOCResourceConstants.CLAY;
-                rsrcType <= SOCResourceConstants.WOOD; rsrcType++)
+        for (int rsrcType = SOCResourceConstants.MIN;
+                rsrcType < SOCResourceConstants.MAX; rsrcType++)
         {
             for (int pn = 0; pn < SOCGame.MAXPLAYERS; pn++)
             {
@@ -323,8 +323,8 @@ public class SOCRobotNegotiator
         int neededRsrcCount = 0;
         int notNeededRsrcCount = 0;
 
-        for (int rsrcType = SOCResourceConstants.CLAY;
-                rsrcType <= SOCResourceConstants.WOOD; rsrcType++)
+        for (int rsrcType = SOCResourceConstants.MIN;
+                rsrcType < SOCResourceConstants.MAX; rsrcType++)
         {
             if (targetResources.getAmount(rsrcType) > 0)
             {
@@ -391,8 +391,8 @@ public class SOCRobotNegotiator
         ///
         boolean[] someoneIsSellingResource = new boolean[SOCResourceConstants.MAXPLUSONE];
 
-        for (int rsrcType = SOCResourceConstants.CLAY;
-                rsrcType <= SOCResourceConstants.WOOD; rsrcType++)
+        for (int rsrcType = SOCResourceConstants.MIN;
+                rsrcType < SOCResourceConstants.MAX; rsrcType++)
         {
             someoneIsSellingResource[rsrcType] = false;
 
@@ -465,13 +465,15 @@ public class SOCRobotNegotiator
 
                 while ((giveRsrcIdx1 < neededRsrcCount) && (offer == null))
                 {
-                    D.ebugPrintln("*** ourResources.getAmount(" + neededRsrc[giveRsrcIdx1] + ") = " + ourResources.getAmount(neededRsrc[giveRsrcIdx1]));
-                    D.ebugPrintln("*** targetResources.getAmount(" + neededRsrc[giveRsrcIdx1] + ") = " + targetResources.getAmount(neededRsrc[giveRsrcIdx1]));
+		    int nr1 = neededRsrc[giveRsrcIdx1];
 
-                    if ((ourResources.getAmount(neededRsrc[giveRsrcIdx1]) > targetResources.getAmount(neededRsrc[giveRsrcIdx1])) && (neededRsrc[giveRsrcIdx1] != neededRsrc[getRsrcIdx]))
+                    D.ebugPrintln("*** ourResources.getAmount(" + nr1 + ") = " + ourResources.getAmount(nr1));
+                    D.ebugPrintln("*** targetResources.getAmount(" + nr1 + ") = " + targetResources.getAmount(nr1));
+
+                    if ((ourResources.getAmount(nr1) > targetResources.getAmount(nr1)) && (nr1 != neededRsrc[getRsrcIdx]))
                     {
                         giveResourceSet.clear();
-                        giveResourceSet.add(1, neededRsrc[giveRsrcIdx1]);
+                        giveResourceSet.add(1, nr1);
 
                         ///
                         /// make sure the offer is better than our BATNA
@@ -1649,8 +1651,8 @@ public class SOCRobotNegotiator
         int neededRsrcCount = 0;
         int notNeededRsrcCount = 0;
 
-        for (int rsrcType = SOCResourceConstants.CLAY;
-                rsrcType <= SOCResourceConstants.WOOD; rsrcType++)
+        for (int rsrcType = SOCResourceConstants.MIN;
+                rsrcType < SOCResourceConstants.MAX; rsrcType++)
         {
             if (targetResources.getAmount(rsrcType) > 0)
             {
@@ -2284,8 +2286,8 @@ public class SOCRobotNegotiator
         int neededRsrcCount = 0;
         int notNeededRsrcCount = 0;
 
-        for (int rsrcType = SOCResourceConstants.CLAY;
-                rsrcType <= SOCResourceConstants.WOOD; rsrcType++)
+        for (int rsrcType = SOCResourceConstants.MIN;
+                rsrcType < SOCResourceConstants.MAX; rsrcType++)
         {
             if (targetResources.getAmount(rsrcType) > 0)
             {

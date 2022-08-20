@@ -31,12 +31,21 @@ public interface SOCResourceConstants
      * Warning: Don't mess with these constants, other pieces
      *          of code depend on these numbers staying like this.
      */
-    public static final int CLAY = 1;
-    public static final int ORE = 2;
-    public static final int SHEEP = 3;
-    public static final int WHEAT = 4;
-    public static final int WOOD = 5;
-    public static final int UNKNOWN = 6;
+
+    /** printable names for each resource. */
+    public static final String[] names = {"ore","wheat","sheep","clay","wood","unknown"};
+
     public static final int MIN = 1;
+    public static final int ORE = 1; // names.indexOf("ore");
+    public static final int WHEAT = 2; // name.indexOf("wheat");
+    public static final int SHEEP = 3;
+    public static final int CLAY = 4;
+    public static final int WOOD = 5;
+    public static final int MAX = 6;
+    public static final int UNKNOWN = 6;
     public static final int MAXPLUSONE = 7;
+    /** index list in original/canonnical order.
+     * this order is used by arglist, and toString/parsers
+     */
+    public static final int[] order = {CLAY,ORE,SHEEP,WHEAT,WOOD};
 }

@@ -163,7 +163,7 @@ public class SnippingTextArea extends TextArea
     {
         super.append(newString);
         lines += countLines(newString);
-        snipText();
+	if (lines > maximumLines) snipText();
     }
 
     /////////////////////////////////////////////////// SNIPPING
@@ -189,14 +189,17 @@ public class SnippingTextArea extends TextArea
     public void snipText()
     {
         // //D.ebugPrintln("LINES = "+lines);
-        while (lines > maximumLines)
-        {
-            String s = getText();
-            super.replaceRange("", 0, s.indexOf('\n') + 1);
-            lines--;
-        }
-
-        super.setCaretPosition(getText().length());
+	String s = getText();
+	int nd = s.length();
+	for (lines = 0; lines<maximumLines; lines++) {
+	    int ind = s.lastIndexOf('\n',nd-1);
+	    if (ind < 0) break;
+	    nd = ind;
+	}
+	super.replaceRange("",0,nd+1);
+        super.setCaretPosition(s.length());
+	repaint();
+	// vscrollBar.setValue(vscrollBar.getMaximum());
     }
 }
 

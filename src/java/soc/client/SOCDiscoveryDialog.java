@@ -21,6 +21,7 @@
 package soc.client;
 
 import soc.game.SOCResourceSet;
+import soc.game.SOCResourceConstants;
 
 import java.awt.Button;
 import java.awt.Color;
@@ -70,14 +71,9 @@ class SOCDiscoveryDialog extends Dialog implements ActionListener
         clearBut.addActionListener(this);
 
         rsrc = new ColorSquare[5];
-        rsrc[0] = new ColorSquare(ColorSquare.BOUNDED_INC, true, ColorSquare.CLAY, 2, 0);
-        rsrc[1] = new ColorSquare(ColorSquare.BOUNDED_INC, true, ColorSquare.ORE, 2, 0);
-        rsrc[2] = new ColorSquare(ColorSquare.BOUNDED_INC, true, ColorSquare.SHEEP, 2, 0);
-        rsrc[3] = new ColorSquare(ColorSquare.BOUNDED_INC, true, ColorSquare.WHEAT, 2, 0);
-        rsrc[4] = new ColorSquare(ColorSquare.BOUNDED_INC, true, ColorSquare.WOOD, 2, 0);
-
         for (int i = 0; i < 5; i++)
         {
+	    rsrc[i] = new ColorSquare(ColorSquare.BOUNDED_INC, true, ColorSquare.RES_COLORS[i], 2, 0);
             add(rsrc[i]);
         }
     }
@@ -148,7 +144,10 @@ class SOCDiscoveryDialog extends Dialog implements ActionListener
                 rsrc[i].setLocation((i * sqspace) + ((width - ((3 * sqspace) + (4 * sqwidth))) / 2), rsrcY);
             }
         }
-        catch (NullPointerException e) {}
+        catch (NullPointerException e) {
+	    System.err.println(e);
+	    e.printStackTrace(System.err);
+	}
     }
 
     /**
@@ -174,7 +173,12 @@ class SOCDiscoveryDialog extends Dialog implements ActionListener
 
             if (sum == 2)
             {
-                SOCResourceSet resources = new SOCResourceSet(rsrcCnt[0], rsrcCnt[1], rsrcCnt[2], rsrcCnt[3], rsrcCnt[4], 0);
+		int m1 = -SOCResourceConstants.MIN;
+                SOCResourceSet resources = new SOCResourceSet(rsrcCnt[m1+SOCResourceConstants.CLAY],
+							      rsrcCnt[m1+SOCResourceConstants.ORE],
+							      rsrcCnt[m1+SOCResourceConstants.SHEEP],
+							      rsrcCnt[m1+SOCResourceConstants.WHEAT],
+							      rsrcCnt[m1+SOCResourceConstants.WOOD], 0);
                 pi.getClient().discoveryPick(pi.getGame(), resources);
                 dispose();
             }

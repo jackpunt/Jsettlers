@@ -241,9 +241,9 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         robotFlag = player.robotFlag;
         faceId = player.faceId;
         ourNumbers = new SOCPlayerNumbers(player.ourNumbers);
-        ports = new boolean[SOCBoard.WOOD_PORT + 1];
+        ports = new boolean[SOCBoard.MAX_PORT + 1];
 
-        for (i = SOCBoard.MISC_PORT; i <= SOCBoard.WOOD_PORT; i++)
+        for (i = SOCBoard.MISC_PORT; i <= SOCBoard.MAX_PORT; i++)
         {
             ports[i] = player.ports[i];
         }
@@ -326,9 +326,9 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         ourNumbers = new SOCPlayerNumbers();
 
         // buildingSpeed = new SOCBuildingSpeedEstimate(this);
-        ports = new boolean[SOCBoard.WOOD_PORT + 1];
+        ports = new boolean[SOCBoard.MAX_PORT + 1];
 
-        for (i = SOCBoard.MISC_PORT; i <= SOCBoard.WOOD_PORT; i++)
+        for (i = SOCBoard.MISC_PORT; i <= SOCBoard.MAX_PORT; i++)
         {
             ports[i] = false;
         }
@@ -701,11 +701,11 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     {
         lrPaths.removeAllElements();
 
-        Enumeration enum = vec.elements();
+        Enumeration enumr = vec.elements();
 
-        while (enum.hasMoreElements())
+        while (enumr.hasMoreElements())
         {
-            SOCLRPathData pd = (SOCLRPathData) enum.nextElement();
+            SOCLRPathData pd = (SOCLRPathData) enumr.nextElement();
             D.ebugPrintln("restoring pd for player " + playerNumber + " :" + pd);
             lrPaths.addElement(pd);
         }
@@ -950,7 +950,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
                 Integer coordInteger = new Integer(piece.getCoordinates());
 
                 for (int portType = SOCBoard.MISC_PORT;
-                        portType <= SOCBoard.WOOD_PORT; portType++)
+                        portType <= SOCBoard.MAX_PORT; portType++)
                 {
                     if (game.getBoard().getPortCoordinates(portType).contains(coordInteger))
                     {
@@ -1062,7 +1062,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
                 Integer coordInteger = new Integer(piece.getCoordinates());
 
                 for (int portType = SOCBoard.MISC_PORT;
-                        portType <= SOCBoard.WOOD_PORT; portType++)
+                        portType <= SOCBoard.MAX_PORT; portType++)
                 {
                     if (game.getBoard().getPortCoordinates(portType).contains(coordInteger))
                     {
@@ -1763,11 +1763,11 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     {
         clearPotentialSettlements();
 
-        Enumeration enum = psList.elements();
+        Enumeration enumr = psList.elements();
 
-        while (enum.hasMoreElements())
+        while (enumr.hasMoreElements())
         {
-            Integer number = (Integer) enum.nextElement();
+            Integer number = (Integer) enumr.nextElement();
             potentialSettlements[number.intValue()] = true;
         }
     }
@@ -2264,12 +2264,13 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
          * copy the resources
          */
         SOCResourceSet copyResources = copy.getResources();
+	copyResources.setAmounts(resources);
+//          for (int rType = SOCResourceConstants.MIN;
+//                  rType <= SOCResourceConstants.UNKNOWN; rType++)
+//          {
+//              copyResources.setAmount(resources.getAmount(rType), rType);
+//          }
 
-        for (int rType = SOCResourceConstants.CLAY;
-                rType <= SOCResourceConstants.UNKNOWN; rType++)
-        {
-            copyResources.setAmount(resources.getAmount(rType), rType);
-        }
 
         /**
          * copy the dev cards
@@ -2291,7 +2292,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         /**
          * copy port flags
          */
-        for (int port = SOCBoard.MISC_PORT; port <= SOCBoard.WOOD_PORT;
+        for (int port = SOCBoard.MISC_PORT; port <= SOCBoard.MAX_PORT;
                 port++)
         {
             copy.setPortFlag(port, ports[port]);

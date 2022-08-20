@@ -46,6 +46,9 @@ public class ColorSquare extends Canvas implements MouseListener
     public final static Color WHEAT = new Color(204, 204, 51);
     public final static Color WOOD = new Color(204, 153, 102);
     public final static Color GREY = new Color(204, 204, 204);
+    /** colors in order of SOCResourceConstants: */
+    public final static Color[] RES_COLORS = {ORE,WHEAT,SHEEP,CLAY,WOOD,GREY};
+
     public final static int NUMBER = 0;
     public final static int YES_NO = 1;
     public final static int CHECKBOX = 2;

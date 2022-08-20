@@ -1572,25 +1572,27 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             dice = new Image[14];
 
-            hexes[0] = tk.getImage(clazz.getResource(IMAGEDIR + "/desertHex.gif"));
-            hexes[1] = tk.getImage(clazz.getResource(IMAGEDIR + "/clayHex.gif"));
-            hexes[2] = tk.getImage(clazz.getResource(IMAGEDIR + "/oreHex.gif"));
-            hexes[3] = tk.getImage(clazz.getResource(IMAGEDIR + "/sheepHex.gif"));
-            hexes[4] = tk.getImage(clazz.getResource(IMAGEDIR + "/wheatHex.gif"));
-            hexes[5] = tk.getImage(clazz.getResource(IMAGEDIR + "/woodHex.gif"));
-            hexes[6] = tk.getImage(clazz.getResource(IMAGEDIR + "/waterHex.gif"));
+            hexes[SOCBoard.DESERT_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/desertHex.gif"));
+            hexes[SOCBoard. CLAY_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/clayHex.gif"));
+            hexes[SOCBoard.  ORE_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/oreHex.gif"));
+            hexes[SOCBoard.SHEEP_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/sheepHex.gif"));
+            hexes[SOCBoard.WHEAT_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/wheatHex.gif"));
+            hexes[SOCBoard. WOOD_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/woodHex.gif"));
+            hexes[SOCBoard.WATER_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/waterHex.gif"));
 
             for (int i = 0; i < 7; i++)
             {
                 tracker.addImage(hexes[i], 0);
             }
 
+	    // generic 3:1 Misc Port tile:
             for (int i = 0; i < 6; i++)
             {
                 hexes[i + 7] = tk.getImage(clazz.getResource(IMAGEDIR + "/miscPort" + i + ".gif"));
                 tracker.addImage(hexes[i + 7], 0);
             }
 
+	    // untyped resource port tile:
             for (int i = 0; i < 6; i++)
             {
                 ports[i + 1] = tk.getImage(clazz.getResource(IMAGEDIR + "/port" + i + ".gif"));

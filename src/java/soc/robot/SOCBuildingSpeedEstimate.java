@@ -63,7 +63,7 @@ public class SOCBuildingSpeedEstimate
     {
         estimatesFromNothing = new int[MAXPLUSONE];
         estimatesFromNow = new int[MAXPLUSONE];
-        rollsPerResource = new int[SOCResourceConstants.WOOD + 1];
+        rollsPerResource = new int[SOCResourceConstants.MAX];
         recalculateRollsPerResource(numbers);
         resourcesForRoll = new SOCResourceSet[13];
         recalculateResourcesForRoll(numbers);
@@ -76,7 +76,7 @@ public class SOCBuildingSpeedEstimate
     {
         estimatesFromNothing = new int[MAXPLUSONE];
         estimatesFromNow = new int[MAXPLUSONE];
-        rollsPerResource = new int[SOCResourceConstants.WOOD + 1];
+        rollsPerResource = new int[SOCResourceConstants.MAX];
         resourcesForRoll = new SOCResourceSet[13];
     }
 
@@ -265,8 +265,7 @@ public class SOCBuildingSpeedEstimate
         /**
          * figure out how many resources we get per roll
          */
-        for (int resource = SOCResourceConstants.CLAY;
-                resource <= SOCResourceConstants.WOOD; resource++)
+        for (int resource = SOCResourceConstants.MIN; resource < SOCResourceConstants.MAX; resource++)
         {
             //D.ebugPrintln("resource: "+resource);
             float totalProbability = 0.0f;
@@ -309,8 +308,9 @@ public class SOCBuildingSpeedEstimate
         /**
          * figure out how many resources we get per roll
          */
-        for (int resource = SOCResourceConstants.CLAY;
-                resource <= SOCResourceConstants.WOOD; resource++)
+        for (int resource = SOCResourceConstants.MIN;
+	         resource < SOCResourceConstants.MAX;
+	         resource++)
         {
             D.ebugPrintln("resource: " + resource);
 
@@ -461,9 +461,9 @@ public class SOCBuildingSpeedEstimate
             /**
              * do any possible trading with the bank/ports
              */
-            for (int giveResource = SOCResourceConstants.CLAY;
-                    giveResource <= SOCResourceConstants.WOOD;
-                    giveResource++)
+            for (int giveResource = SOCResourceConstants.MIN;
+		     giveResource < SOCResourceConstants.MAX;
+		     giveResource++)
             {
                 /**
                  * find the ratio at which we can trade
@@ -503,9 +503,9 @@ public class SOCBuildingSpeedEstimate
                      */
                     int mostNeededResource = -1;
 
-                    for (int resource = SOCResourceConstants.CLAY;
-                            resource <= SOCResourceConstants.WOOD;
-                            resource++)
+                    for (int resource = SOCResourceConstants.MIN;
+			 resource < SOCResourceConstants.MAX;
+			 resource++)
                     {
                         if (ourResources.getAmount(resource) < targetResources.getAmount(resource))
                         {
@@ -571,8 +571,8 @@ public class SOCBuildingSpeedEstimate
                 throw new CutoffExceededException();
             }
 
-            for (int resource = SOCResourceConstants.CLAY;
-                    resource <= SOCResourceConstants.WOOD; resource++)
+            for (int resource = SOCResourceConstants.MIN;
+                    resource < SOCResourceConstants.MAX; resource++)
             {
                 //D.ebugPrintln("resource: "+resource);
                 //D.ebugPrintln("rollsPerResource: "+rollsPerResource[resource]);
@@ -591,8 +591,8 @@ public class SOCBuildingSpeedEstimate
                 /**
                  * do any possible trading with the bank/ports
                  */
-                for (int giveResource = SOCResourceConstants.CLAY;
-                        giveResource <= SOCResourceConstants.WOOD;
+                for (int giveResource = SOCResourceConstants.MIN;
+		         giveResource < SOCResourceConstants.MAX;
                         giveResource++)
                 {
                     /**
@@ -633,8 +633,8 @@ public class SOCBuildingSpeedEstimate
                          */
                         int mostNeededResource = -1;
 
-                        for (int resource = SOCResourceConstants.CLAY;
-                                resource <= SOCResourceConstants.WOOD;
+                        for (int resource = SOCResourceConstants.MIN;
+                                 resource < SOCResourceConstants.MAX;
                                 resource++)
                         {
                             if (ourResources.getAmount(resource) < targetResources.getAmount(resource))
@@ -785,9 +785,9 @@ public class SOCBuildingSpeedEstimate
                         //
                         // do any possible trading with the bank/ports
                         //
-                        for (int giveResource = SOCResourceConstants.CLAY;
-                                giveResource <= SOCResourceConstants.WOOD;
-                                giveResource++)
+                        for (int giveResource = SOCResourceConstants.MIN;
+			         giveResource < SOCResourceConstants.MAX;
+                                 giveResource++)
                         {
                             if ((newResources.getAmount(giveResource) - targetResources.getAmount(giveResource)) > 1)
                             {
@@ -830,8 +830,8 @@ public class SOCBuildingSpeedEstimate
                                     //
                                     int mostNeededResource = -1;
 
-                                    for (int resource = SOCResourceConstants.CLAY;
-                                            resource <= SOCResourceConstants.WOOD;
+                                    for (int resource = SOCResourceConstants.MIN;
+                                            resource < SOCResourceConstants.MAX;
                                             resource++)
                                     {
                                         if (newResources.getAmount(resource) < targetResources.getAmount(resource))

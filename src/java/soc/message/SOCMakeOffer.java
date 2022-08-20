@@ -20,6 +20,8 @@
  **/
 package soc.message;
 
+import soc.disableDebug.D;	// 
+
 import soc.game.SOCGame;
 import soc.game.SOCResourceConstants;
 import soc.game.SOCResourceSet;
@@ -102,16 +104,14 @@ public class SOCMakeOffer extends SOCMessage
 
         SOCResourceSet give = of.getGiveSet();
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
         {
             cmd += (sep2 + give.getAmount(i));
         }
 
         SOCResourceSet get = of.getGetSet();
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
         {
             cmd += (sep2 + get.getAmount(i));
         }
@@ -137,6 +137,8 @@ public class SOCMakeOffer extends SOCMessage
         give = new SOCResourceSet();
         get = new SOCResourceSet();
 
+	D.ebugPrintln("MakeOffer.parseDataStr - "+s);
+
         StringTokenizer st = new StringTokenizer(s, sep2);
 
         try
@@ -152,12 +154,12 @@ public class SOCMakeOffer extends SOCMessage
             /**
              * Note: this only works if SOCResourceConstants.CLAY == 1
              */
-            for (int i = 1; i <= SOCResourceConstants.WOOD; i++)
+            for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
             {
                 give.setAmount(Integer.parseInt(st.nextToken()), i);
             }
 
-            for (int i = 1; i <= SOCResourceConstants.WOOD; i++)
+            for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
             {
                 get.setAmount(Integer.parseInt(st.nextToken()), i);
             }

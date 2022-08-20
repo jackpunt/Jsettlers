@@ -62,7 +62,8 @@ public class SOCPlayerInterface extends Frame implements ActionListener
     /**
      * where text is displayed
      */
-    protected SnippingTextArea textDisplay;
+    // protected SnippingTextArea textDisplay;
+    protected TextOut textDisplay;
 
     /**
      * where chat text is displayed
@@ -209,7 +210,8 @@ public class SOCPlayerInterface extends Frame implements ActionListener
         /**
          * initialize the text input and display and add them to the interface
          */
-        textDisplay = new SnippingTextArea("", 40, 80, TextArea.SCROLLBARS_VERTICAL_ONLY, 80);
+        // textDisplay = new SnippingTextArea("", 40, 80, TextArea.SCROLLBARS_VERTICAL_ONLY, 80);
+        textDisplay = new TextOut(40,80,80);
         textDisplay.setFont(new Font("Monoco", Font.PLAIN, 10));
         textDisplay.setBackground(new Color(255, 230, 162));
         textDisplay.setForeground(Color.black);
@@ -556,18 +558,18 @@ public class SOCPlayerInterface extends Frame implements ActionListener
         Insets i = getInsets();
         Dimension dim = getSize();
         dim.width -= (i.left + i.right);
-        dim.height -= (i.top + i.bottom);
+        dim.height -= (i.top + i.bottom); 	// minus insets/boarders
 
         int bw = SOCBoardPanel.getPanelX();
-        int bh = SOCBoardPanel.getPanelY();
+        int bh = SOCBoardPanel.getPanelY(); 	// bh = board/map height
         int hw = (dim.width - bw - 16) / 2;
-        int hh = (dim.height - 12) / 2;
+        int hh = (dim.height - 12) / 2;		// hh = 'hand' panel height
         int kw = bw;
-        int kh = buildingPanel.getSize().height;
-        int tfh = textInput.getSize().height;
-        int tah = dim.height - bh - kh - tfh - 16;
+        int kh = buildingPanel.getSize().height; //kh = build panel
+        int tfh = textInput.getSize().height; 	// tfh = fontsize+4
+        int tah = dim.height - bh - kh - tfh - 16; // preallocated - borders
 
-        boardPanel.setBounds(i.left + hw + 8, i.top + tfh + tah + 8, SOCBoardPanel.getPanelX(), SOCBoardPanel.getPanelY());
+        boardPanel.setBounds(i.left + hw + 8, i.top + tah + tfh + 8, SOCBoardPanel.getPanelX(), SOCBoardPanel.getPanelY());
 
         buildingPanel.setBounds(i.left + hw + 8, i.top + tah + tfh + bh + 12, kw, kh);
 
@@ -580,8 +582,8 @@ public class SOCPlayerInterface extends Frame implements ActionListener
             hands[3].setBounds(i.left + 4, i.top + hh + 8, hw, hh);
         }
 
-        int tdh = tah / 2;
-        int cdh = tah - tdh;
+        int cdh = tah / 4;	// could be 2, 3, 4
+        int tdh = tah - cdh;	// bias for more text, especially when one human!
         textDisplay.setBounds(i.left + hw + 8, i.top + 4, bw, tdh);
         chatDisplay.setBounds(i.left + hw + 8, i.top + 4 + tdh, bw, cdh);
         textInput.setBounds(i.left + hw + 8, i.top + 4 + tah, bw, tfh);

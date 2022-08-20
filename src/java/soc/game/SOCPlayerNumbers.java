@@ -51,8 +51,7 @@ public class SOCPlayerNumbers
     {
         numbersForResource = new Vector[SOCResourceConstants.MAXPLUSONE - 1];
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
         {
             numbersForResource[i] = (Vector) numbers.numbersForResource[i].clone();
         }
@@ -79,8 +78,7 @@ public class SOCPlayerNumbers
     {
         numbersForResource = new Vector[SOCResourceConstants.MAXPLUSONE - 1];
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
         {
             numbersForResource[i] = new Vector();
         }
@@ -105,8 +103,7 @@ public class SOCPlayerNumbers
      */
     public void clear()
     {
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
         {
             numbersForResource[i].removeAllElements();
         }
@@ -265,7 +262,8 @@ public class SOCPlayerNumbers
      */
     public void addNumberForResource(int number, int resource, int hex)
     {
-        if ((resource >= SOCResourceConstants.CLAY) && (resource <= SOCResourceConstants.WOOD))
+	// only consider land/resource HEX:
+        if ((resource >= SOCResourceConstants.MIN) && (resource < SOCResourceConstants.MAX))
         {
             numbersForResource[resource].addElement(new Integer(number));
 
@@ -331,7 +329,7 @@ public class SOCPlayerNumbers
      */
     public void undoAddNumberForResource(int number, int resource, int hex)
     {
-        if ((resource >= SOCResourceConstants.CLAY) && (resource <= SOCResourceConstants.WOOD))
+        if ((resource >= SOCResourceConstants.MIN) && (resource < SOCResourceConstants.MAX))
         {
             Enumeration numEnum = numbersForResource[resource].elements();
 
@@ -416,8 +414,7 @@ public class SOCPlayerNumbers
     {
         String str = "SOCPN:";
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
         {
             str += (i + ":");
 

@@ -20,7 +20,7 @@
  **/
 package soc.client;
 
-import soc.disableDebug.D;
+import soc.disableDebug.D;		// debug.D
 
 import soc.game.SOCBoard;
 import soc.game.SOCCity;
@@ -141,6 +141,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 {
     private static final String MAIN_PANEL = "main";
     private static final String MESSAGE_PANEL = "message";
+    public static boolean SHOWALL = true; // monitor & show resources for all players
 
     protected static String STATSPREFEX = "  [";
     protected TextField nick;
@@ -685,7 +686,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 
                     if (n.length() > 20)
                     {
-                        nickname = n.substring(1, 20);
+                        nickname = n.substring(0, 20);
                     }
                     else
                     {
@@ -698,7 +699,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 
                         if (p.length() > 20)
                         {
-                            password = p.substring(1, 20);
+                            password = p.substring(0, 20);
                         }
                         else
                         {
@@ -778,7 +779,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
     {
         lastMessage = s;
 
-        D.ebugPrintln("OUT - " + SOCMessage.toMsg(s));
+        D.ebugPrintln("OUT - put" + SOCMessage.toMsg(s));
 
         if ((ex != null) || !connected)
         {
@@ -787,6 +788,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 
         try
         {
+	    D.ebugPrintln("OUT - writing" + SOCMessage.toMsg(s));
             out.writeUTF(s);
         }
         catch (IOException e)
@@ -1371,6 +1373,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 
         if (ga != null)
         {
+	    D.ebugPrintln("starting SOCPlayerInterface");
             SOCPlayerInterface pi = new SOCPlayerInterface(mes.getGame(), this, ga);
             pi.setVisible(true);
             playerInterfaces.put(mes.getGame(), pi);
@@ -1816,220 +1819,13 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 
                 break;
 
-            case SOCPlayerElement.CLAY:
-
-                switch (mes.getAction())
-                {
-                case SOCPlayerElement.SET:
-                    pl.getResources().setAmount(mes.getValue(), SOCResourceConstants.CLAY);
-
-                    break;
-
-                case SOCPlayerElement.GAIN:
-                    pl.getResources().add(mes.getValue(), SOCResourceConstants.CLAY);
-
-                    break;
-
-                case SOCPlayerElement.LOSE:
-
-                    if (pl.getResources().getAmount(SOCResourceConstants.CLAY) >= mes.getValue())
-                    {
-                        pl.getResources().subtract(mes.getValue(), SOCResourceConstants.CLAY);
-                    }
-                    else
-                    {
-                        pl.getResources().subtract(mes.getValue() - pl.getResources().getAmount(SOCResourceConstants.CLAY), SOCResourceConstants.UNKNOWN);
-                        pl.getResources().setAmount(0, SOCResourceConstants.CLAY);
-                    }
-
-                    break;
-                }
-
-                //if (true) {
-                if (nickname.equals(pl.getName()))
-                {
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.CLAY);
-                }
-                else
-                {
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
-                }
-
-                break;
-
-            case SOCPlayerElement.ORE:
-
-                switch (mes.getAction())
-                {
-                case SOCPlayerElement.SET:
-                    pl.getResources().setAmount(mes.getValue(), SOCResourceConstants.ORE);
-
-                    break;
-
-                case SOCPlayerElement.GAIN:
-                    pl.getResources().add(mes.getValue(), SOCResourceConstants.ORE);
-
-                    break;
-
-                case SOCPlayerElement.LOSE:
-
-                    if (pl.getResources().getAmount(SOCResourceConstants.ORE) >= mes.getValue())
-                    {
-                        pl.getResources().subtract(mes.getValue(), SOCResourceConstants.ORE);
-                    }
-                    else
-                    {
-                        pl.getResources().subtract(mes.getValue() - pl.getResources().getAmount(SOCResourceConstants.ORE), SOCResourceConstants.UNKNOWN);
-                        pl.getResources().setAmount(0, SOCResourceConstants.ORE);
-                    }
-
-                    break;
-                }
-
-                //if (true) {
-                if (nickname.equals(pl.getName()))
-                {
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.ORE);
-                }
-                else
-                {
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
-                }
-
-                break;
-
-            case SOCPlayerElement.SHEEP:
-
-                switch (mes.getAction())
-                {
-                case SOCPlayerElement.SET:
-                    pl.getResources().setAmount(mes.getValue(), SOCResourceConstants.SHEEP);
-
-                    break;
-
-                case SOCPlayerElement.GAIN:
-                    pl.getResources().add(mes.getValue(), SOCResourceConstants.SHEEP);
-
-                    break;
-
-                case SOCPlayerElement.LOSE:
-
-                    if (pl.getResources().getAmount(SOCResourceConstants.SHEEP) >= mes.getValue())
-                    {
-                        pl.getResources().subtract(mes.getValue(), SOCResourceConstants.SHEEP);
-                    }
-                    else
-                    {
-                        pl.getResources().subtract(mes.getValue() - pl.getResources().getAmount(SOCResourceConstants.SHEEP), SOCResourceConstants.UNKNOWN);
-                        pl.getResources().setAmount(0, SOCResourceConstants.SHEEP);
-                    }
-
-                    break;
-                }
-
-                //if (true) {
-                if (nickname.equals(pl.getName()))
-                {
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.SHEEP);
-                }
-                else
-                {
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
-                }
-
-                break;
-
-            case SOCPlayerElement.WHEAT:
-
-                switch (mes.getAction())
-                {
-                case SOCPlayerElement.SET:
-                    pl.getResources().setAmount(mes.getValue(), SOCResourceConstants.WHEAT);
-
-                    break;
-
-                case SOCPlayerElement.GAIN:
-                    pl.getResources().add(mes.getValue(), SOCResourceConstants.WHEAT);
-
-                    break;
-
-                case SOCPlayerElement.LOSE:
-
-                    if (pl.getResources().getAmount(SOCResourceConstants.WHEAT) >= mes.getValue())
-                    {
-                        pl.getResources().subtract(mes.getValue(), SOCResourceConstants.WHEAT);
-                    }
-                    else
-                    {
-                        pl.getResources().subtract(mes.getValue() - pl.getResources().getAmount(SOCResourceConstants.WHEAT), SOCResourceConstants.UNKNOWN);
-                        pl.getResources().setAmount(0, SOCResourceConstants.WHEAT);
-                    }
-
-                    break;
-                }
-
-                //if (true) {
-                if (nickname.equals(pl.getName()))
-                {
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.WHEAT);
-                }
-                else
-                {
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
-                }
-
-                break;
-
-            case SOCPlayerElement.WOOD:
-
-                switch (mes.getAction())
-                {
-                case SOCPlayerElement.SET:
-                    pl.getResources().setAmount(mes.getValue(), SOCResourceConstants.WOOD);
-
-                    break;
-
-                case SOCPlayerElement.GAIN:
-                    pl.getResources().add(mes.getValue(), SOCResourceConstants.WOOD);
-
-                    break;
-
-                case SOCPlayerElement.LOSE:
-
-                    if (pl.getResources().getAmount(SOCResourceConstants.WOOD) >= mes.getValue())
-                    {
-                        pl.getResources().subtract(mes.getValue(), SOCResourceConstants.WOOD);
-                    }
-                    else
-                    {
-                        pl.getResources().subtract(mes.getValue() - pl.getResources().getAmount(SOCResourceConstants.WOOD), SOCResourceConstants.UNKNOWN);
-                        pl.getResources().setAmount(0, SOCResourceConstants.WOOD);
-                    }
-
-                    break;
-                }
-
-                //if (true) {
-                if (nickname.equals(pl.getName()))
-                {
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.WOOD);
-                }
-                else
-                {
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
-                }
-
-                break;
 
             case SOCPlayerElement.UNKNOWN:
-
                 switch (mes.getAction())
                 {
                 case SOCPlayerElement.SET:
 
-                    /**
-                     * set the ammount of unknown resources
-                     */
+		    // set the ammount of unknown resources
                     pl.getResources().setAmount(mes.getValue(), SOCResourceConstants.UNKNOWN);
 
                     break;
@@ -2043,24 +1839,17 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 
                     SOCResourceSet rs = pl.getResources();
 
-                    /**
-                     * first convert known resources to unknown resources
-                     */
-                    rs.add(rs.getAmount(SOCResourceConstants.CLAY), SOCResourceConstants.UNKNOWN);
-                    rs.setAmount(0, SOCResourceConstants.CLAY);
-                    rs.add(rs.getAmount(SOCResourceConstants.ORE), SOCResourceConstants.UNKNOWN);
-                    rs.setAmount(0, SOCResourceConstants.ORE);
-                    rs.add(rs.getAmount(SOCResourceConstants.SHEEP), SOCResourceConstants.UNKNOWN);
-                    rs.setAmount(0, SOCResourceConstants.SHEEP);
-                    rs.add(rs.getAmount(SOCResourceConstants.WHEAT), SOCResourceConstants.UNKNOWN);
-                    rs.setAmount(0, SOCResourceConstants.WHEAT);
-                    rs.add(rs.getAmount(SOCResourceConstants.WOOD), SOCResourceConstants.UNKNOWN);
-                    rs.setAmount(0, SOCResourceConstants.WOOD);
-
-                    /**
-                     * then remove the unknown resources
-                     */
-                    pl.getResources().subtract(mes.getValue(), SOCResourceConstants.UNKNOWN);
+                    // first convert known resources to unknown resources
+		    // **** this was wrong! only getValue() of the known become unknown...
+		    // **** code also appears in SOCRobotBrain ~1043
+		    int mv = mes.getValue();
+		    for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++) {
+			int ra = Math.min(rs.getAmount(i), mv);
+			rs.subtract(ra, i); 
+			rs.add(ra, SOCResourceConstants.UNKNOWN);
+		    }
+		    // then remove the unknown resources
+                    pl.getResources().subtract(mv, SOCResourceConstants.UNKNOWN);
 
                     break;
                 }
@@ -2068,6 +1857,15 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
                 pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
 
                 break;
+
+            case SOCPlayerElement.CLAY:
+            case SOCPlayerElement.ORE:
+            case SOCPlayerElement.SHEEP:
+            case SOCPlayerElement.WHEAT:
+            case SOCPlayerElement.WOOD:
+		handleResourceElement(pl, pi, mes, mes.getElementType());
+                break;
+
             }
 
             if ((nickname.equals(pl.getName())) && (ga.getGameState() != SOCGame.NEW))
@@ -2075,6 +1873,42 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
                 pi.getBuildingPanel().updateButtonStatus();
             }
         }
+    }
+
+    // keep this synch'd if order changes:
+    // panelResources[SOCResourceConstants.XXX]=SOCHandPanel.XXX;
+    int[] panelResources = {0,SOCHandPanel.ORE,SOCHandPanel.WHEAT,SOCHandPanel.SHEEP,SOCHandPanel.CLAY,SOCHandPanel.WOOD,};
+
+    // common code:
+    void handleResourceElement(SOCPlayer pl, SOCPlayerInterface pi, SOCPlayerElement mes, int rsc) {
+	switch (mes.getAction())
+	    {
+	    case SOCPlayerElement.SET:
+		pl.getResources().setAmount(mes.getValue(), rsc);
+		break;
+
+	    case SOCPlayerElement.GAIN:
+		pl.getResources().add(mes.getValue(), rsc);
+		break;
+
+	    case SOCPlayerElement.LOSE:
+		if (pl.getResources().getAmount(rsc) >= mes.getValue()) {
+		    pl.getResources().subtract(mes.getValue(), rsc);
+		} else {
+		    pl.getResources().subtract(mes.getValue() - pl.getResources().getAmount(rsc), SOCResourceConstants.UNKNOWN);
+		    pl.getResources().setAmount(0, rsc);
+		}
+		break;
+	    }
+	
+	if (nickname.equals(pl.getName())) {
+	    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(panelResources[rsc]);
+	} else {
+	    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
+	    if (SHOWALL) {
+		pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(panelResources[rsc]);
+	    }
+	}
     }
 
     /**
@@ -2094,13 +1928,13 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
             {
                 SOCResourceSet rsrcs = pl.getResources();
 
-                if (D.ebugOn)
+                if (D.ebugOn || true)
                 {
-                    //pi.print(">>> RESOURCE COUNT ERROR: "+mes.getCount()+ " != "+rsrcs.getTotal());
+                    pi.print(">>> RES CNT ERR: "+pl.getName()+": "+mes.getCount()+ " != "+rsrcs.getTotal());
                 }
 
                 //
-                //  fix it
+                //  fix it: assume all are UNKNOWN!
                 //
                 if (!pl.getName().equals(nickname))
                 {
@@ -2172,13 +2006,14 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
                 /**
                  * if this is the second initial settlement, then update the resource display
                  */
-                if (nickname.equals(pl.getName()))
+                if (nickname.equals(pl.getName()) || SHOWALL)
                 {
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.CLAY);
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.ORE);
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.SHEEP);
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.WHEAT);
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.WOOD);
+		    int pn = mes.getPlayerNumber();
+                    pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.CLAY);
+                    pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.ORE);
+                    pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.SHEEP);
+                    pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.WHEAT);
+                    pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.WOOD);
                 }
                 else
                 {
@@ -3038,11 +2873,11 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
             fr.print("* Ignoring " + name);
             fr.print("* Ignore list:");
 
-            Enumeration enum = ignoreList.elements();
+            Enumeration enumr = ignoreList.elements();
 
-            while (enum.hasMoreElements())
+            while (enumr.hasMoreElements())
             {
-                String s = (String) enum.nextElement();
+                String s = (String) enumr.nextElement();
                 fr.print("* " + s);
             }
 
@@ -3055,11 +2890,11 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
             fr.print("* Unignoring " + name);
             fr.print("* Ignore list:");
 
-            Enumeration enum = ignoreList.elements();
+            Enumeration enumr = ignoreList.elements();
 
-            while (enum.hasMoreElements())
+            while (enumr.hasMoreElements())
             {
-                String s = (String) enum.nextElement();
+                String s = (String) enumr.nextElement();
                 fr.print("* " + s);
             }
 
@@ -3087,11 +2922,11 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
             pi.print("* Ignoring " + name);
             pi.print("* Ignore list:");
 
-            Enumeration enum = ignoreList.elements();
+            Enumeration enumr = ignoreList.elements();
 
-            while (enum.hasMoreElements())
+            while (enumr.hasMoreElements())
             {
-                String s = (String) enum.nextElement();
+                String s = (String) enumr.nextElement();
                 pi.print("* " + s);
             }
 
@@ -3104,11 +2939,11 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
             pi.print("* Unignoring " + name);
             pi.print("* Ignore list:");
 
-            Enumeration enum = ignoreList.elements();
+            Enumeration enumr = ignoreList.elements();
 
-            while (enum.hasMoreElements())
+            while (enumr.hasMoreElements())
             {
-                String s = (String) enum.nextElement();
+                String s = (String) enumr.nextElement();
                 pi.print("* " + s);
             }
 
@@ -3176,11 +3011,11 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         D.ebugPrintln("onIgnoreList |" + name + "|");
 
         boolean result = false;
-        Enumeration enum = ignoreList.elements();
+        Enumeration enumr = ignoreList.elements();
 
-        while (enum.hasMoreElements())
+        while (enumr.hasMoreElements())
         {
-            String s = (String) enum.nextElement();
+            String s = (String) enumr.nextElement();
             D.ebugPrintln("comparing |" + s + "| to |" + name + "|");
 
             if (s.equals(name))
@@ -3337,6 +3172,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
      */
     public static void main(String[] args)
     {
+
         SOCPlayerClient client = new SOCPlayerClient();
         
         if (args.length != 2)

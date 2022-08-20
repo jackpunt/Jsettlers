@@ -123,10 +123,10 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         add(settlementWood);
         settlementClay = new ColorSquare(ColorSquare.CLAY, 1);
         add(settlementClay);
-        settlementWheat = new ColorSquare(ColorSquare.WHEAT, 1);
-        add(settlementWheat);
         settlementSheep = new ColorSquare(ColorSquare.SHEEP, 1);
         add(settlementSheep);
+        settlementWheat = new ColorSquare(ColorSquare.WHEAT, 1);
+        add(settlementWheat);
         settlementBut = new Button("---");
         add(settlementBut);
         settlementBut.setActionCommand(STLMT);
@@ -148,7 +148,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         cityBut.setActionCommand(CITY);
         cityBut.addActionListener(this);
 
-        cardT = new Label("Card: ");
+        cardT = new Label("Dev Card: ");
         add(cardT);
         cardV = new Label("? VP  (largest army = 2 VP) ");
         cardV.setAlignment(Label.LEFT);
@@ -223,11 +223,11 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         settlementClay.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
         settlementClay.setLocation(curX, curY);
         curX += (ColorSquare.WIDTH + 3);
-        settlementWheat.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
-        settlementWheat.setLocation(curX, curY);
-        curX += (ColorSquare.WIDTH + 3);
         settlementSheep.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
         settlementSheep.setLocation(curX, curY);
+        curX += (ColorSquare.WIDTH + 3);
+        settlementWheat.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
+        settlementWheat.setLocation(curX, curY);
         settlementBut.setSize(butW, lineH);
         settlementBut.setLocation(dim.width - (butW + margin), curY);
         curY += (rowSpaceH + lineH);
@@ -261,11 +261,11 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         cardC.setSize(costW, lineH);
         cardC.setLocation(margin, curY);
         curX = 1 + costW + 3;
-        cardWheat.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
-        cardWheat.setLocation(curX, curY);
-        curX += (ColorSquare.WIDTH + 3);
         cardSheep.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
         cardSheep.setLocation(curX, curY);
+        curX += (ColorSquare.WIDTH + 3);
+        cardWheat.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
+        cardWheat.setLocation(curX, curY);
         curX += (ColorSquare.WIDTH + 3);
         cardOre.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
         cardOre.setLocation(curX, curY);

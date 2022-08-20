@@ -2303,10 +2303,10 @@ public class SOCPlayerTracker
             winGameETA = 0;
 
             SOCPlayerNumbers tempPlayerNumbers = new SOCPlayerNumbers(player.getNumbers());
-            boolean[] tempPortFlags = new boolean[SOCBoard.WOOD_PORT + 1];
+            boolean[] tempPortFlags = new boolean[SOCBoard.MAX_PORT + 1];
 
             for (int portType = SOCBoard.MISC_PORT;
-                    portType <= SOCBoard.WOOD_PORT; portType++)
+                    portType <= SOCBoard.MAX_PORT; portType++)
             {
                 tempPortFlags[portType] = player.getPortFlag(portType);
             }
@@ -2399,7 +2399,7 @@ public class SOCPlayerTracker
                     D.ebugPrint("WWW tempPortFlags: ");
 
                     for (int portType = SOCBoard.MISC_PORT;
-                            portType <= SOCBoard.WOOD_PORT; portType++)
+                            portType <= SOCBoard.MAX_PORT; portType++)
                     {
                         D.ebugPrint(tempPortFlags[portType] + " ");
                     }
@@ -2548,14 +2548,14 @@ public class SOCPlayerTracker
                     //
                     //System.out.println("Old Player Numbers = "+tempPlayerNumbers);
                     //System.out.print("Old Ports = ");
-                    //for (int i = 0; i <= SOCBoard.WOOD_PORT; i++) {
+                    //for (int i = 0; i <= SOCBoard.MAX_PORT; i++) {
                     //  System.out.print(tempPortFlags[i]+",");
                     //}
                     //System.out.println();
                     fastestETA = 500;
 
                     SOCPossibleSettlement[] chosenSet = new SOCPossibleSettlement[2];
-                    boolean[][] tempPortFlagsSet = new boolean[2][SOCBoard.WOOD_PORT + 1];
+                    boolean[][] tempPortFlagsSet = new boolean[2][SOCBoard.MAX_PORT + 1];
                     SOCPossibleCity[] chosenCity = new SOCPossibleCity[2];
                     chosenSet[0] = null;
                     chosenSet[1] = null;
@@ -2650,7 +2650,7 @@ public class SOCPlayerTracker
                                         Integer posSetCoords = new Integer(posSet.getCoordinates());
 
                                         for (int portType = SOCBoard.MISC_PORT;
-                                                portType <= SOCBoard.WOOD_PORT;
+                                                portType <= SOCBoard.MAX_PORT;
                                                 portType++)
                                         {
                                             tempPortFlagsSet[i][portType] = tempPortFlags[portType];
@@ -2679,13 +2679,13 @@ public class SOCPlayerTracker
                                     }
                                     else if (posSetETA == fastestSetETA)
                                     {
-                                        boolean[] veryTempPortFlags = new boolean[SOCBoard.WOOD_PORT + 1];
+                                        boolean[] veryTempPortFlags = new boolean[SOCBoard.MAX_PORT + 1];
                                         tempPlayerNumbers.updateNumbers(posSet.getCoordinates(), player.getGame().getBoard());
 
                                         Integer posSetCoords = new Integer(posSet.getCoordinates());
 
                                         for (int portType = SOCBoard.MISC_PORT;
-                                                portType <= SOCBoard.WOOD_PORT;
+                                                portType <= SOCBoard.MAX_PORT;
                                                 portType++)
                                         {
                                             veryTempPortFlags[portType] = tempPortFlags[portType];
@@ -2725,7 +2725,7 @@ public class SOCPlayerTracker
                                         //	      //
                                         //	      System.out.println("New Player Numbers = "+tempPlayerNumbers);
                                         //	      System.out.print("New Ports = ");
-                                        //	      for (int k = 0; k <= SOCBoard.WOOD_PORT; k++) {
+                                        //	      for (int k = 0; k <= SOCBoard.MAX_PORT; k++) {
                                         //		System.out.print(veryTempPortFlags[k]+",");
                                         //	      }
                                         //	      System.out.println();
@@ -2745,7 +2745,7 @@ public class SOCPlayerTracker
                                             }
 
                                             for (int portType = SOCBoard.MISC_PORT;
-                                                    portType <= SOCBoard.WOOD_PORT;
+                                                    portType <= SOCBoard.MAX_PORT;
                                                     portType++)
                                             {
                                                 tempPortFlagsSet[i][portType] = veryTempPortFlags[portType];
@@ -2895,7 +2895,7 @@ public class SOCPlayerTracker
                                 //		  //
                                 //		  System.out.println("New Player Numbers = "+tempPlayerNumbers);
                                 //		  System.out.print("New Ports = ");
-                                //		  for (int i = 0; i <= SOCBoard.WOOD_PORT; i++) {
+                                //		  for (int i = 0; i <= SOCBoard.MAX_PORT; i++) {
                                 //		    System.out.print(tempPortFlags[i]+",");
                                 //		  }
                                 //		  System.out.println();
@@ -2940,7 +2940,7 @@ public class SOCPlayerTracker
                                     Integer posSetCoords = new Integer(posSet.getCoordinates());
 
                                     for (int portType = SOCBoard.MISC_PORT;
-                                            portType <= SOCBoard.WOOD_PORT;
+                                            portType <= SOCBoard.MAX_PORT;
                                             portType++)
                                     {
                                         tempPortFlagsSet[0][portType] = tempPortFlags[portType];
@@ -2969,13 +2969,13 @@ public class SOCPlayerTracker
                                 }
                                 else if (posSetETA == fastestSetETA)
                                 {
-                                    boolean[] veryTempPortFlags = new boolean[SOCBoard.WOOD_PORT + 1];
+                                    boolean[] veryTempPortFlags = new boolean[SOCBoard.MAX_PORT + 1];
                                     tempPlayerNumbers.updateNumbers(posSet.getCoordinates(), player.getGame().getBoard());
 
                                     Integer posSetCoords = new Integer(posSet.getCoordinates());
 
                                     for (int portType = SOCBoard.MISC_PORT;
-                                            portType <= SOCBoard.WOOD_PORT;
+                                            portType <= SOCBoard.MAX_PORT;
                                             portType++)
                                     {
                                         veryTempPortFlags[portType] = tempPortFlags[portType];
@@ -3015,7 +3015,7 @@ public class SOCPlayerTracker
                                     //		    //
                                     //		    System.out.println("New Player Numbers = "+tempPlayerNumbers);
                                     //		    System.out.print("New Ports = ");
-                                    //		    for (int i = 0; i <= SOCBoard.WOOD_PORT; i++) {
+                                    //		    for (int i = 0; i <= SOCBoard.MAX_PORT; i++) {
                                     //		      System.out.print(tempPortFlags[i]+",");
                                     //		    }
                                     //		    System.out.println();
@@ -3035,7 +3035,7 @@ public class SOCPlayerTracker
                                         }
 
                                         for (int portType = SOCBoard.MISC_PORT;
-                                                portType <= SOCBoard.WOOD_PORT;
+                                                portType <= SOCBoard.MAX_PORT;
                                                 portType++)
                                         {
                                             tempPortFlagsSet[0][portType] = veryTempPortFlags[portType];
@@ -3253,7 +3253,7 @@ public class SOCPlayerTracker
                         Integer chosenSet1Coords = new Integer(chosenSet[1].getCoordinates());
 
                         for (int portType = SOCBoard.MISC_PORT;
-                                portType <= SOCBoard.WOOD_PORT; portType++)
+                                portType <= SOCBoard.MAX_PORT; portType++)
                         {
                             if (player.getGame().getBoard().getPortCoordinates(portType).contains(chosenSet0Coords))
                             {
@@ -3314,7 +3314,7 @@ public class SOCPlayerTracker
                         Integer chosenSet0Coords = new Integer(chosenSet[0].getCoordinates());
 
                         for (int portType = SOCBoard.MISC_PORT;
-                                portType <= SOCBoard.WOOD_PORT; portType++)
+                                portType <= SOCBoard.MAX_PORT; portType++)
                         {
                             if (player.getGame().getBoard().getPortCoordinates(portType).contains(chosenSet0Coords))
                             {
@@ -3397,7 +3397,7 @@ public class SOCPlayerTracker
                             //	//
                             //	System.out.println("New Player Numbers = "+tempPlayerNumbers);
                             //	System.out.print("New Ports = ");
-                            //	for (int i = 0; i <= SOCBoard.WOOD_PORT; i++) {
+                            //	for (int i = 0; i <= SOCBoard.MAX_PORT; i++) {
                             //	  System.out.print(tempPortFlags[i]+",");
                             //	}
                             //	System.out.println();

@@ -275,9 +275,13 @@ public class SOCGame implements Serializable, Cloneable
         gameState = NEW;
         oldPlayerWithLongestRoad = new Stack();
     }
-
+    
     /**
      * take the monitor for this game
+     * !! Danger !! should be a counting semaphore,
+     * or redesign useing synchronization lock
+     * takeM/releaseM calls are *nested*, so inner releaseM releases outer!
+     * For example: handleDISCOVERYPICK() { ga.takeM; messageToGame() { ga.takeM();...;ga.releaseM();}; ga.releaseM;}
      */
     public synchronized void takeMonitor()
     {
@@ -1442,12 +1446,8 @@ public class SOCGame implements Serializable, Cloneable
 
         int hexType = board.getHexTypeFromCoord(co);
 
-        if ((hexType != SOCBoard.CLAY_HEX) && (hexType != SOCBoard.ORE_HEX) && (hexType != SOCBoard.SHEEP_HEX) && (hexType != SOCBoard.WHEAT_HEX) && (hexType != SOCBoard.WOOD_HEX) && (hexType != SOCBoard.DESERT_HEX))
-        {
-            return false;
-        }
-
-        return true;
+	// return false if not a resource or desert tile:
+	return ((hexType >= SOCBoard.DESERT_HEX) && (hexType <= SOCBoard.LAND_HEX));
     }
 
     /**
@@ -1783,8 +1783,7 @@ public class SOCGame implements Serializable, Cloneable
         int[] rsrcs = new int[victim.getResources().getTotal()];
         int cnt = 0;
 
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
         {
             for (int j = 0; j < victim.getResources().getAmount(i); j++)
             {
@@ -1922,8 +1921,7 @@ public class SOCGame implements Serializable, Cloneable
             /**
              * check for groups of 4
              */
-            for (int i = SOCResourceConstants.CLAY;
-                    i <= SOCResourceConstants.WOOD; i++)
+            for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
             {
                 if ((give.getAmount(i) % 4) == 0)
                 {
@@ -1945,8 +1943,7 @@ public class SOCGame implements Serializable, Cloneable
             /**
              * check for groups of 3
              */
-            for (int i = SOCResourceConstants.CLAY;
-                    i <= SOCResourceConstants.WOOD; i++)
+            for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
             {
                 if ((give.getAmount(i) % 3) == 0)
                 {
@@ -1977,10 +1974,9 @@ public class SOCGame implements Serializable, Cloneable
              * check for groups of 2
              */
             /**
-             * Note: this only works if SOCResourceConstants.CLAY == 1
+             * Note: this only works if SOCResourceConstants.MIN == 1, MAX == 6
              */
-            for (int i = SOCResourceConstants.CLAY;
-                    i <= SOCResourceConstants.WOOD; i++)
+            for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
             {
                 if (give.getAmount(i) > 0)
                 {
@@ -2030,7 +2026,10 @@ public class SOCGame implements Serializable, Cloneable
     {
         SOCResourceSet resources = players[pn].getResources();
 
-        return ((resources.getAmount(SOCResourceConstants.CLAY) >= 1) && (resources.getAmount(SOCResourceConstants.WOOD) >= 1) && (players[pn].getNumPieces(SOCPlayingPiece.ROAD) >= 1) && (players[pn].hasPotentialRoad()));
+        return ((resources.getAmount(SOCResourceConstants.CLAY) >= 1)
+		&& (resources.getAmount(SOCResourceConstants.WOOD) >= 1)
+		&& (players[pn].getNumPieces(SOCPlayingPiece.ROAD) >= 1)
+		&& (players[pn].hasPotentialRoad()));
     }
 
     /**
@@ -2042,8 +2041,13 @@ public class SOCGame implements Serializable, Cloneable
     public boolean couldBuildSettlement(int pn)
     {
         SOCResourceSet resources = players[pn].getResources();
-
-        return ((resources.getAmount(SOCResourceConstants.CLAY) >= 1) && (resources.getAmount(SOCResourceConstants.SHEEP) >= 1) && (resources.getAmount(SOCResourceConstants.WHEAT) >= 1) && (resources.getAmount(SOCResourceConstants.WOOD) >= 1) && (players[pn].getNumPieces(SOCPlayingPiece.SETTLEMENT) >= 1) && (players[pn].hasPotentialSettlement()));
+	// return (SOCResourceSet.gte(resources,SETTLEMENT_SET) && (getNumPieces>=1) && hasPot())
+        return ((resources.getAmount(SOCResourceConstants.CLAY) >= 1)
+		&& (resources.getAmount(SOCResourceConstants.SHEEP) >= 1)
+		&& (resources.getAmount(SOCResourceConstants.WHEAT) >= 1)
+		&& (resources.getAmount(SOCResourceConstants.WOOD) >= 1)
+		&& (players[pn].getNumPieces(SOCPlayingPiece.SETTLEMENT) >= 1)
+		&& (players[pn].hasPotentialSettlement()));
     }
 
     /**
@@ -2056,7 +2060,10 @@ public class SOCGame implements Serializable, Cloneable
     {
         SOCResourceSet resources = players[pn].getResources();
 
-        return ((resources.getAmount(SOCResourceConstants.ORE) >= 3) && (resources.getAmount(SOCResourceConstants.WHEAT) >= 2) && (players[pn].getNumPieces(SOCPlayingPiece.CITY) >= 1) && (players[pn].hasPotentialCity()));
+        return ((resources.getAmount(SOCResourceConstants.ORE) >= 3) &&
+		(resources.getAmount(SOCResourceConstants.WHEAT) >= 2) &&
+		(players[pn].getNumPieces(SOCPlayingPiece.CITY) >= 1) &&
+		(players[pn].hasPotentialCity()));
     }
 
     /**
@@ -2372,8 +2379,7 @@ public class SOCGame implements Serializable, Cloneable
      */
     public void doDiscoveryAction(SOCResourceSet pick)
     {
-        for (int i = SOCResourceConstants.CLAY; i <= SOCResourceConstants.WOOD;
-                i++)
+        for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
         {
             players[currentPlayerNumber].getResources().add(pick.getAmount(i), i);
         }
