@@ -47,9 +47,9 @@ class SOCChoosePlayerDialog extends Dialog implements ActionListener
     /**
      * Creates a new SOCChoosePlayerDialog object.
      *
-     * @param plInt DOCUMENT ME!
-     * @param num DOCUMENT ME!
-     * @param p DOCUMENT ME!
+     * @param plInt this SOCPlayerInterface
+     * @param num useful length of p[]
+     * @param p array of player numbers from which to choose
      */
     public SOCChoosePlayerDialog(SOCPlayerInterface plInt, int num, int[] p)
     {
@@ -74,6 +74,7 @@ class SOCChoosePlayerDialog extends Dialog implements ActionListener
         for (int i = 0; i < number; i++)
         {
             buttons[i] = new Button(ga.getPlayer(players[i]).getName());
+            buttons[i].setBackground(pi.getPlayerColor(players[i]));
             add(buttons[i]);
             buttons[i].addActionListener(this);
         }

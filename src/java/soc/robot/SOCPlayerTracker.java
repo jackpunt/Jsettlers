@@ -1761,18 +1761,10 @@ public class SOCPlayerTracker
     {
         D.ebugPrintln("===  recalcLongestRoadETA for player " + player.getPlayerNumber());
 
-        int roadETA;
         SOCBuildingSpeedEstimate bse = new SOCBuildingSpeedEstimate(player.getNumbers());
+        int roadETA;
 
-        try
-        {
-            roadETA = bse.calculateRollsFast(SOCGame.EMPTY_RESOURCES, SOCGame.ROAD_SET, 500, player.getPortFlags()).getRolls();
-        }
-        catch (CutoffExceededException e)
-        {
-            roadETA = 500;
-        }
-
+	roadETA = bse.calculateRollsFast(SOCGame.EMPTY_RESOURCES, SOCGame.ROAD_SET, 500, player.getPortFlags());
         roadsToGo = 500;
         longestRoadETA = 500;
 

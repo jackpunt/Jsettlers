@@ -148,9 +148,7 @@ public class SOCResourceSet implements Serializable, Cloneable, SOCResourceConst
         if (resources[UNKNOWN] < 0)
         {
 	    // this happens when RobotNegotiator is looking for a trade; often wants more than anyone has:
-//  	    System.err.println("RESOURCE < 0 : RESOURCE TYPE=" + rtype + " amt="+amt+" UNK="+resources[UNKNOWN]);
-//  	    new IllegalArgumentException().printStackTrace(System.err);
-//  	    resources[UNKNOWN] = 0; // this seems right...
+  	    resources[UNKNOWN] = 0; // this seems right...
         }
     }
 
@@ -222,7 +220,12 @@ public class SOCResourceSet implements Serializable, Cloneable, SOCResourceConst
      */
     public String toString()
     {
-        String s = "clay=" + resources[SOCResourceConstants.CLAY] + "|ore=" + resources[SOCResourceConstants.ORE] + "|sheep=" + resources[SOCResourceConstants.SHEEP] + "|wheat=" + resources[SOCResourceConstants.WHEAT] + "|wood=" + resources[SOCResourceConstants.WOOD] + "|unknown=" + resources[SOCResourceConstants.UNKNOWN];
+        String s = ("clay=" + resources[SOCResourceConstants.CLAY] +
+		    "|ore=" + resources[SOCResourceConstants.ORE] +
+		    "|sheep=" + resources[SOCResourceConstants.SHEEP] +
+		    "|wheat=" + resources[SOCResourceConstants.WHEAT] +
+		    "|wood=" + resources[SOCResourceConstants.WOOD] +
+		    "|unknown=" + resources[SOCResourceConstants.UNKNOWN]);
 
         return s;
     }

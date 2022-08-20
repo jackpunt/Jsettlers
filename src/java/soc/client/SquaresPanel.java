@@ -80,8 +80,8 @@ public class SquaresPanel extends Panel
      */
     public void doLayout()
     {
-        int curX = 0;
-        FontMetrics fm = this.getFontMetrics(this.getFont());
+        // int curX = 0;
+        // FontMetrics fm = this.getFontMetrics(this.getFont());
         int lineH = ColorSquare.HEIGHT - 1;
         int sqW = ColorSquare.WIDTH - 1;
         int i;

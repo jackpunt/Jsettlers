@@ -135,11 +135,11 @@ public class SOCPlayerNumbers
         Enumeration hexes = SOCBoard.getAdjacentHexesToNode(piece.getCoordinates()).elements();
 
         while (hexes.hasMoreElements())
-        {
-            Integer hex = (Integer) hexes.nextElement();
-            int number = board.getNumberOnHexFromCoord(hex.intValue());
-            int resource = board.getHexTypeFromCoord(hex.intValue());
-            addNumberForResource(number, resource, hex.intValue());
+	    {
+            int hex = ((Integer) hexes.nextElement()).intValue();
+            int number = board.getNumberOnHexFromCoord(hex);
+            int resource = board.getHexTypeFromCoord(hex);
+            addNumberForResource(number, resource, hex);
         }
     }
 

@@ -142,6 +142,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
     private static final String MAIN_PANEL = "main";
     private static final String MESSAGE_PANEL = "message";
     public static boolean SHOWALL = true; // monitor & show resources for all players
+    protected Hashtable resourcesToGain = new Hashtable(5); // HashMap<SOCGame,SOCResourceSet>()
 
     protected static String STATSPREFEX = "  [";
     protected TextField nick;
@@ -1820,37 +1821,79 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
                 break;
 
 
+		// some resource was lost/gained, but we don't know what flavor:
             case SOCPlayerElement.UNKNOWN:
+		int mv = mes.getValue();
+		SOCResourceSet rs = pl.getResources();
+		SOCResourceSet ur = pl.getUResources();
+		
                 switch (mes.getAction())
                 {
                 case SOCPlayerElement.SET:
+		    // set the ammount of unknown resources, is this ever used?
+                    rs.setAmount(mv, SOCResourceConstants.UNKNOWN);
 
-		    // set the ammount of unknown resources
-                    pl.getResources().setAmount(mes.getValue(), SOCResourceConstants.UNKNOWN);
+		    for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
+			ur.setAmount(Math.min(ur.getAmount(rt), mv), rt);
+		    }
 
                     break;
 
+		    // the perp of a robbery:
                 case SOCPlayerElement.GAIN:
-                    pl.getResources().add(mes.getValue(), SOCResourceConstants.UNKNOWN);
+		    SOCResourceSet rg = (SOCResourceSet)resourcesToGain.get(ga); // look at possibly robbed cards
+
+		    // if 1 card was robbed, and we know what it might be:
+		    if ((mv == 1) && (rg != null)) {
+			pi.print(">>> Perp: "+pl.getName()+": "+ rg );
+			if (rg.getTotal() == 1) {
+			    rs.add(rg); // add that card
+			} else {
+			    ur.add(rg);	// one of these unknowns
+			    rs.add(mv, SOCResourceConstants.UNKNOWN);
+			} 
+		    } else {
+			// should never get here; unless older server:
+			// no idea what the card was:
+			rs.add(mv, SOCResourceConstants.UNKNOWN);
+		    }
 
                     break;
 
+		    // victim of robbery or discard:
                 case SOCPlayerElement.LOSE:
-
-                    SOCResourceSet rs = pl.getResources();
+		    SOCResourceSet rl = new SOCResourceSet(); // store cards possibly robbed
+		    int tot = rs.getTotal();
+		    int nt = tot - mv; // new total
+		    String vrname = "";
 
                     // first convert known resources to unknown resources
-		    // **** this was wrong! only getValue() of the known become unknown...
+		    // **** this was wrong! at most mv of the known become unknown...
 		    // **** code also appears in SOCRobotBrain ~1043
-		    int mv = mes.getValue();
-		    for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++) {
-			int ra = Math.min(rs.getAmount(i), mv);
-			rs.subtract(ra, i); 
+		    for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
+			int ra = Math.min(rs.getAmount(rt), mv); // how many could be lost:
+			rs.subtract(ra, rt); 
 			rs.add(ra, SOCResourceConstants.UNKNOWN);
+			rl.add(ra, rt); // resources [possibly] lost
+			// now remember that these may not be gone:
+			ur.add(ra, rt); 
 		    }
-		    // then remove the unknown resources
-                    pl.getResources().subtract(mv, SOCResourceConstants.UNKNOWN);
+		    // then remove the unknown resource(s)
+                    rs.subtract(mv, SOCResourceConstants.UNKNOWN);
 
+		    int ut = rs.getAmount(SOCResourceConstants.UNKNOWN);
+		    for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
+			ur.setAmount(Math.min(ur.getAmount(rt), ut), rt);
+		    }
+
+		    // if (mv == 1) then it must have been robbery!
+		    // resourcesToGain.put(ga, (mv == 1) ? rl : null);
+		    if (mv == 1) {
+			resourcesToGain.put(ga, rl);
+			pi.print(">>> Vict: "+pl.getName()+": "+ rl );
+		    } else {
+			resourcesToGain.remove(ga);
+		    }
                     break;
                 }
 
@@ -1877,27 +1920,40 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 
     // keep this synch'd if order changes:
     // panelResources[SOCResourceConstants.XXX]=SOCHandPanel.XXX;
+    // or use: {0,1,2,3,4,5}; ?
     int[] panelResources = {0,SOCHandPanel.ORE,SOCHandPanel.WHEAT,SOCHandPanel.SHEEP,SOCHandPanel.CLAY,SOCHandPanel.WOOD,};
 
     // common code:
+    /** 
+     * A resource of type {@code rsc} was lost or gained.
+     */
     void handleResourceElement(SOCPlayer pl, SOCPlayerInterface pi, SOCPlayerElement mes, int rsc) {
+	SOCResourceSet rs = pl.getResources();
+	SOCResourceSet ur = pl.getUResources();
+
+	int mv = mes.getValue();
+
 	switch (mes.getAction())
 	    {
 	    case SOCPlayerElement.SET:
-		pl.getResources().setAmount(mes.getValue(), rsc);
+		rs.setAmount(mv, rsc);
+		ur.setAmount(0, rsc);
 		break;
 
 	    case SOCPlayerElement.GAIN:
-		pl.getResources().add(mes.getValue(), rsc);
+		rs.add(mv, rsc);
 		break;
 
 	    case SOCPlayerElement.LOSE:
-		if (pl.getResources().getAmount(rsc) >= mes.getValue()) {
-		    pl.getResources().subtract(mes.getValue(), rsc);
-		} else {
-		    pl.getResources().subtract(mes.getValue() - pl.getResources().getAmount(rsc), SOCResourceConstants.UNKNOWN);
-		    pl.getResources().setAmount(0, rsc);
+		int xs = mv - rs.getAmount(rsc);
+		rs.subtract(mv, rsc);
+		if (xs > 0) ur.subtract(xs, rsc);
+
+		int ut = rs.getAmount(SOCResourceConstants.UNKNOWN);
+		for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
+		    ur.setAmount(Math.min(ur.getAmount(rt), ut), rt);
 		}
+
 		break;
 	    }
 	
@@ -1923,23 +1979,36 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         {
             SOCPlayer pl = ga.getPlayer(mes.getPlayerNumber());
             SOCPlayerInterface pi = (SOCPlayerInterface) playerInterfaces.get(mes.getGame());
+	    int mv = mes.getCount();
 
-            if (mes.getCount() != pl.getResources().getTotal())
+	    // since getTotal() includes all the 'unknown' or 'potential' cards, this is likely:
+	    // eventually, need 'virtual cards' or 'quantum cards' to represent unknown cards.
+	    // quantum card is tracked from orig to dest, so playing it could resolve unknown in other hand.
+            if (mv != pl.getResources().getTotal())
             {
                 SOCResourceSet rsrcs = pl.getResources();
 
                 if (D.ebugOn || true)
                 {
-                    pi.print(">>> RES CNT ERR: "+pl.getName()+": "+mes.getCount()+ " != "+rsrcs.getTotal());
+                    pi.print(">>> RES CNT ERR: "+pl.getName()+": "+ mv + " != "+rsrcs.getTotal());
+		    // need to find code that handles monopoly and robber, correct the counts.
                 }
 
                 //
                 //  fix it: assume all are UNKNOWN!
+		// slightly better: limit each res to total.
                 //
                 if (!pl.getName().equals(nickname))
                 {
-                    rsrcs.clear();
-                    rsrcs.setAmount(mes.getCount(), SOCResourceConstants.UNKNOWN);
+                    // rsrcs.clear();
+		    for (int rs = SOCResourceConstants.MIN; rs <= SOCResourceConstants.MAX; rs++) {
+			rsrcs.setAmount(Math.min(mv,rsrcs.getAmount(rs)), rs);
+		    }
+		    if (rsrcs.getTotal() != mv) {
+			rsrcs.clear();
+			rsrcs.setAmount(mv, SOCResourceConstants.UNKNOWN);
+		    }
+
                     pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
                 }
             }

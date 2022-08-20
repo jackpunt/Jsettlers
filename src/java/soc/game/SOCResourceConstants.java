@@ -33,7 +33,7 @@ public interface SOCResourceConstants
      */
 
     /** printable names for each resource. */
-    public static final String[] names = {"ore","wheat","sheep","clay","wood","unknown"};
+    public static final String[] names = {"??","ore","wheat","sheep","clay","wood","unknown"};
 
     public static final int MIN = 1;
     public static final int ORE = 1; // names.indexOf("ore");

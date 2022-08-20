@@ -913,15 +913,7 @@ public class SOCRobotNegotiator
 
         int offerBuildingTime = 1000;
 
-        try
-        {
-            SOCResSetBuildTimePair offerBuildingTimePair = estimate.calculateRollsFast(ourResourcesCopy, targetResources, 1000, player.getPortFlags());
-            offerBuildingTime = offerBuildingTimePair.getRolls();
-        }
-        catch (CutoffExceededException e)
-        {
-            ;
-        }
+	offerBuildingTime = estimate.calculateRollsFast(ourResourcesCopy, targetResources, 1000, player.getPortFlags());
 
         D.ebugPrintln("*** offerBuildingTime = " + offerBuildingTime);
         D.ebugPrintln("*** ourResourcesCopy = " + ourResourcesCopy);

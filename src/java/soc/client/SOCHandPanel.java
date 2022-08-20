@@ -68,8 +68,9 @@ public class SOCHandPanel extends Panel implements ActionListener
     protected static final String SIT = "Sit Here";
     protected static final String START = "Start Game";
     protected static final String ROBOT = "Robot";
-    protected static final String TAKEOVER = "Take Over";
-    protected static final String LOCKSEAT = "Lock";
+    protected static final String TAKEOVER   = "Take Over";
+    protected static final String SEATLOCKED = "* Seat Locked *";
+    protected static final String LOCKSEAT   = "Lock";
     protected static final String UNLOCKSEAT = "Unlock";
     protected static final String ROLL = "Roll";
     protected static final String QUIT = "Quit";
@@ -182,30 +183,10 @@ public class SOCHandPanel extends Panel implements ActionListener
         setForeground(Color.black);
         setFont(new Font("Helvetica", Font.PLAIN, 10));
 
-        faceImg = new SOCFaceButton(playerInterface, player.getPlayerNumber());
-        add(faceImg);
+        offer = new TradeOfferPanel(this, player.getPlayerNumber());
+        offer.setVisible(false);
+        add(offer);
 
-        pname = new Label();
-        pname.setFont(new Font("Serif", Font.PLAIN, 14));
-        add(pname);
-
-        startBut = new Button(START);
-        startBut.addActionListener(this);
-        // this button always enabled
-        add(startBut);
-
-        vpLab = new Label("Points: ");
-        add(vpLab);
-        vpSq = new ColorSquare(ColorSquare.GREY, 0);
-        add(vpSq);
-        
-        larmyLab = new Label("", Label.CENTER);
-        larmyLab.setForeground(new Color(142, 45, 10));
-        add(larmyLab);
-        
-        lroadLab = new Label("", Label.CENTER);
-        lroadLab.setForeground(new Color(142, 45, 10));
-        add(lroadLab);
 
         oreLab = new Label("Ore:");
         add(oreLab);
@@ -351,9 +332,32 @@ public class SOCHandPanel extends Panel implements ActionListener
         quitBut.setEnabled(interactive);
         add(quitBut);
 
-        offer = new TradeOfferPanel(this, player.getPlayerNumber());
-        offer.setVisible(false);
-        add(offer);
+	// add last so they paint last (atop offer panel)
+        faceImg = new SOCFaceButton(playerInterface, player.getPlayerNumber());
+        add(faceImg);
+
+        pname = new Label();
+        pname.setFont(new Font("Serif", Font.PLAIN, 14));
+        add(pname);
+
+        startBut = new Button(START);
+        startBut.addActionListener(this);
+        // this button always enabled
+        add(startBut);
+
+        vpLab = new Label("Points: ");
+        add(vpLab);
+        vpSq = new ColorSquare(ColorSquare.GREY, 0);
+        add(vpSq);
+        
+        larmyLab = new Label("", Label.CENTER);
+        larmyLab.setForeground(new Color(142, 45, 10));
+        add(larmyLab);
+        
+        lroadLab = new Label("", Label.CENTER);
+        lroadLab.setForeground(new Color(142, 45, 10));
+        add(lroadLab);
+
         // set the starting state of the panel
         removePlayer();
     }
@@ -749,16 +753,11 @@ public class SOCHandPanel extends Panel implements ActionListener
             D.ebugPrintln("SOCHandPanel.addPlayer: This is our hand");
 
             // show 'Victory Points' and hide "Start Button" if game in progress
-            if (game.getGameState() == game.NEW)
-            {
-                startBut.setVisible(true);
-            }
-            else
-            {
-                vpLab.setVisible(true);
-                vpSq.setVisible(true);
-            }
-            
+            boolean newGame = (game.getGameState() == game.NEW);
+            startBut.setVisible(newGame);
+            vpLab.setVisible(!newGame);
+            vpSq.setVisible(!newGame);
+
             claySq.setVisible(true);
             clayLab.setVisible(true);
             oreSq.setVisible(true);
@@ -835,6 +834,7 @@ public class SOCHandPanel extends Panel implements ActionListener
             woodSq.setVisible(true);
             woodLab.setVisible(true);
 
+	    startBut.setVisible(false);
             vpLab.setVisible(true);
             vpSq.setVisible(true);
 
@@ -1026,7 +1026,7 @@ public class SOCHandPanel extends Panel implements ActionListener
         }
         else
         {
-            takeOverBut.setLabel("* Seat Locked *");
+            takeOverBut.setLabel(SEATLOCKED);
         }
     }
 
@@ -1169,193 +1169,171 @@ public class SOCHandPanel extends Panel implements ActionListener
     }
 
     /**
-     * DOCUMENT ME!
+     * Layout SOCHandPanel:
      */
     public void doLayout()
     {
 	boolean showAll = true;
         Dimension dim = getSize();
-        int inset = 8;
+        int inset = 6;		// 8?
         int space = 2;
 
         if (!inPlay)
-        {
-            /* just show the 'sit' button */
-            /* and the 'robot' button     */
-            sitBut.setBounds((dim.width - 60) / 2, (dim.height - 82) / 2, 60, 40);
-        }
-        else
-        {
-	    boolean ourHand = player.getName().equals(client.getNickname());
-            FontMetrics fm = this.getFontMetrics(this.getFont());
-            int lineH = ColorSquare.HEIGHT;
-            int stlmtsW = fm.stringWidth("Stlmts: ");
-            int labelW = fm.stringWidth(knightsLab.getText());
-            int faceW = 40;
-            int pnameW = dim.width - (inset + faceW + inset + inset);
+	    {
+		/* just show the 'sit' button */
+		/* and the 'robot' button     */
+		sitBut.setBounds((dim.width - 60) / 2, (dim.height - 82) / 2, 60, 40);
+		return;
+	    }
 
-            faceImg.setBounds(inset, inset, faceW, faceW);
-            pname.setBounds(inset + faceW + inset, inset, pnameW, lineH);
+	boolean isRobot = player.isRobot();
+	boolean ourHand = player.getName().equals(client.getNickname());
+	FontMetrics fm = this.getFontMetrics(this.getFont());
+	int lineH = ColorSquare.HEIGHT;
+	int labelW = fm.stringWidth(knightsLab.getText());
+	int faceW = 40;
+	int pnameW = dim.width - (inset + faceW + inset + inset);
 
-            if (showAll || ourHand) {
-                /* This is our hand */
-                //sqPanel.doLayout();
+	if (!ourHand) {
+	    labelW = fm.stringWidth(SEATLOCKED);
+	    takeOverBut.setBounds(dim.width - (inset + labelW), inset, labelW, lineH);
+	    seatLockBut.setBounds(dim.width - (inset + labelW), inset, labelW, lineH);
+	    // takeOver/seatLock only apply to robot players:
+	    if (player.isRobot()) pnameW -= labelW; // robot names are short anyway!
+	}
 
-                Dimension sqpDim = sqPanel.getSize();
-                int sheepW = fm.stringWidth("Sheep: ");
-                int pcW = fm.stringWidth(CARD);
-                int giveW = fm.stringWidth(GIVE);
-                int clearW = fm.stringWidth(CLEAR);
-                int bankW = fm.stringWidth(BANK);
-		int topH = inset + faceW; // (faceW == faceH)
-                int cardsH = (ourHand ? 5 : 6) * (lineH + space);
-                int tradeH = 4 * (lineH + space);
-		int balloonH = dim.height - (topH + space + space + cardsH + inset);
-                int sectionSpace = (dim.height - (topH + cardsH + tradeH + lineH + inset)) / 3;
-                int tradeY = topH + sectionSpace;
-                int cardsY = tradeY + tradeH + sectionSpace;
+	faceImg.setBounds(inset, inset, faceW, faceW);
+	pname.setBounds(inset + faceW + inset, inset, pnameW, lineH);
 
-                // Always reposition everything
-                startBut.setBounds(inset + faceW + inset, inset + lineH + space, dim.width - (inset + faceW + inset + inset), lineH);
-		
-		int vpW = fm.stringWidth(vpLab.getText());
-		vpLab.setBounds(inset + faceW + inset, topH - lineH, vpW, lineH);
-		vpSq.setBounds(inset + faceW + inset + vpW + space, topH - lineH, ColorSquare.WIDTH, ColorSquare.WIDTH);
-		
-		int topStuffW = inset + faceW + inset + vpW + space + ColorSquare.WIDTH + space;
-		int topCenter = (dim.width - (topStuffW + inset + space)) / 2;
-		// always position these: though they may not be visible
-		larmyLab.setBounds(topStuffW, topH - lineH, topCenter, lineH);
-		lroadLab.setBounds(topStuffW + topCenter + space, topH - lineH, topCenter, lineH);
-		
-                giveLab.setBounds(inset, tradeY, giveW, lineH);
-                getLab.setBounds(inset, tradeY + lineH, giveW, lineH);
-                sqPanel.setLocation(inset + giveW + space, tradeY);
 
-                int tbW = ((giveW + sqpDim.width) / 2);
-                int tbX = inset;
-                int tbY = tradeY + sqpDim.height + space;
-                sendBut.setBounds(tbX, tbY, tbW, lineH);
-                clearBut.setBounds(tbX, tbY + lineH + space, tbW, lineH);
-                bankBut.setBounds(tbX + tbW + space, tbY + lineH + space, tbW, lineH);
+	/* This is our hand */
+	//sqPanel.doLayout();
+	    
+	Dimension sqpDim = sqPanel.getSize();
+	int sheepW = fm.stringWidth("Sheep: ");
+	int pcW = fm.stringWidth(CARD);
+	int giveW = fm.stringWidth(GIVE);
+	int clearW = fm.stringWidth(CLEAR);
+	int bankW = fm.stringWidth(BANK);
+	int topH = inset + faceW; // (faceW == faceH)
+	int cardsH = (ourHand ? 5 : 5) * (lineH + space) - space;
+	int tradeH = 4 * (lineH + space);
+	int balloonH = dim.height - (topH + space + cardsH + inset);
+	int sectionSpace = (dim.height - (topH + cardsH + tradeH + lineH + inset)) / 3;
+	int tradeY = topH + sectionSpace; // where our trade panel goes (and status list)
+	int cardsY = tradeY + tradeH + sectionSpace; // where our card list goes
+	int listY = (dim.height - (inset + cardsH)); // where other player card/status list starts
+	    
+	// Always reposition everything
+	startBut.setBounds(inset + faceW + inset, inset + lineH + space, dim.width - (inset + faceW + inset + inset), lineH);
+	    
+	int vpW = fm.stringWidth(vpLab.getText());
+	vpLab.setBounds(inset + faceW + inset, topH - lineH, vpW, lineH);
+	vpSq.setBounds(inset + faceW + inset + vpW + space, topH - lineH, ColorSquare.WIDTH, ColorSquare.WIDTH);
+	    
+	int topStuffW = inset + faceW + inset + vpW + space + ColorSquare.WIDTH + space;
+	int topCenter = (dim.width - (topStuffW + inset + space)) / 2;
+	// always position these: though they may not be visible
+	larmyLab.setBounds(topStuffW,                     topH - lineH, topCenter, lineH);
+	lroadLab.setBounds(topStuffW + topCenter + space, topH - lineH, topCenter, lineH);
+	// end of top section covers down to topH.
+	    
+	giveLab.setBounds(inset, tradeY, giveW, lineH);
+	getLab.setBounds(inset, tradeY + lineH, giveW, lineH);
+	sqPanel.setLocation(inset + giveW + space, tradeY);
+	    
+	int tbW = ((giveW + sqpDim.width) / 2);
+	int tbX = inset;
+	int tbY = tradeY + sqpDim.height + space;
+	clearBut.setBounds(tbX             , tbY                , tbW, lineH);
+	bankBut.setBounds(tbX              , tbY + lineH + space, tbW, lineH);
+	sendBut.setBounds(tbX + tbW + space, tbY + lineH + space, tbW, lineH);
+	    
+	playerSend[0].setBounds(tbX + tbW + space                                  , tbY, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	playerSend[1].setBounds(tbX + tbW + space + ((tbW - ColorSquare.WIDTH) / 2), tbY, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	playerSend[2].setBounds(tbX + tbW + space +  (tbW - ColorSquare.WIDTH)     , tbY, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	    
+	// begin trade/balloon/takeover section:
+	    
+	if (!ourHand) {
+	    int tw = Math.min(dim.width - (2 * inset), 175);
+	    int th = Math.min(balloonH, 124); // height of TradeOfferPanel
+	    th = balloonH;
+	    offer.setBounds(inset, topH + space, tw, th);
+	    offer.doLayout();
+	}
+	    
+	// Right side column with Knights, Roads, Sltmts, Cities:
+	// in trade section for this player, in lower section for others.
+	int lo = labelW + space;
+	int lx = dim.width - inset - ColorSquare.WIDTH;
+	int ly = ourHand ? tradeY : listY;
 
-		playerSend[0].setBounds(tbX + tbW + space, tbY, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-		playerSend[1].setBounds(tbX + tbW + space + ((tbW - ColorSquare.WIDTH) / 2), tbY, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-		playerSend[2].setBounds((tbX + tbW + space + tbW) - ColorSquare.WIDTH, tbY, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	if (!ourHand) {
+	    labelW = fm.stringWidth(developmentLab.getText());
+	    lo = labelW + space;
 
-		int lo = labelW + space;
-		int lx = dim.width - inset - ColorSquare.WIDTH;
-		int ly = ourHand ? tradeY : (dim.height - (inset + cardsH));
-                knightsLab.setBounds(lx - lo, ly, labelW, lineH);
-                knightsSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	    developmentLab.setBounds(lx - lo, ly, labelW, lineH);
+	    developmentSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	    ly += (lineH + space);
+	}
+	// reset labelW and lo:
+	labelW = fm.stringWidth(knightsLab.getText());
+	lo = labelW + space;
 
-		ly += (lineH + space);
-                roadLab.setBounds(lx - lo, ly, labelW, lineH);
-                roadSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-
-		ly += (lineH + space);
-                settlementLab.setBounds(lx - lo, ly, labelW, lineH);
-                settlementSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-
-		ly += (lineH + space);
-                cityLab.setBounds(lx - lo, ly, labelW, lineH);
-                citySq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-
-		if (!ourHand) {
-		    ly += (lineH + space); // double space
-		    ly += (lineH + space);
-		    labelW = fm.stringWidth(developmentLab.getText());
-		    lo = labelW + space;
-		    developmentLab.setBounds(lx - lo, ly, labelW, lineH);
-		    developmentSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-		}
-
-		// reset orig for resource squares:
-		labelW = sheepW;
-		lo = labelW + space;
-		lx = inset + lo;
-		ly = ourHand ? cardsY : (dim.height - (inset + cardsH));
-                oreLab.setBounds(lx - lo, ly, labelW, lineH);
-                oreSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-		ly += (lineH+space);
-                wheatLab.setBounds(lx - lo, ly, labelW, lineH);
-                wheatSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-		ly += (lineH+space);
-                sheepLab.setBounds(lx - lo, ly, labelW, lineH);
-                sheepSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-		ly += (lineH+space);
-                clayLab.setBounds(lx - lo, ly, labelW, lineH);
-                claySq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-		ly += (lineH+space);
-                woodLab.setBounds(lx - lo, ly, labelW, lineH);
-                woodSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-		if (!ourHand) {
-		    ly += (lineH + space);
-		    resourceLab.setBounds(lx - lo, ly, labelW, lineH);
-		    resourceSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-		}
-
-                int clX = lx + ColorSquare.WIDTH + (4 * space);
-                int clW = dim.width - (clX + inset);
-                cardList.setBounds(clX, cardsY, clW, (ly - cardsY) - 2);
-                playCardBut.setBounds(((clW - pcW) / 2) + clX, ly, pcW, lineH);
-
-                int bbW = 50;
-                quitBut.setBounds(inset, dim.height - lineH - inset, bbW, lineH);
-                rollBut.setBounds(dim.width - (bbW + space + bbW + inset), dim.height - lineH - inset, bbW, lineH);
-                doneBut.setBounds(dim.width - inset - bbW, dim.height - lineH - inset, bbW, lineH);
-
-		if (!ourHand) {
-		    offer.setBounds(inset, topH + space, dim.width - (2 * inset), balloonH);
-		    offer.doLayout();
-		}
-            }
-            else
-            {
-                /* This is another player's hand */
-                int balloonH = dim.height - (inset + (4 * (lineH + space)) + inset);
-                int dcardsW = fm.stringWidth("Dev. Cards: ");
-                int vpW = fm.stringWidth(vpLab.getText());
-
-                if (player.isRobot())
-                {
-                    if (game.getPlayer(client.getNickname()) == null)
-                    {
-                        takeOverBut.setBounds(10, (inset + balloonH) - 10, dim.width - 20, 20);
-                    }
-                    else if (seatLockBut.isVisible())
-                    {
-                        //seatLockBut.setBounds(10, inset+balloonH-10, dim.width-20, 20);
-                        seatLockBut.setBounds(inset + dcardsW + space + ColorSquare.WIDTH + space, inset + balloonH + (lineH + space) + (lineH / 2), (dim.width - (2 * (inset + ColorSquare.WIDTH + (2 * space))) - stlmtsW - dcardsW), 2 * (lineH + space));
-                    }
-                }
-
-		offer.setBounds(inset, inset + faceW + space, dim.width - (2 * inset), balloonH);
-		offer.doLayout();
-
-                vpLab.setBounds(inset + faceW + inset, (inset + faceW) - lineH, vpW, lineH);
-                vpSq.setBounds(inset + faceW + inset + vpW + space, (inset + faceW) - lineH, ColorSquare.WIDTH, ColorSquare.HEIGHT);
-
-                int topStuffW = inset + faceW + inset + vpW + space + ColorSquare.WIDTH + space;
-
-                // always position these: though they may not be visible
-                larmyLab.setBounds(topStuffW, (inset + faceW) - lineH, (dim.width - (topStuffW + inset + space)) / 2, lineH);
-                lroadLab.setBounds(topStuffW + ((dim.width - (topStuffW + inset + space)) / 2) + space, (inset + faceW) - lineH, (dim.width - (topStuffW + inset + space)) / 2, lineH);
-
-                resourceLab.setBounds(inset, inset + balloonH + (2 * (lineH + space)), dcardsW, lineH);
-                resourceSq.setBounds(inset + dcardsW + space, inset + balloonH + (2 * (lineH + space)), ColorSquare.WIDTH, ColorSquare.HEIGHT);
-                developmentLab.setBounds(inset, inset + balloonH + (3 * (lineH + space)), dcardsW, lineH);
-                developmentSq.setBounds(inset + dcardsW + space, inset + balloonH + (3 * (lineH + space)), ColorSquare.WIDTH, ColorSquare.HEIGHT);
-                knightsLab.setBounds(inset, inset + balloonH + (lineH + space), dcardsW, lineH);
-                knightsSq.setBounds(inset + dcardsW + space, inset + balloonH + (lineH + space), ColorSquare.WIDTH, ColorSquare.HEIGHT);
-
-                roadLab.setBounds(dim.width - inset - stlmtsW - ColorSquare.WIDTH - space, inset + balloonH + (lineH + space), stlmtsW, lineH);
-                roadSq.setBounds(dim.width - inset - ColorSquare.WIDTH, inset + balloonH + (lineH + space), ColorSquare.WIDTH, ColorSquare.HEIGHT);
-                settlementLab.setBounds(dim.width - inset - stlmtsW - ColorSquare.WIDTH - space, inset + balloonH + (2 * (lineH + space)), stlmtsW, lineH);
-                settlementSq.setBounds(dim.width - inset - ColorSquare.WIDTH, inset + balloonH + (2 * (lineH + space)), ColorSquare.WIDTH, ColorSquare.HEIGHT);
-                cityLab.setBounds(dim.width - inset - stlmtsW - ColorSquare.WIDTH - space, inset + balloonH + (3 * (lineH + space)), stlmtsW, lineH);
-                citySq.setBounds(dim.width - inset - ColorSquare.WIDTH, inset + balloonH + (3 * (lineH + space)), ColorSquare.WIDTH, ColorSquare.HEIGHT);
-            }
-        }
+	knightsLab.setBounds(lx - lo, ly, labelW, lineH);
+	knightsSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	    
+	ly += (lineH + space);
+	roadLab.setBounds(lx - lo, ly, labelW, lineH);
+	roadSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	    
+	ly += (lineH + space);
+	settlementLab.setBounds(lx - lo, ly, labelW, lineH);
+	settlementSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	    
+	ly += (lineH + space);
+	cityLab.setBounds(lx - lo, ly, labelW, lineH);
+	citySq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	    
+	// end of middle trade/button/takeover section
+	    
+	// begin lower sections:
+	// reset orig for resource squares:
+	labelW = sheepW;
+	lo = labelW + space;
+	lx = inset + lo;
+	ly = ourHand ? cardsY : listY;
+	oreLab.setBounds(lx - lo, ly, labelW, lineH);
+	oreSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	ly += (lineH+space);
+	wheatLab.setBounds(lx - lo, ly, labelW, lineH);
+	wheatSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	ly += (lineH+space);
+	sheepLab.setBounds(lx - lo, ly, labelW, lineH);
+	sheepSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	ly += (lineH+space);
+	clayLab.setBounds(lx - lo, ly, labelW, lineH);
+	claySq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	ly += (lineH+space);
+	woodLab.setBounds(lx - lo, ly, labelW, lineH);
+	woodSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	if (!ourHand) {
+	    // ly += (lineH + space);
+	    lx += labelW + space * 3;
+	    // resourceLab.setBounds(lx - lo, ly, labelW, lineH);
+	    resourceSq.setBounds(lx, ly, ColorSquare.WIDTH, ColorSquare.HEIGHT);
+	}
+	    
+	    
+	int clX = lx + ColorSquare.WIDTH + (4 * space);
+	int clW = dim.width - (clX + inset);
+	cardList.setBounds(clX, cardsY, clW, (ly - cardsY) - 2);
+	playCardBut.setBounds(((clW - pcW) / 2) + clX, ly, pcW, lineH);
+	    
+	int bbW = 50;
+	quitBut.setBounds(inset, dim.height - lineH - inset, bbW, lineH);
+	rollBut.setBounds(dim.width - (bbW + space + bbW + inset), dim.height - lineH - inset, bbW, lineH);
+	doneBut.setBounds(dim.width - inset - bbW, dim.height - lineH - inset, bbW, lineH);
     }
 }

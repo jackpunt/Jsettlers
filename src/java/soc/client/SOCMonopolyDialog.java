@@ -61,7 +61,7 @@ class SOCMonopolyDialog extends Dialog implements ActionListener
 	// five buttons for five resource names:
         for (int i = 0; i < 5; i++)
         {
-	    rsrcBut[i] = new Button(SOCResourceConstants.names[i]);
+	    rsrcBut[i] = new Button(SOCResourceConstants.names[SOCResourceConstants.MIN + i]);
 	    rsrcBut[i].setBackground(ColorSquare.RES_COLORS[i]);
             add(rsrcBut[i]);
             rsrcBut[i].addActionListener(this);

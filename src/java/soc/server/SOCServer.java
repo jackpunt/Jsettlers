@@ -286,6 +286,25 @@ public class SOCServer extends Server
     }
 
     /**
+     * @param a SOCPlayer name.
+     * @return Connection to player named by pname.
+     */
+    protected Connection connectionForPlayer(String pname) {
+	Enumeration conEnum = getConnections();
+	
+	while (conEnum.hasMoreElements())
+	    {
+		Connection con = (Connection) conEnum.nextElement();
+		
+		if ((con != null) && pname.equals((String) con.data))
+		    {
+			return con;
+		    }
+	    }
+	return null;
+    }
+    
+    /**
      * the connection c leaves the channel ch
      *
      * WARNING: MUST HAVE THE channelList.takeMonitorForChannel(ch) before
@@ -1212,19 +1231,7 @@ public class SOCServer extends Server
             return false;
         }
 
-        Enumeration connsEnum = getConnections();
-
-        while (connsEnum.hasMoreElements())
-        {
-            Connection con = (Connection) connsEnum.nextElement();
-
-            if ((con != null) && (n.equals((String) con.data)))
-            {
-                return false;
-            }
-        }
-
-        return true;
+	return (connectionForPlayer(n) == null);
     }
 
     /**
@@ -1842,7 +1849,7 @@ public class SOCServer extends Server
 	int[] diceRolls = ga.getDieStats();
 	int[] rollStats = ga.getRollStats();
 	int nr = diceRolls[0];
-	String dmsg = "> N = "+nr;
+	String dmsg = "> N = "+nr+":";
 	for (int i = 1; i<=6; i++) {
 	    dmsg += "   "+diceRolls[i];
 	}
@@ -1854,7 +1861,7 @@ public class SOCServer extends Server
 	    double rdif = (rollStats[i]*36.0 - evi)/evi;
 	    String nm = ""+rollStats[i];
 	    nm = "   ".substring(nm.length()) + nm;
-	    dmsg = (i<10?">  ":"> ")+i+": "+nm+(" = "+rdif+"    ").substring(0,8);
+	    dmsg = (i<10?">   ":"> ")+i+": "+nm+(" = "+rdif+"    ").substring(0,8);
 	    messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, dmsg));
 	}
     }
@@ -2433,20 +2440,7 @@ public class SOCServer extends Server
                             /**
                              * boot the robot out of the game
                              */
-                            Connection robotCon = null;
-                            Enumeration conEnum = conns.elements();
-
-                            while (conEnum.hasMoreElements())
-                            {
-                                Connection con = (Connection) conEnum.nextElement();
-
-                                if (seatedPlayer.getName().equals((String) con.data))
-                                {
-                                    robotCon = con;
-
-                                    break;
-                                }
-                            }
+                            Connection robotCon = connectionForPlayer(seatedPlayer.getName());
 
                             robotCon.put(SOCRobotDismiss.toCmd(mes.getGame()));
 
@@ -2940,106 +2934,40 @@ public class SOCServer extends Server
                             for (int i = 0; i < SOCGame.MAXPLAYERS; i++)
                             {
                                 SOCResourceSet rsrcs = ga.getResourcesGainedFromRoll(ga.getPlayer(i), curdice);
+				int total = rsrcs.getTotal();
 
-                                if (rsrcs.getTotal() == 0)
+                                if (total == 0)
                                 {
                                     messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, ga.getPlayer(i).getName() + " got nothing."));
                                 }
                                 else
                                 {
                                     String message = ga.getPlayer(i).getName() + " got ";
-                                    int cl;
-                                    int or;
-                                    int sh;
-                                    int wh;
-                                    int wo;
-                                    cl = rsrcs.getAmount(SOCResourceConstants.CLAY);
-                                    or = rsrcs.getAmount(SOCResourceConstants.ORE);
-                                    sh = rsrcs.getAmount(SOCResourceConstants.SHEEP);
-                                    wh = rsrcs.getAmount(SOCResourceConstants.WHEAT);
-                                    wo = rsrcs.getAmount(SOCResourceConstants.WOOD);
-
-                                    if (cl > 0)
-                                    {
-                                        messageToGame(ga.getName(), new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.GAIN, SOCPlayerElement.CLAY, cl));
-                                        message += (cl + " clay");
-
-                                        if ((or + sh + wh + wo) > 0)
-                                        {
-                                            message += ", ";
-                                        }
-                                    }
-
-                                    if (or > 0)
-                                    {
-                                        messageToGame(ga.getName(), new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.GAIN, SOCPlayerElement.ORE, or));
-                                        message += (or + " ore");
-
-                                        if ((sh + wh + wo) > 0)
-                                        {
-                                            message += ", ";
-                                        }
-                                    }
-
-                                    if (sh > 0)
-                                    {
-                                        messageToGame(ga.getName(), new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.GAIN, SOCPlayerElement.SHEEP, sh));
-                                        message += (sh + " sheep");
-
-                                        if ((wh + wo) > 0)
-                                        {
-                                            message += ", ";
-                                        }
-                                    }
-
-                                    if (wh > 0)
-                                    {
-                                        messageToGame(ga.getName(), new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.GAIN, SOCPlayerElement.WHEAT, wh));
-                                        message += (wh + " wheat");
-
-                                        if (wo > 0)
-                                        {
-                                            message += ", ";
-                                        }
-                                    }
-
-                                    if (wo > 0)
-                                    {
-                                        messageToGame(ga.getName(), new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.GAIN, SOCPlayerElement.WOOD, wo));
-                                        message += (wo + " wood");
-                                    }
-
+				    for (int rs = SOCResourceConstants.MIN; rs < SOCResourceConstants.MAX; rs++) {
+					int cnt = rsrcs.getAmount(rs);
+					messageToGame(gn, new SOCPlayerElement(gn, i, SOCPlayerElement.GAIN, rs, cnt));
+					if (cnt > 0) {
+					    message += (cnt + " " + SOCResourceConstants.names[rs]);
+					    total -= cnt;
+					    if (total > 0) message += ", "; else break;
+					}
+				    }
                                     message += ".";
                                     messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, message));
                                 }
-
-                                //
                                 //  send all resource info for accuracy
-                                //
-                                Connection playerCon = null;
-                                Enumeration conEnum = conns.elements();
 
-                                while (conEnum.hasMoreElements())
-                                {
-                                    Connection con = (Connection) conEnum.nextElement();
-
-                                    if (ga.getPlayer(i).getName().equals((String) con.data))
-                                    {
-                                        playerCon = con;
-
-                                        break;
-                                    }
-                                }
+                                Connection playerCon = connectionForPlayer(ga.getPlayer(i).getName());
 
                                 if (playerCon != null)
                                 {
+                                    // send Player[i]'s details to player[i]
                                     SOCResourceSet resources = ga.getPlayer(i).getResources();
-                                    messageToPlayer(playerCon, new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.SET, SOCPlayerElement.CLAY, resources.getAmount(SOCPlayerElement.CLAY)));
-                                    messageToPlayer(playerCon, new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.SET, SOCPlayerElement.ORE, resources.getAmount(SOCPlayerElement.ORE)));
-                                    messageToPlayer(playerCon, new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.SET, SOCPlayerElement.SHEEP, resources.getAmount(SOCPlayerElement.SHEEP)));
-                                    messageToPlayer(playerCon, new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.SET, SOCPlayerElement.WHEAT, resources.getAmount(SOCPlayerElement.WHEAT)));
-                                    messageToPlayer(playerCon, new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.SET, SOCPlayerElement.WOOD, resources.getAmount(SOCPlayerElement.WOOD)));
-                                    messageToGame(ga.getName(), new SOCResourceCount(ga.getName(), i, resources.getTotal()));
+				    for (int rs = SOCResourceConstants.MIN; rs < SOCResourceConstants.MAX; rs++) {
+					int cnt = resources.getAmount(rs);
+					messageToPlayer(playerCon, new SOCPlayerElement(gn, i, SOCPlayerElement.SET, rs, cnt));
+				    }
+                                    messageToGame(ga.getName(), new SOCResourceCount(gn, i, resources.getTotal()));
                                 }
                             }
 
@@ -3066,21 +2994,14 @@ public class SOCServer extends Server
                              */
                             for (int i = 0; i < SOCGame.MAXPLAYERS; i++)
                             {
-                                if (ga.getPlayer(i).getResources().getTotal() > 7)
+				SOCPlayer plyr = ga.getPlayer(i);
+				int rscnt = plyr.getResources().getTotal();
+                                if (rscnt > 7)
                                 {
-                                    Enumeration coEnum = getConnections();
-
-                                    while (coEnum.hasMoreElements())
-                                    {
-                                        Connection con = (Connection) coEnum.nextElement();
-
-                                        if (ga.getPlayer(i).getName().equals((String) con.data))
-                                        {
-                                            con.put(SOCDiscardRequest.toCmd(ga.getName(), ga.getPlayer(i).getResources().getTotal() / 2));
-
-                                            break;
-                                        }
-                                    }
+				    Connection con = connectionForPlayer(plyr.getName());
+				    if (con != null) {
+					con.put(SOCDiscardRequest.toCmd(ga.getName(), rscnt / 2));
+				    }
                                 }
                             }
                         }
@@ -3130,36 +3051,12 @@ public class SOCServer extends Server
                         /**
                          * tell the player client that the player discarded the resources
                          */
-                        int cl = mes.getResources().getAmount(SOCResourceConstants.CLAY);
-                        int or = mes.getResources().getAmount(SOCResourceConstants.ORE);
-                        int sh = mes.getResources().getAmount(SOCResourceConstants.SHEEP);
-                        int wh = mes.getResources().getAmount(SOCResourceConstants.WHEAT);
-                        int wo = mes.getResources().getAmount(SOCResourceConstants.WOOD);
-
-                        if (cl > 0)
-                        {
-                            messageToPlayer(c, new SOCPlayerElement(gn, player.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.CLAY, cl));
-                        }
-
-                        if (or > 0)
-                        {
-                            messageToPlayer(c, new SOCPlayerElement(gn, player.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.ORE, or));
-                        }
-
-                        if (sh > 0)
-                        {
-                            messageToPlayer(c, new SOCPlayerElement(gn, player.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.SHEEP, sh));
-                        }
-
-                        if (wh > 0)
-                        {
-                            messageToPlayer(c, new SOCPlayerElement(gn, player.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.WHEAT, wh));
-                        }
-
-                        if (wo > 0)
-                        {
-                            messageToPlayer(c, new SOCPlayerElement(gn, player.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.WOOD, wo));
-                        }
+			for (int rs = SOCResourceConstants.MIN; rs < SOCResourceConstants.MAX; rs++) {
+			    int cnt = mes.getResources().getAmount(rs);
+			    if (cnt > 0) {
+				messageToPlayer(c, new SOCPlayerElement(gn, player.getPlayerNumber(), SOCPlayerElement.LOSE, rs, cnt));
+			    }
+			}
 
                         /**
                          * tell everyone else that the player discarded unknown resources
@@ -3988,50 +3885,22 @@ public class SOCServer extends Server
                     {
                         if (ga.canDoMonopolyAction())
                         {
-                            ga.doMonopolyAction(mes.getResource());
+			    int rt = mes.getResource();
+                            String message = (String) c.data + " monopolized " + SOCResourceConstants.names[rt] + ".";
 
-                            String message = (String) c.data + " monopolized ";
-
-                            switch (mes.getResource())
-                            {
-                            case SOCResourceConstants.CLAY:
-                                message += "clay.";
-
-                                break;
-
-                            case SOCResourceConstants.ORE:
-                                message += "ore.";
-
-                                break;
-
-                            case SOCResourceConstants.SHEEP:
-                                message += "sheep.";
-
-                                break;
-
-                            case SOCResourceConstants.WHEAT:
-                                message += "wheat.";
-
-                                break;
-
-                            case SOCResourceConstants.WOOD:
-                                message += "wood.";
-
-                                break;
-                            }
-
+                            ga.doMonopolyAction(rt); // set game's count of resources
                             messageToGame(ga.getName(), new SOCGameTextMsg(ga.getName(), SERVERNAME, message));
 
                             /**
-                             * just send all the player's resource counts for the
-                             * monopolized resource
+                             * just send all the player's resource counts (zero mostly) for the
+                             * monopolized resource; but everyone sees perp's final count!
                              */
                             for (int i = 0; i < SOCGame.MAXPLAYERS; i++)
                             {
                                 /**
                                  * Note: This only works if SOCPlayerElement.CLAY == SOCResourceConstants.CLAY
                                  */
-                                messageToGame(ga.getName(), new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.SET, mes.getResource(), ga.getPlayer(i).getResources().getAmount(mes.getResource())));
+                                messageToGame(ga.getName(), new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.SET, rt, ga.getPlayer(i).getResources().getAmount(rt)));
                             }
 
                             sendGameState(ga);
@@ -4230,147 +4099,108 @@ public class SOCServer extends Server
                  * send all the private information
                  */
                 SOCResourceSet resources = ga.getPlayer(pn).getResources();
-                messageToPlayer(c, new SOCPlayerElement(ga.getName(), pn, SOCPlayerElement.SET, SOCPlayerElement.CLAY, resources.getAmount(SOCPlayerElement.CLAY)));
-                messageToPlayer(c, new SOCPlayerElement(ga.getName(), pn, SOCPlayerElement.SET, SOCPlayerElement.ORE, resources.getAmount(SOCPlayerElement.ORE)));
-                messageToPlayer(c, new SOCPlayerElement(ga.getName(), pn, SOCPlayerElement.SET, SOCPlayerElement.SHEEP, resources.getAmount(SOCPlayerElement.SHEEP)));
-                messageToPlayer(c, new SOCPlayerElement(ga.getName(), pn, SOCPlayerElement.SET, SOCPlayerElement.WHEAT, resources.getAmount(SOCPlayerElement.WHEAT)));
-                messageToPlayer(c, new SOCPlayerElement(ga.getName(), pn, SOCPlayerElement.SET, SOCPlayerElement.WOOD, resources.getAmount(SOCPlayerElement.WOOD)));
-                messageToPlayer(c, new SOCPlayerElement(ga.getName(), pn, SOCPlayerElement.SET, SOCPlayerElement.UNKNOWN, resources.getAmount(SOCPlayerElement.UNKNOWN)));
+
+		// include UNKNOWN:
+		for (int rs = SOCResourceConstants.MIN; rs <= SOCResourceConstants.MAX; rs++) {
+		    messageToPlayer(c, new SOCPlayerElement(ga.getName(), pn, SOCPlayerElement.SET, rs, resources.getAmount(rs)));
+		}
 
                 SOCDevCardSet devCards = ga.getPlayer(pn).getDevCards();
 
-                /**
-                 * remove the unknown cards
-                 */
                 int i;
 
+		// remove (PLAY) the unknown cards:
                 for (i = 0; i < devCards.getTotal(); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.PLAY, SOCDevCardConstants.UNKNOWN));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.KNIGHT);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.KNIGHT); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDNEW, SOCDevCardConstants.KNIGHT));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.ROADS);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.ROADS); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDNEW, SOCDevCardConstants.ROADS));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.DISC);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.DISC); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDNEW, SOCDevCardConstants.DISC));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.MONO);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.MONO); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDNEW, SOCDevCardConstants.MONO));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.CAP);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.CAP); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDNEW, SOCDevCardConstants.CAP));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.LIB);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.LIB); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDNEW, SOCDevCardConstants.LIB));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.UNIV);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.UNIV); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDNEW, SOCDevCardConstants.UNIV));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.TEMP);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.TEMP); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDNEW, SOCDevCardConstants.TEMP));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.TOW);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.NEW, SOCDevCardConstants.TOW); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDNEW, SOCDevCardConstants.TOW));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.KNIGHT);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.KNIGHT); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDOLD, SOCDevCardConstants.KNIGHT));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.ROADS);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.ROADS); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDOLD, SOCDevCardConstants.ROADS));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.DISC);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.DISC); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDOLD, SOCDevCardConstants.DISC));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.MONO);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.MONO); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDOLD, SOCDevCardConstants.MONO));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.CAP);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.CAP); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDOLD, SOCDevCardConstants.CAP));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.LIB);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.LIB); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDOLD, SOCDevCardConstants.LIB));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.UNIV);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.UNIV); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDOLD, SOCDevCardConstants.UNIV));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.TEMP);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.TEMP); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDOLD, SOCDevCardConstants.TEMP));
                 }
 
-                for (i = 0;
-                        i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.TOW);
-                        i++)
+                for (i = 0; i < devCards.getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.TOW); i++)
                 {
                     messageToPlayer(c, new SOCDevCard(ga.getName(), pn, SOCDevCard.ADDOLD, SOCDevCardConstants.TOW));
                 }
@@ -4413,99 +4243,44 @@ public class SOCServer extends Server
     {
         if (ga != null)
         {
-            String mes1 = "You stole ";
-            String mes2 = pe.getName() + " stole ";
+	    String what = SOCResourceConstants.names[rsrc];
+            String peMsg = "You stole a " + what + " resource from " + vi.getName() + ".";
+            String viMsg = pe.getName() + " stole a " + what + " resource from you.";
+	    String obMsg = pe.getName() + " stole a resource from " + vi.getName();
             SOCPlayerElement gainRsrc = null;
             SOCPlayerElement loseRsrc = null;
             SOCPlayerElement gainUnknown;
             SOCPlayerElement loseUnknown;
 
-            switch (rsrc)
-            {
-            case SOCResourceConstants.CLAY:
-                mes1 += "a clay ";
-                mes2 += "a clay ";
-                gainRsrc = new SOCPlayerElement(ga.getName(), pe.getPlayerNumber(), SOCPlayerElement.GAIN, SOCPlayerElement.CLAY, 1);
-                loseRsrc = new SOCPlayerElement(ga.getName(), vi.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.CLAY, 1);
+	    // assert: SOCResourceConstants.CLAY == SOCPlayerElement.CLAY
+	    gainRsrc = new SOCPlayerElement(ga.getName(), pe.getPlayerNumber(), SOCPlayerElement.GAIN, rsrc, 1);
+	    loseRsrc = new SOCPlayerElement(ga.getName(), vi.getPlayerNumber(), SOCPlayerElement.LOSE, rsrc, 1);
 
-                break;
-
-            case SOCResourceConstants.ORE:
-                mes1 += "an ore ";
-                mes2 += "an ore ";
-                gainRsrc = new SOCPlayerElement(ga.getName(), pe.getPlayerNumber(), SOCPlayerElement.GAIN, SOCPlayerElement.ORE, 1);
-                loseRsrc = new SOCPlayerElement(ga.getName(), vi.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.ORE, 1);
-
-                break;
-
-            case SOCResourceConstants.SHEEP:
-                mes1 += "a sheep ";
-                mes2 += "a sheep ";
-                gainRsrc = new SOCPlayerElement(ga.getName(), pe.getPlayerNumber(), SOCPlayerElement.GAIN, SOCPlayerElement.SHEEP, 1);
-                loseRsrc = new SOCPlayerElement(ga.getName(), vi.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.SHEEP, 1);
-
-                break;
-
-            case SOCResourceConstants.WHEAT:
-                mes1 += "a wheat ";
-                mes2 += "a wheat ";
-                gainRsrc = new SOCPlayerElement(ga.getName(), pe.getPlayerNumber(), SOCPlayerElement.GAIN, SOCPlayerElement.WHEAT, 1);
-                loseRsrc = new SOCPlayerElement(ga.getName(), vi.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.WHEAT, 1);
-
-                break;
-
-            case SOCResourceConstants.WOOD:
-                mes1 += "a wood ";
-                mes2 += "a wood ";
-                gainRsrc = new SOCPlayerElement(ga.getName(), pe.getPlayerNumber(), SOCPlayerElement.GAIN, SOCPlayerElement.WOOD, 1);
-                loseRsrc = new SOCPlayerElement(ga.getName(), vi.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.WOOD, 1);
-
-                break;
-            }
-
-            mes1 += ("resource from " + vi.getName() + ".");
-            mes2 += "resource from you.";
-
-            Connection peCon = null;
-            Connection viCon = null;
-            Enumeration conEnum = conns.elements();
-
-            while (conEnum.hasMoreElements())
-            {
-                Connection con = (Connection) conEnum.nextElement();
-
-                if (pe.getName().equals((String) con.data))
-                {
-                    peCon = con;
-                }
-                else if (vi.getName().equals((String) con.data))
-                {
-                    viCon = con;
-                }
-            }
+            Connection peCon = connectionForPlayer(pe.getName());
+            Connection viCon = connectionForPlayer(vi.getName());
 
             Vector exceptions = new Vector(2);
             exceptions.addElement(peCon);
             exceptions.addElement(viCon);
 
             /**
-             * send the game messages
-             */
-            messageToPlayer(peCon, gainRsrc);
-            messageToPlayer(peCon, loseRsrc);
-            messageToPlayer(viCon, gainRsrc);
-            messageToPlayer(viCon, loseRsrc);
-            gainUnknown = new SOCPlayerElement(ga.getName(), pe.getPlayerNumber(), SOCPlayerElement.GAIN, SOCPlayerElement.UNKNOWN, 1);
-            loseUnknown = new SOCPlayerElement(ga.getName(), vi.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.UNKNOWN, 1);
-            messageToGameExcept(ga.getName(), exceptions, gainUnknown);
-            messageToGameExcept(ga.getName(), exceptions, loseUnknown);
-
-            /**
              * send the text messages
              */
-            messageToPlayer(peCon, new SOCGameTextMsg(ga.getName(), SERVERNAME, mes1));
-            messageToPlayer(viCon, new SOCGameTextMsg(ga.getName(), SERVERNAME, mes2));
-            messageToGameExcept(ga.getName(), exceptions, new SOCGameTextMsg(ga.getName(), SERVERNAME, pe.getName() + " stole a resource from " + vi.getName()));
+            messageToPlayer(viCon, new SOCGameTextMsg(ga.getName(), SERVERNAME, viMsg));
+            messageToPlayer(peCon, new SOCGameTextMsg(ga.getName(), SERVERNAME, peMsg));
+            messageToGameExcept(ga.getName(), exceptions, new SOCGameTextMsg(ga.getName(), SERVERNAME, obMsg));
+
+            /**
+             * send the game messages; send lose *before* gain
+             */
+            messageToPlayer(peCon, loseRsrc);
+            messageToPlayer(peCon, gainRsrc);
+            messageToPlayer(viCon, loseRsrc);
+            messageToPlayer(viCon, gainRsrc);
+            loseUnknown = new SOCPlayerElement(ga.getName(), vi.getPlayerNumber(), SOCPlayerElement.LOSE, SOCPlayerElement.UNKNOWN, 1);
+            gainUnknown = new SOCPlayerElement(ga.getName(), pe.getPlayerNumber(), SOCPlayerElement.GAIN, SOCPlayerElement.UNKNOWN, 1);
+            messageToGameExcept(ga.getName(), exceptions, loseUnknown);
+            messageToGameExcept(ga.getName(), exceptions, gainUnknown);
         }
     }
 
@@ -4614,19 +4389,8 @@ public class SOCServer extends Server
                  * ask the current player to choose a player to steal from
                  */
                 String n = ga.getPlayer(ga.getCurrentPlayerNumber()).getName();
-                Enumeration connsEnum = getConnections();
-
-                while (connsEnum.hasMoreElements())
-                {
-                    Connection con = (Connection) connsEnum.nextElement();
-
-                    if (n.equals((String) con.data))
-                    {
-                        con.put(SOCChoosePlayerRequest.toCmd(ga.getName(), choices));
-
-                        break;
-                    }
-                }
+		Connection con = connectionForPlayer(n);
+		if (con != null) con.put(SOCChoosePlayerRequest.toCmd(ga.getName(), choices));
 
                 break;
 

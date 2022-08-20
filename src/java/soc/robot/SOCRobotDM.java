@@ -580,12 +580,8 @@ public class SOCRobotDM {
 	for (int i = 0; i < knightsToBuy; i++) {
 	  targetResources.add(SOCGame.CARD_SET);
 	}
-	try {
-	  SOCResSetBuildTimePair timePair = ourBSE.calculateRollsFast(ourPlayerData.getResources(), targetResources, 100, ourPlayerData.getPortFlags());
-	  laETA = timePair.getRolls();
-	} catch (CutoffExceededException ex) {
-	  laETA = 100;
-	}      
+	laETA = ourBSE.calculateRollsFast(ourPlayerData.getResources(), targetResources, 100, ourPlayerData.getPortFlags());
+
       } else {
 	///
 	/// not enough dev cards left
@@ -648,12 +644,7 @@ public class SOCRobotDM {
 	  for (int i = 0; i < bestLRPath.size(); i++) {
 	    targetResources.add(SOCGame.ROAD_SET);
 	  }
-	  try {
-	    SOCResSetBuildTimePair timePair = ourBSE.calculateRollsFast(ourPlayerData.getResources(), targetResources, 100, ourPlayerData.getPortFlags());
-	    lrETA = timePair.getRolls();
-	  } catch (CutoffExceededException ex) {
-	    lrETA = 100;
-	  } 
+	  lrETA = ourBSE.calculateRollsFast(ourPlayerData.getResources(), targetResources, 100, ourPlayerData.getPortFlags());
 	}
       }
       if (lrETA < bestETA) {
@@ -853,12 +844,7 @@ public class SOCRobotDM {
 	for (int i = 0; i < pathLength; i++) {
 	  targetResources.add(SOCGame.ROAD_SET);
 	}
-	try {
-	  SOCResSetBuildTimePair timePair = ourBSE.calculateRollsFast(ourPlayerData.getResources(), targetResources, 100, ourPlayerData.getPortFlags());
-	  posSet.setETA(timePair.getRolls());
-	} catch (CutoffExceededException ex) {
-	  posSet.setETA(100);
-	}
+	posSet.setETA(ourBSE.calculateRollsFast(ourPlayerData.getResources(), targetResources, 100, ourPlayerData.getPortFlags()));
       } else {
 	//
 	// no roads are necessary
@@ -1702,11 +1688,14 @@ public class SOCRobotDM {
     //SOCPlayerTracker.playerTrackersDebug(playerTrackers);
     D.ebugPrintln("--- before [end] ---");
     try {
-      SOCResSetBuildTimePair btp = estimate.calculateRollsFast(ourPlayerData.getResources(), SOCGame.ROAD_SET, 50, ourPlayerData.getPortFlags());
-      btp.getResources().subtract(SOCGame.ROAD_SET);
-      ourPlayerData.getResources().setAmounts(btp.getResources());
+	SOCResourceSet rs = estimate.calculateBothFast(ourPlayerData.getResources(), SOCGame.ROAD_SET, 50, ourPlayerData.getPortFlags()).getResources();
+	rs.subtract(SOCGame.ROAD_SET);
+	ourPlayerData.getResources().setAmounts(rs);
     } catch (CutoffExceededException e) {
-      D.ebugPrintln("crap in getWinGameETABonusForRoad - "+e);
+	System.out.println("SOCRobotDM: "+e); // notify if this ever happens
+	e.printStackTrace(System.out);
+	D.ebugPrintln("crap in getWinGameETABonusForRoad - "+e);
+	// ourPlayerData.getResources() is unmodified!
     }
     tmpRoad1 = new SOCRoad(ourPlayerData, posRoad.getCoordinates());
     trackersCopy = SOCPlayerTracker.tryPutPiece(tmpRoad1, game, playerTrackers);

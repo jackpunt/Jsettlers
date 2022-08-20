@@ -100,9 +100,14 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     private Vector lrPaths;
 
     /**
-     * how many of each resource this player has
+     * how many (min) of each resource this player has
      */
     private SOCResourceSet resources;
+
+    /**
+     * how many (max) of each resource this player has
+     */
+    private SOCResourceSet uresources;
 
     /**
      * how many of each type of development card this player has
@@ -232,6 +237,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         longestRoadLength = player.longestRoadLength;
         lrPaths = (Vector) player.lrPaths.clone();
         resources = player.resources.copy();
+        uresources = player.uresources.copy();
         devCards = new SOCDevCardSet(player.devCards);
         numKnights = player.numKnights;
         buildingVP = player.buildingVP;
@@ -315,6 +321,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         longestRoadLength = 0;
         lrPaths = new Vector();
         resources = new SOCResourceSet();
+        uresources = new SOCResourceSet();
         devCards = new SOCDevCardSet();
         numKnights = 0;
         buildingVP = 0;
@@ -722,11 +729,19 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     }
 
     /**
-     * @return the resource set
+     * @return the positive resource set
      */
     public SOCResourceSet getResources()
     {
         return resources;
+    }
+
+    /**
+     * @return the potential resource set
+     */
+    public SOCResourceSet getUResources()
+    {
+        return uresources;
     }
 
     /**
@@ -2160,6 +2175,8 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     }
 
     /**
+     * Some shallow copy, some deep copy; this routine never used. 
+     *
      * @return a copy of this player
      */
     public SOCPlayer copy()
@@ -2263,19 +2280,14 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         /**
          * copy the resources
          */
-        SOCResourceSet copyResources = copy.getResources();
-	copyResources.setAmounts(resources);
-//          for (int rType = SOCResourceConstants.MIN;
-//                  rType <= SOCResourceConstants.UNKNOWN; rType++)
-//          {
-//              copyResources.setAmount(resources.getAmount(rType), rType);
-//          }
+        copy.getResources().setAmounts(resources);
+        copy.getUResources().setAmounts(uresources);
 
 
         /**
          * copy the dev cards
          */
-        SOCDevCardSet copyDevCards = getDevCards();
+        SOCDevCardSet copyDevCards = copy.getDevCards();
 
         for (int dcType = SOCDevCardConstants.KNIGHT;
                 dcType <= SOCDevCardConstants.UNKNOWN; dcType++)
@@ -2292,8 +2304,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         /**
          * copy port flags
          */
-        for (int port = SOCBoard.MISC_PORT; port <= SOCBoard.MAX_PORT;
-                port++)
+        for (int port = SOCBoard.MISC_PORT; port <= SOCBoard.MAX_PORT; port++)
         {
             copy.setPortFlag(port, ports[port]);
         }
@@ -2309,7 +2320,8 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     }
 
     /**
-     * set vars to null so gc can clean up
+     * set vars to null so gc can clean up.
+     * <p>is this C++ or what?
      */
     public void destroyPlayer()
     {
@@ -2324,6 +2336,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         cities.removeAllElements();
         cities = null;
         resources = null;
+        uresources = null;
         devCards = null;
         ourNumbers = null;
         ports = null;

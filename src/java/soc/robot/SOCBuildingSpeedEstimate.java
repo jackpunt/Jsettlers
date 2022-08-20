@@ -41,18 +41,33 @@ import java.util.Vector;
  */
 public class SOCBuildingSpeedEstimate
 {
+    public static final int MIN = 0;
     public static final int ROAD = 0;
     public static final int SETTLEMENT = 1;
     public static final int CITY = 2;
     public static final int CARD = 3;
-    public static final int MIN = 0;
+    public static final int MAX = 3;
     public static final int MAXPLUSONE = 4;
     public static final int DEFAULT_ROLL_LIMIT = 40;
+    
+    /** collection of resource sets to compute estimated build time.
+     * 2*wood, 2*clay, 2*sheep, 4*wheat, 4*ore
+     */
+    static SOCResourceSet[] buildTargets = new SOCResourceSet[MAXPLUSONE];
+    // this must be synched:: bt[ROAD] = SOCGame.ROAD_SET;
+    static {
+	buildTargets[ROAD] =  SOCGame.ROAD_SET;
+	buildTargets[SETTLEMENT] = SOCGame.SETTLEMENT_SET;
+	buildTargets[CITY] = SOCGame.CITY_SET;
+	buildTargets[CARD] = SOCGame.CARD_SET;
+    }
+
     protected static boolean recalc;
     int[] estimatesFromNothing;
     int[] estimatesFromNow;
     int[] rollsPerResource;
     SOCResourceSet[] resourcesForRoll;
+    SOCResourceSet emptySet = new SOCResourceSet();
 
     /**
      * this is a constructor
@@ -76,9 +91,42 @@ public class SOCBuildingSpeedEstimate
     {
         estimatesFromNothing = new int[MAXPLUSONE];
         estimatesFromNow = new int[MAXPLUSONE];
-        rollsPerResource = new int[SOCResourceConstants.MAX];
+        rollsPerResource = new int[SOCResourceConstants.MAX]; // [0..5]
         resourcesForRoll = new SOCResourceSet[13];
     }
+
+    /**
+     * compute number of rolls to complete each ResourceSet, from initial resources.
+     * @param estimates is an int[] to hold rolls for each resource set
+     * @return total rolls across the estimates array.
+     */
+    public int getEstimatesFast(int[] estimates, SOCResourceSet resources, boolean[] ports, int limit)
+    {
+	int total = 0;
+	for (int rst = MIN; rst < MAXPLUSONE; rst++) {
+	    int rolls = calculateRollsFast(resources, buildTargets[rst], limit, ports);
+	    if (estimates != null) estimates[rst] = rolls;
+	    total += rolls;
+	}
+        return total;
+    }
+
+    /**
+     * compute number of rolls to complete each ResourceSet, from initial resources.
+     * @param estimates is an int[] to hold rolls for each resource set
+     * @return total rolls across the estimates array.
+     */
+    public int getEstimatesAccurate(int[] estimates, SOCResourceSet resources, boolean[] ports, int limit)
+    {
+	int total = 0;
+	for (int rst = MIN; rst < MAXPLUSONE; rst++) {
+	    int rolls = calculateRollsAccurate(resources, buildTargets[rst], limit, ports);
+	    if (estimates != null) estimates[rst] = rolls;
+	    total += rolls;
+	}
+        return total;
+    }
+
 
     /**
      * @return the estimates from nothing
@@ -89,26 +137,8 @@ public class SOCBuildingSpeedEstimate
     {
         if (recalc)
         {
-            estimatesFromNothing[ROAD] = DEFAULT_ROLL_LIMIT;
-            estimatesFromNothing[SETTLEMENT] = DEFAULT_ROLL_LIMIT;
-            estimatesFromNothing[CITY] = DEFAULT_ROLL_LIMIT;
-            estimatesFromNothing[CARD] = DEFAULT_ROLL_LIMIT;
-
-            SOCResourceSet emptySet = new SOCResourceSet();
-
-            try
-            {
-                estimatesFromNothing[ROAD] = calculateRollsAccurate(emptySet, SOCGame.ROAD_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-                estimatesFromNothing[SETTLEMENT] = calculateRollsAccurate(emptySet, SOCGame.SETTLEMENT_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-                estimatesFromNothing[CITY] = calculateRollsAccurate(emptySet, SOCGame.CITY_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-                estimatesFromNothing[CARD] = calculateRollsAccurate(emptySet, SOCGame.CARD_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-            }
-            catch (CutoffExceededException e)
-            {
-                ;
-            }
+	    getEstimatesAccurate(estimatesFromNothing, emptySet, ports, DEFAULT_ROLL_LIMIT);
         }
-
         return estimatesFromNothing;
     }
 
@@ -119,29 +149,7 @@ public class SOCBuildingSpeedEstimate
      */
     public int[] getEstimatesFromNothingFast(boolean[] ports)
     {
-        if (recalc)
-        {
-            estimatesFromNothing[ROAD] = DEFAULT_ROLL_LIMIT;
-            estimatesFromNothing[SETTLEMENT] = DEFAULT_ROLL_LIMIT;
-            estimatesFromNothing[CITY] = DEFAULT_ROLL_LIMIT;
-            estimatesFromNothing[CARD] = DEFAULT_ROLL_LIMIT;
-
-            SOCResourceSet emptySet = new SOCResourceSet();
-
-            try
-            {
-                estimatesFromNothing[ROAD] = calculateRollsFast(emptySet, SOCGame.ROAD_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-                estimatesFromNothing[SETTLEMENT] = calculateRollsFast(emptySet, SOCGame.SETTLEMENT_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-                estimatesFromNothing[CITY] = calculateRollsFast(emptySet, SOCGame.CITY_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-                estimatesFromNothing[CARD] = calculateRollsFast(emptySet, SOCGame.CARD_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-            }
-            catch (CutoffExceededException e)
-            {
-                ;
-            }
-        }
-
-        return estimatesFromNothing;
+	return getEstimatesFromNothingFast(ports, DEFAULT_ROLL_LIMIT);
     }
 
     /**
@@ -153,24 +161,7 @@ public class SOCBuildingSpeedEstimate
     {
         if (recalc)
         {
-            estimatesFromNothing[ROAD] = limit;
-            estimatesFromNothing[SETTLEMENT] = limit;
-            estimatesFromNothing[CITY] = limit;
-            estimatesFromNothing[CARD] = limit;
-
-            SOCResourceSet emptySet = new SOCResourceSet();
-
-            try
-            {
-                estimatesFromNothing[ROAD] = calculateRollsFast(emptySet, SOCGame.ROAD_SET, limit, ports).getRolls();
-                estimatesFromNothing[SETTLEMENT] = calculateRollsFast(emptySet, SOCGame.SETTLEMENT_SET, limit, ports).getRolls();
-                estimatesFromNothing[CITY] = calculateRollsFast(emptySet, SOCGame.CITY_SET, limit, ports).getRolls();
-                estimatesFromNothing[CARD] = calculateRollsFast(emptySet, SOCGame.CARD_SET, limit, ports).getRolls();
-            }
-            catch (CutoffExceededException e)
-            {
-                ;
-            }
+	    getEstimatesFast(estimatesFromNothing, emptySet, ports, limit);
         }
 
         return estimatesFromNothing;
@@ -184,24 +175,8 @@ public class SOCBuildingSpeedEstimate
      */
     public int[] getEstimatesFromNowAccurate(SOCResourceSet resources, boolean[] ports)
     {
-        estimatesFromNow[ROAD] = DEFAULT_ROLL_LIMIT;
-        estimatesFromNow[SETTLEMENT] = DEFAULT_ROLL_LIMIT;
-        estimatesFromNow[CITY] = DEFAULT_ROLL_LIMIT;
-        estimatesFromNow[CARD] = DEFAULT_ROLL_LIMIT;
-
-        try
-        {
-            estimatesFromNow[ROAD] = calculateRollsAccurate(resources, SOCGame.ROAD_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-            estimatesFromNow[SETTLEMENT] = calculateRollsAccurate(resources, SOCGame.SETTLEMENT_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-            estimatesFromNow[CITY] = calculateRollsAccurate(resources, SOCGame.CITY_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-            estimatesFromNow[CARD] = calculateRollsAccurate(resources, SOCGame.CARD_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-        }
-        catch (CutoffExceededException e)
-        {
-            ;
-        }
-
-        return estimatesFromNow;
+	getEstimatesAccurate(estimatesFromNow, resources, ports, DEFAULT_ROLL_LIMIT);
+	return estimatesFromNow;
     }
 
     /**
@@ -212,24 +187,8 @@ public class SOCBuildingSpeedEstimate
      */
     public int[] getEstimatesFromNowFast(SOCResourceSet resources, boolean[] ports)
     {
-        estimatesFromNow[ROAD] = DEFAULT_ROLL_LIMIT;
-        estimatesFromNow[SETTLEMENT] = DEFAULT_ROLL_LIMIT;
-        estimatesFromNow[CITY] = DEFAULT_ROLL_LIMIT;
-        estimatesFromNow[CARD] = DEFAULT_ROLL_LIMIT;
-
-        try
-        {
-            estimatesFromNow[ROAD] = calculateRollsFast(resources, SOCGame.ROAD_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-            estimatesFromNow[SETTLEMENT] = calculateRollsFast(resources, SOCGame.SETTLEMENT_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-            estimatesFromNow[CITY] = calculateRollsFast(resources, SOCGame.CITY_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-            estimatesFromNow[CARD] = calculateRollsFast(resources, SOCGame.CARD_SET, DEFAULT_ROLL_LIMIT, ports).getRolls();
-        }
-        catch (CutoffExceededException e)
-        {
-            ;
-        }
-
-        return estimatesFromNow;
+	getEstimatesFast(estimatesFromNow, resources, ports, DEFAULT_ROLL_LIMIT);
+	return estimatesFromNow;
     }
 
     /**
@@ -254,6 +213,7 @@ public class SOCBuildingSpeedEstimate
     /**
      * calculate the estimates
      *
+     * could arrange to call recalculateRollsPerResource(numbers, -1);
      * @param numbers  the numbers that the player is touching
      */
     public void recalculateRollsPerResource(SOCPlayerNumbers numbers)
@@ -279,15 +239,7 @@ public class SOCBuildingSpeedEstimate
             }
 
             //D.ebugPrintln("totalProbability: "+totalProbability);
-            if (totalProbability != 0.0f)
-            {
-                rollsPerResource[resource] = Math.round(1.0f / totalProbability);
-            }
-            else
-            {
-                rollsPerResource[resource] = 55555;
-            }
-
+	    rollsPerResource[resource] = Math.round(1.0f / Math.max(totalProbability, 0.0001f));
             //D.ebugPrintln("rollsPerResource: "+rollsPerResource[resource]);
         }
     }
@@ -325,16 +277,7 @@ public class SOCBuildingSpeedEstimate
             }
 
             D.ebugPrintln("totalProbability: " + totalProbability);
-
-            if (totalProbability != 0.0f)
-            {
-                rollsPerResource[resource] = Math.round(1.0f / totalProbability);
-            }
-            else
-            {
-                rollsPerResource[resource] = 55555;
-            }
-
+	    rollsPerResource[resource] = Math.round(1.0f / Math.max(totalProbability, 0.0001f));
             D.ebugPrintln("rollsPerResource: " + rollsPerResource[resource]);
         }
     }
@@ -448,7 +391,16 @@ public class SOCBuildingSpeedEstimate
      *
      * @return the number of rolls
      */
-    protected SOCResSetBuildTimePair calculateRollsFast(SOCResourceSet startingResources, SOCResourceSet targetResources, int cutoff, boolean[] ports) throws CutoffExceededException
+    protected int calculateRollsFast(SOCResourceSet startingResources, SOCResourceSet targetResources, int cutoff, boolean[] ports)
+    {
+	try {
+	    return calculateBothFast(startingResources, targetResources, cutoff, ports).getRolls();
+	} catch (CutoffExceededException e) {
+	    return cutoff;
+	} 
+    }
+																			      
+    protected SOCResSetBuildTimePair calculateBothFast(SOCResourceSet startingResources, SOCResourceSet targetResources, int cutoff, boolean[] ports) throws CutoffExceededException
     {
         //D.ebugPrintln("calculateRolls");
         //D.ebugPrintln("  start: "+startingResources);
@@ -469,19 +421,7 @@ public class SOCBuildingSpeedEstimate
                  * find the ratio at which we can trade
                  */
                 int tradeRatio;
-
-                if (ports[giveResource])
-                {
-                    tradeRatio = 2;
-                }
-                else if (ports[SOCBoard.MISC_PORT])
-                {
-                    tradeRatio = 3;
-                }
-                else
-                {
-                    tradeRatio = 4;
-                }
+		tradeRatio = (ports[giveResource] ? 2 : (ports[SOCBoard.MISC_PORT] ? 3 : 4));
 
                 /**
                  * get the target resources
@@ -568,7 +508,7 @@ public class SOCBuildingSpeedEstimate
             if (rolls > cutoff)
             {
                 //D.ebugPrintln("startingResources="+startingResources+"\ntargetResources="+targetResources+"\ncutoff="+cutoff+"\nourResources="+ourResources);
-                throw new CutoffExceededException();
+		throw new CutoffExceededException(); // rolls=cutoff, resources not valid...
             }
 
             for (int resource = SOCResourceConstants.MIN;
@@ -599,19 +539,7 @@ public class SOCBuildingSpeedEstimate
                      * find the ratio at which we can trade
                      */
                     int tradeRatio;
-
-                    if (ports[giveResource])
-                    {
-                        tradeRatio = 2;
-                    }
-                    else if (ports[SOCBoard.MISC_PORT])
-                    {
-                        tradeRatio = 3;
-                    }
-                    else
-                    {
-                        tradeRatio = 4;
-                    }
+		    tradeRatio = (ports[giveResource] ? 2 : (ports[SOCBoard.MISC_PORT] ? 3 : 4));
 
                     /**
                      * get the target resources
@@ -705,7 +633,16 @@ public class SOCBuildingSpeedEstimate
      *
      * @return the number of rolls
      */
-    protected SOCResSetBuildTimePair calculateRollsAccurate(SOCResourceSet startingResources, SOCResourceSet targetResources, int cutoff, boolean[] ports) throws CutoffExceededException
+    protected int calculateRollsAccurate(SOCResourceSet startingResources, SOCResourceSet targetResources, int cutoff, boolean[] ports)
+	{
+	    try {
+		return calculateBothAccurate(startingResources, targetResources, cutoff, ports).getRolls();
+	    } catch (CutoffExceededException e) {
+		return cutoff;
+	    }
+	}
+
+    protected SOCResSetBuildTimePair calculateBothAccurate(SOCResourceSet startingResources, SOCResourceSet targetResources, int cutoff, boolean[] ports) throws CutoffExceededException
     {
         D.ebugPrintln("calculateRollsAccurate");
         D.ebugPrintln("  start: " + startingResources);
@@ -753,7 +690,7 @@ public class SOCBuildingSpeedEstimate
             if (rolls > cutoff)
             {
                 D.ebugPrintln("startingResources=" + startingResources + "\ntargetResources=" + targetResources + "\ncutoff=" + cutoff + "\nourResources=" + ourResources);
-                throw new CutoffExceededException();
+		throw new CutoffExceededException(); // rolls=cutoff, resources not known
             }
 
             //
@@ -795,19 +732,7 @@ public class SOCBuildingSpeedEstimate
                                 // find the ratio at which we can trade
                                 //
                                 int tradeRatio;
-
-                                if (ports[giveResource])
-                                {
-                                    tradeRatio = 2;
-                                }
-                                else if (ports[SOCBoard.MISC_PORT])
-                                {
-                                    tradeRatio = 3;
-                                }
-                                else
-                                {
-                                    tradeRatio = 4;
-                                }
+				tradeRatio = (ports[giveResource] ? 2 : (ports[SOCBoard.MISC_PORT] ? 3 : 4));
 
                                 //
                                 // get the target resources
@@ -820,8 +745,7 @@ public class SOCBuildingSpeedEstimate
                                 //D.ebugPrintln("))) newResources="+newResources);
                                 //D.ebugPrintln("))) targetResources="+targetResources);
                                 //D.ebugPrintln("))) numTrades="+numTrades);
-                                for (int trades = 0; trades < numTrades;
-                                        trades++)
+                                for (int trades = 0; trades < numTrades; trades++)
                                 {
                                     // 
                                     // find the most needed resource by looking at 

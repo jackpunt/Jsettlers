@@ -34,6 +34,8 @@ import java.awt.Polygon;
  */
 public class SpeechBalloon extends Canvas
 {
+    public final static int TANG = 5;
+
     private static Color balloonColor = new Color(255, 230, 162);
     int height;
     int width;
@@ -84,9 +86,10 @@ public class SpeechBalloon extends Canvas
         int w = dim.width;
         int xm = 5;
         int ym = 5;
+        int faceW = 40;
         Polygon balloon;
-        int[] xPoints = { 0, w / 8, w / 8, ((w / 8) + (w / 16)), w - xm, w - xm, 0, 0 };
-        int[] yPoints = { h / 8, h / 8, 0, h / 8, h / 8, h - ym, h - ym, h / 8 };
+        int[] xPoints = { 0, faceW, faceW - 2, faceW + 14, w - xm, w - xm, 0, 0 };
+        int[] yPoints = { TANG, TANG, 0, TANG, TANG, h - ym, h - ym, TANG };
         int i;
 
         balloon = new Polygon(xPoints, yPoints, 8);
@@ -95,7 +98,7 @@ public class SpeechBalloon extends Canvas
         g.fillPolygon(balloon);
         g.setColor(Color.black);
         g.drawPolygon(balloon);
-
+	// draw drop shadow, vert and horiz:
         for (i = xm; i > 0; i--)
         {
             g.drawLine(ym, h - i, w, h - i);
@@ -103,7 +106,7 @@ public class SpeechBalloon extends Canvas
 
         for (i = ym; i > 0; i--)
         {
-            g.drawLine(w - i, (h / 6) + xm, w - i, h);
+            g.drawLine(w - i, TANG + xm, w - i, h); // (h / 6)
         }
     }
 }

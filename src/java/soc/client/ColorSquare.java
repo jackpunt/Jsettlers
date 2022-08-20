@@ -392,11 +392,14 @@ public class ColorSquare extends Canvas implements MouseListener
             case YES_NO:
             case CHECKBOX:
                 boolValue = !boolValue;
-
                 break;
 
             case NUMBER:
-                intValue++;
+                if (evt.getButton() == MouseEvent.BUTTON1) {
+                    intValue++;
+                } else {
+                    intValue--;
+                }
 
                 break;
 
