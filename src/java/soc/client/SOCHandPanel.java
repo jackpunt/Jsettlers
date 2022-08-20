@@ -1145,7 +1145,7 @@ public class SOCHandPanel extends Panel implements ActionListener
 
         case SETTLEMENTS:
 
-	        int nstl = player.getNumPieces(SOCPlayingPiece.SETTLEMENT);
+            int nstl = player.getNumPieces(SOCPlayingPiece.SETTLEMENT);
             settlementSq.setIntValue(nstl);
             settlementSq.setColor((nstl == 0) ? Color.red : ColorSquare.GREY);
 

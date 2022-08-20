@@ -32,7 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 
-class SOCDiscoveryDialog extends Dialog implements ActionListener
+class SOCDiscoveryDialog extends SOCDialog implements ActionListener
 {
     Button doneBut;
     Button clearBut;
@@ -117,7 +117,8 @@ class SOCDiscoveryDialog extends Dialog implements ActionListener
         int rsrcY;
 
         /* put the dialog in the center of the game window */
-        setLocation(pix + ((piwidth - width) / 2), piy + ((piheight - height) / 2));
+        //setLocation(pix + ((piwidth - width) / 2), piy + ((piheight - height) / 2));
+        centerInBounds();
 
         if (msg != null)
         {

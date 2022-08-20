@@ -174,7 +174,7 @@ public class SOCResourceSet implements Serializable, Cloneable, SOCResourceConst
      */
     public void subtract(SOCResourceSet rs) {
 	for (int i = MIN; i<MAXPLUSONE; i++) {
-	    subtract(rs.getAmount(i),i); // !! may also remove from .UNKNOWN !!
+	    subtract(rs.getAmount(i),i); // TODO: !! may also remove from .UNKNOWN !!
 //  	    resources[SOCResourceConstants.CLAY] -= rs.getAmount(SOCResourceConstants.CLAY);
 //  	    if (resources[SOCResourceConstants.CLAY] < 0) {
 //  		resources[SOCResourceConstants.CLAY] = 0;
@@ -220,10 +220,10 @@ public class SOCResourceSet implements Serializable, Cloneable, SOCResourceConst
      */
     public String toString()
     {
-        String s = ("clay=" + resources[SOCResourceConstants.CLAY] +
-		    "|ore=" + resources[SOCResourceConstants.ORE] +
-		    "|sheep=" + resources[SOCResourceConstants.SHEEP] +
+        String s = ("|ore=" + resources[SOCResourceConstants.ORE] +
 		    "|wheat=" + resources[SOCResourceConstants.WHEAT] +
+		    "|sheep=" + resources[SOCResourceConstants.SHEEP] +
+		    "|clay=" + resources[SOCResourceConstants.CLAY] +
 		    "|wood=" + resources[SOCResourceConstants.WOOD] +
 		    "|unknown=" + resources[SOCResourceConstants.UNKNOWN]);
 
@@ -235,7 +235,13 @@ public class SOCResourceSet implements Serializable, Cloneable, SOCResourceConst
      */
     public String toShortString()
     {
-        String s = "Resources: " + resources[SOCResourceConstants.CLAY] + " " + resources[SOCResourceConstants.ORE] + " " + resources[SOCResourceConstants.SHEEP] + " " + resources[SOCResourceConstants.WHEAT] + " " + resources[SOCResourceConstants.WOOD] + " " + resources[SOCResourceConstants.UNKNOWN];
+        String s = ("Resources: " +
+		    resources[SOCResourceConstants.ORE] + " " +
+		    resources[SOCResourceConstants.WHEAT] + " " +
+		    resources[SOCResourceConstants.SHEEP] + " " +
+		    resources[SOCResourceConstants.CLAY] + " " +
+		    resources[SOCResourceConstants.WOOD] + " " +
+		    resources[SOCResourceConstants.UNKNOWN]);
 
         return s;
     }

@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Dialog;
 import java.awt.Font;
 import java.awt.Label;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -41,7 +42,7 @@ import java.awt.event.MouseListener;
  *
  * @author  Robert S. Thomas
  */
-class SOCDiscardDialog extends Dialog implements ActionListener, MouseListener
+class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListener
 {
     Button discardBut;
     ColorSquare[] keep;
@@ -51,6 +52,10 @@ class SOCDiscardDialog extends Dialog implements ActionListener, MouseListener
     Label discThese;
     SOCPlayerInterface playerInterface;
     int numDiscards;
+
+    void centerInBounds(Rectangle pb) {
+        setLocation(pb.x + pb.width / 2 - (getWidth() / 2), pb.y + pb.height / 2 - (getHeight() / 2));
+    }
 
     /**
      * Creates a new SOCDiscardDialog object.
@@ -72,7 +77,7 @@ class SOCDiscardDialog extends Dialog implements ActionListener, MouseListener
 
         setLayout(null);
         
-        setSize(280, 190);
+        setSize(280, 190+getInsets().top+getInsets().bottom);
 
         msg = new Label("Please discard " + Integer.toString(numDiscards) + " resources.", Label.CENTER);
         add(msg);
@@ -144,7 +149,8 @@ class SOCDiscardDialog extends Dialog implements ActionListener, MouseListener
         int y = getInsets().top;
         int width = getSize().width - getInsets().left - getInsets().right;
         int height = getSize().height - getInsets().top - getInsets().bottom;
-        int space = 5;
+        int space = 5;			// leading between rows
+        int vhite = 20; // height of text
 
         int cfx = playerInterface.getInsets().left;
         int cfy = playerInterface.getInsets().top;
@@ -158,19 +164,20 @@ class SOCDiscardDialog extends Dialog implements ActionListener, MouseListener
         int discY;
 
         /* put the dialog in the center of the game window */
-        setLocation(cfx + ((cfwidth - width) / 2), cfy + ((cfheight - height) / 2));
+        //setLocation(cfx + ((cfwidth - width) / 2), cfy + ((cfheight - height) / 2));
+        centerInBounds();
 
         try
         {
-            msg.setBounds((width - 188) / 2, getInsets().top, 180, 20);
-            discardBut.setBounds((width - 88) / 2, (getInsets().bottom + height) - 25, 80, 25);
-            youHave.setBounds(getInsets().left, getInsets().top + 20 + space, 70, 20);
-            discThese.setBounds(getInsets().left, getInsets().top + 20 + space + 20 + space + sqwidth + space, 100, 20);
+            msg.setBounds((width - 188) / 2, getInsets().top, 180, vhite);
+            discardBut.setBounds((width - 88) / 2, (getInsets().top + height) - (vhite+5+space), 80, vhite+5);
+            youHave.setBounds(getInsets().left, getInsets().top + vhite + space, 70, vhite);
+            discThese.setBounds(getInsets().left, getInsets().top + vhite + space + vhite + space + sqwidth + space, 100, vhite);
         }
         catch (NullPointerException e) {}
 
-        keepY = getInsets().top + 20 + space + 20 + space;
-        discY = keepY + sqwidth + space + 20 + space;
+        keepY = getInsets().top + vhite + space + vhite + space;
+        discY = keepY + sqwidth + space + vhite + space;
 
         try
         {

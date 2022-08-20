@@ -258,7 +258,13 @@ public class SOCServer extends Server
         serverRobotPinger = new SOCServerRobotPinger(robots);
         serverRobotPinger.start();
         gameTimeoutChecker = new SOCGameTimeoutChecker(this);
-        if (!"none".equals(System.getProperty("TL"))) gameTimeoutChecker.start();
+        System.err.println("TL=" + System.getProperty("TL"));
+        if (!"none".equals(System.getProperty("TL"))) {
+            System.err.println("Starting TimeoutChecker");
+            gameTimeoutChecker.start();
+        } else {
+            System.err.println("Not starting TimeoutChecker");
+        }
         this.databaseUserName = databaseUserName;
         this.databasePassword = databasePassword;
     }
@@ -1357,18 +1363,17 @@ public class SOCServer extends Server
                     ga = gameList.getGameData(game);
 
                     //currentGameEventRecord.setSnapshot(ga);
-		    if ((gameTextMsgMes.getText().startsWith("*showdice*")) ||
-			(gameTextMsgMes.getText().startsWith("*SHOWDICE*"))) {
-			showDice(ga);
-		    }
+                    if ((gameTextMsgMes.getText().startsWith("**")) ||
+                            (gameTextMsgMes.getText().toLowerCase().startsWith("*showdice*"))) {
+                        showDice(ga);
+                    }
 
                     ///
                     /// command to add time to a game
                     ///
-                    if ((gameTextMsgMes.getText().startsWith("*ADDTIME*")) ||
-			(gameTextMsgMes.getText().startsWith("*addtime*")) ||
-			(gameTextMsgMes.getText().startsWith("ADDTIME")) ||
-			(gameTextMsgMes.getText().startsWith("addtime")))
+                    if ((gameTextMsgMes.getText().startsWith("++")) ||
+                            (gameTextMsgMes.getText().toLowerCase().startsWith("*addtime*")) ||
+                            (gameTextMsgMes.getText().toLowerCase().startsWith("addtime")))
                     {
                         SOCGame gameData = gameList.getGameData(game);
 
@@ -2927,7 +2932,7 @@ public class SOCServer extends Server
                     {
                         IntPair dice = ga.rollDice();
 			int curdice = ga.getCurrentDice();
-                        messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, (String) c.data + " rolled "+curdice+" [" + dice.getA() + " and " + dice.getB() + "]"));
+                        messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, "----" + (String) c.data + " rolled "+curdice+"      [" + dice.getA() + " and " + dice.getB() + "]"));
                         messageToGame(gn, new SOCDiceResult(gn, curdice));
 
                         /**
@@ -2942,11 +2947,11 @@ public class SOCServer extends Server
 
                                 if (total == 0)
                                 {
-                                    messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, ga.getPlayer(i).getName() + " got nothing."));
+                                    messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, "  " + ga.getPlayer(i).getName() + " got nothing."));
                                 }
                                 else
                                 {
-                                    String message = ga.getPlayer(i).getName() + " got ";
+                                    String message = "  " + ga.getPlayer(i).getName() + " got ";
 				    for (int rs = SOCResourceConstants.MIN; rs < SOCResourceConstants.MAX; rs++) {
 					int cnt = rsrcs.getAmount(rs);
 					messageToGame(gn, new SOCPlayerElement(gn, i, SOCPlayerElement.GAIN, rs, cnt));
@@ -4249,7 +4254,7 @@ public class SOCServer extends Server
         {
 	    String what = SOCResourceConstants.names[rsrc];
             String peMsg = "You stole a " + what + " resource from " + vi.getName() + ".";
-            String viMsg = pe.getName() + " stole a " + what + " resource from you.";
+            String viMsg = "***" + pe.getName() + " stole a " + what + " resource from you.";
 	    String obMsg = pe.getName() + " stole a resource from " + vi.getName();
             SOCPlayerElement gainRsrc = null;
             SOCPlayerElement loseRsrc = null;

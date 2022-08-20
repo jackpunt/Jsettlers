@@ -30,7 +30,7 @@ import java.awt.event.ActionListener;
 import soc.game.SOCResourceConstants;
 
 
-class SOCMonopolyDialog extends Dialog implements ActionListener
+class SOCMonopolyDialog extends SOCDialog implements ActionListener
 {
     Button[] rsrcBut;
     Label msg;
@@ -104,7 +104,8 @@ class SOCMonopolyDialog extends Dialog implements ActionListener
         int button3X = (width - ((3 * buttonW) + (2 * space))) / 2;
 
         /* put the dialog in the center of the game window */
-        setLocation(pix + ((piwidth - width) / 2), piy + ((piheight - height) / 2));
+        //setLocation(pix + ((piwidth - width) / 2), piy + ((piheight - height) / 2));
+        centerInBounds();
 
         try
         {

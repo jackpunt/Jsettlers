@@ -36,7 +36,7 @@ import java.awt.event.ActionListener;
  *
  * @author  Robert S. Thomas
  */
-class SOCChoosePlayerDialog extends Dialog implements ActionListener
+class SOCChoosePlayerDialog extends SOCDialog implements ActionListener
 {
     Button[] buttons;
     int[] players;
@@ -62,7 +62,7 @@ class SOCChoosePlayerDialog extends Dialog implements ActionListener
         setForeground(Color.black);
         setFont(new Font("Geneva", Font.PLAIN, 12));
         setLayout(null);
-        setSize(350, 100);
+        setSize(350, 100+getInsets().top+getInsets().bottom);
 
         msg = new Label("Please choose a player to steal from:", Label.CENTER);
         add(msg);
@@ -105,6 +105,7 @@ class SOCChoosePlayerDialog extends Dialog implements ActionListener
         int width = getSize().width - getInsets().left - getInsets().right;
         int height = getSize().height - getInsets().top - getInsets().bottom;
         int space = 10;
+        int vhite = 20;
 
         int piX = pi.getInsets().left;
         int piY = pi.getInsets().top;
@@ -114,15 +115,16 @@ class SOCChoosePlayerDialog extends Dialog implements ActionListener
         int bwidth = (width - ((number - 1 + 2) * space)) / number;
 
         /* put the dialog in the center of the game window */
-        setLocation(piX + ((piWidth - width) / 2), piY + ((piHeight - height) / 2));
+        //setLocation(piX + ((piWidth - width) / 2), piY + ((piHeight - height) / 2));
+        centerInBounds();
 
         try
         {
-            msg.setBounds(x, y, width, 20);
+            msg.setBounds(x, y, width, vhite);
 
             for (int i = 0; i < number; i++)
             {
-                buttons[i].setBounds(x + space + (i * (bwidth + space)), (getInsets().bottom + height) - (20 + space), bwidth, 20);
+                buttons[i].setBounds(x + space + (i * (bwidth + space)), (getInsets().top + height) - (vhite + space), bwidth, vhite);
             }
         }
         catch (NullPointerException e) {}
