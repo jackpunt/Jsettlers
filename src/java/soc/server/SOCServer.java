@@ -1346,10 +1346,18 @@ public class SOCServer extends Server
                     ga = gameList.getGameData(game);
 
                     //currentGameEventRecord.setSnapshot(ga);
+		    if ((gameTextMsgMes.getText().startsWith("*showdice*")) ||
+			(gameTextMsgMes.getText().startsWith("*SHOWDICE*"))) {
+			showDice(ga);
+		    }
+
                     ///
                     /// command to add time to a game
                     ///
-                    if ((gameTextMsgMes.getText().startsWith("*ADDTIME*")) || (gameTextMsgMes.getText().startsWith("*addtime*")) || (gameTextMsgMes.getText().startsWith("ADDTIME")) || (gameTextMsgMes.getText().startsWith("addtime")))
+                    if ((gameTextMsgMes.getText().startsWith("*ADDTIME*")) ||
+			(gameTextMsgMes.getText().startsWith("*addtime*")) ||
+			(gameTextMsgMes.getText().startsWith("ADDTIME")) ||
+			(gameTextMsgMes.getText().startsWith("addtime")))
                     {
                         SOCGame gameData = gameList.getGameData(game);
 
@@ -1826,6 +1834,29 @@ public class SOCServer extends Server
             D.ebugPrintln("ERROR -> " + e);
             e.printStackTrace();
         }
+    }
+
+    private void showDice(SOCGame ga) {
+	String game = ga.getName();
+
+	int[] diceRolls = ga.getDieStats();
+	int[] rollStats = ga.getRollStats();
+	int nr = diceRolls[0];
+	String dmsg = "> N = "+nr;
+	for (int i = 1; i<=6; i++) {
+	    dmsg += "   "+diceRolls[i];
+	}
+	messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, dmsg));
+	dmsg = ">";
+	int[] ev = {0,0,2,3,4,5,6,7,6,5,4,3,2};
+	for (int i = 2; i<=12; i++) {
+	    int evi = nr*ev[i];
+	    double rdif = (rollStats[i]*36.0 - evi)/evi;
+	    String nm = ""+rollStats[i];
+	    nm = "   ".substring(nm.length()) + nm;
+	    dmsg = (i<10?">  ":"> ")+i+": "+nm+(" = "+rdif+"    ").substring(0,8);
+	    messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, dmsg));
+	}
     }
 
     /**
@@ -2897,17 +2928,18 @@ public class SOCServer extends Server
                     if (ga.canRollDice(ga.getPlayer((String) c.data).getPlayerNumber()))
                     {
                         IntPair dice = ga.rollDice();
-                        messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, (String) c.data + " rolled a " + dice.getA() + " and a " + dice.getB() + "."));
-                        messageToGame(gn, new SOCDiceResult(gn, ga.getCurrentDice()));
+			int curdice = ga.getCurrentDice();
+                        messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, (String) c.data + " rolled "+curdice+" [" + dice.getA() + " and " + dice.getB() + "]"));
+                        messageToGame(gn, new SOCDiceResult(gn, curdice));
 
                         /**
                          * if the roll is not 7, tell players what they got
                          */
-                        if (ga.getCurrentDice() != 7)
+                        if (curdice != 7)
                         {
                             for (int i = 0; i < SOCGame.MAXPLAYERS; i++)
                             {
-                                SOCResourceSet rsrcs = ga.getResourcesGainedFromRoll(ga.getPlayer(i), ga.getCurrentDice());
+                                SOCResourceSet rsrcs = ga.getResourcesGainedFromRoll(ga.getPlayer(i), curdice);
 
                                 if (rsrcs.getTotal() == 0)
                                 {
@@ -4679,7 +4711,7 @@ public class SOCServer extends Server
                         break;
                     }
                 }
-
+		showDice(ga);
                 break;
             }
         }

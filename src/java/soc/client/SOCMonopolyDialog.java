@@ -27,6 +27,7 @@ import java.awt.Font;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import soc.game.SOCResourceConstants;
 
 
 class SOCMonopolyDialog extends Dialog implements ActionListener
@@ -57,14 +58,11 @@ class SOCMonopolyDialog extends Dialog implements ActionListener
 
         rsrcBut = new Button[5];
 
-        rsrcBut[0] = new Button("Ore");
-        rsrcBut[1] = new Button("Wheat");
-        rsrcBut[2] = new Button("Sheep");
-        rsrcBut[3] = new Button("Clay");
-        rsrcBut[4] = new Button("Wood");
-
+	// five buttons for five resource names:
         for (int i = 0; i < 5; i++)
         {
+	    rsrcBut[i] = new Button(SOCResourceConstants.names[i]);
+	    rsrcBut[i].setBackground(ColorSquare.RES_COLORS[i]);
             add(rsrcBut[i]);
             rsrcBut[i].addActionListener(this);
         }
@@ -121,7 +119,7 @@ class SOCMonopolyDialog extends Dialog implements ActionListener
     }
 
     /**
-     * DOCUMENT ME!
+     * Convert button action to selected SOCResourceConstant
      *
      * @param e DOCUMENT ME!
      */
@@ -133,10 +131,7 @@ class SOCMonopolyDialog extends Dialog implements ActionListener
         {
             if (target == rsrcBut[i])
             {
-                /**
-                 * Note: This only works if SOCResourceConstants.MIN == 1, MAX == 6
-                 */
-                pi.getClient().monopolyPick(pi.getGame(), i + 1);
+                pi.getClient().monopolyPick(pi.getGame(), i + SOCResourceConstants.MIN);
                 dispose();
 
                 break;

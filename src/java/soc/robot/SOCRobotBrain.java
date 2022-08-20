@@ -123,6 +123,11 @@ public class SOCRobotBrain extends Thread
     protected SOCGame game;
 
     /**
+     * Is this a special no robber game?
+     */
+    protected boolean noRobber = false;
+
+    /**
      * Our player data
      */
     protected SOCPlayer ourPlayerData;
@@ -275,7 +280,7 @@ public class SOCRobotBrain extends Thread
     /**
      * true if we're expecting to have to move the robber
      */
-    protected boolean expectMOVEROBBER;
+    protected boolean expectMOVEROBBER;	// DEFUNCT... never used
 
     /**
      * true if we're expecting to pick two resources
@@ -387,6 +392,7 @@ public class SOCRobotBrain extends Thread
         client = rc;
         robotParameters = params;
         game = ga;
+	noRobber = game.getName().startsWith("NR") || game.getName().startsWith("NTNR");
         gameEventQ = mq;
         alive = true;
         counter = 0;
@@ -611,7 +617,7 @@ public class SOCRobotBrain extends Thread
 
                     if (waitingForTradeMsg && (counter > 10))
                     {
-                        waitingForTradeMsg = false;
+                        waitingForTradeMsg = false; // stop waiting for TradeMsg
                         counter = 0;
                     }
 
@@ -660,7 +666,7 @@ public class SOCRobotBrain extends Thread
                         //D.ebugPrintln("counter = "+counter);
                         //D.ebugPrintln("RESEND");
                         counter = 0;
-                        client.resend();
+                        client.resend(); // hmmm, server must have missed my request, send again?
                     }
 
                     if (mesType == SOCMessage.GAMESTATE)
@@ -1196,8 +1202,7 @@ public class SOCRobotBrain extends Thread
                                 {
                                     boolean[] offeredTo = ourPlayerData.getCurrentOffer().getTo();
 
-                                    for (int i = 0; i < SOCGame.MAXPLAYERS;
-                                            i++)
+                                    for (int i = 0; i < SOCGame.MAXPLAYERS; i++)
                                     {
                                         D.ebugPrintln("offerRejections[" + i + "]=" + offerRejections[i]);
 
@@ -1227,12 +1232,12 @@ public class SOCRobotBrain extends Thread
 
                             if (ourResponseToOffer >= 0)
                             {
-                                int delayLength = Math.abs(rand.nextInt() % 500) + 3500;
+                                int delayLength = 3500 + rand.nextInt(500);
 				// pause(delayLength);
                                 switch (ourResponseToOffer)
                                 {
                                 case SOCRobotNegotiator.ACCEPT_OFFER:
-				    pause(delayLength);
+				    pause(delayLength + 1000);
                                     client.acceptOffer(game, offer.getFrom());
 
                                     ///
@@ -1244,7 +1249,7 @@ public class SOCRobotBrain extends Thread
                                     break;
 
                                 case SOCRobotNegotiator.REJECT_OFFER:
-				    pause(delayLength/3);
+				    pause(delayLength/4);
                                     if (!waitingForTradeResponse)
                                     {
                                         client.rejectOffer(game);
@@ -1253,7 +1258,7 @@ public class SOCRobotBrain extends Thread
                                     break;
 
                                 case SOCRobotNegotiator.COUNTER_OFFER:
-				    pause(delayLength);
+				    pause(delayLength/2);
                                     if (!makeCounterOffer(offer))
                                     {
                                         client.rejectOffer(game);
@@ -1429,8 +1434,10 @@ public class SOCRobotBrain extends Thread
                                  */
                                 if ((ourPlayerData.getDevCards().getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.KNIGHT) > 0) && (!(ourPlayerData.getNumbers().getNumberResourcePairsForHex(game.getBoard().getRobberHex())).isEmpty()))
                                 {
-                                    expectPLACING_ROBBER = true;
-                                    waitingForGameState = true;
+				    if (!noRobber) {
+					expectPLACING_ROBBER = true;
+					waitingForGameState = true;
+				    }
                                     counter = 0;
                                     client.playDevCard(game, SOCDevCardConstants.KNIGHT);
                                     pause(1500);
@@ -1604,11 +1611,13 @@ public class SOCRobotBrain extends Thread
                                             /**
                                              * play a knight card
                                              */
-                                            expectPLACING_ROBBER = true;
-                                            waitingForGameState = true;
+                                            if (!noRobber) {
+						expectPLACING_ROBBER = true;
+						waitingForGameState = true;
+					    } 
                                             counter = 0;
                                             client.playDevCard(game, SOCDevCardConstants.KNIGHT);
-                                            pause(1500);
+                                            pause(500);
                                         }
                                     }
                                 }
@@ -2375,14 +2384,16 @@ public class SOCRobotBrain extends Thread
                                 expectDISCARD = true;
                             }
                             else if (ourTurn)
-                            {
-                                expectPLACING_ROBBER = true;
-                            }
-                        }
-                        else
-                        {
-                            expectPLAY1 = true;
-                        }
+			    {
+				if (noRobber) {
+				    expectPLAY1 = true;
+				} else {
+				    expectPLACING_ROBBER = true;
+				}
+			    }
+                        } else {
+			    expectPLAY1 = true;
+			}
                     }
 
                     if (mesType == SOCMessage.DISCARDREQUEST)
@@ -2395,9 +2406,9 @@ public class SOCRobotBrain extends Thread
 
                         //	if (!((expectPLACING_ROBBER || expectPLAY1) &&
                         //	      (counter < 4000))) {
-                        if ((game.getCurrentDice() == 7) && (ourTurn))
+                        if ((game.getCurrentDice() == 7) && (ourTurn) && !noRobber)
                         {
-                            expectPLACING_ROBBER = true;
+			    expectPLACING_ROBBER = true;
                         }
                         else
                         {

@@ -22,6 +22,8 @@ package soc.server.genericServer;
 
 import soc.disableDebug.D;
 
+import java.io.PrintStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -45,6 +47,10 @@ public abstract class Server extends Thread implements Serializable, Cloneable
     boolean up = false;
     protected Exception error = null;
     protected int port;
+    
+    /** log all messages here for debug. */
+    protected PrintStream out = null;
+
 
     /**
      * total number of connections made
@@ -92,11 +98,20 @@ public abstract class Server extends Thread implements Serializable, Cloneable
     {
         Treater treater = new Treater(this);
         treater.start();
-
         if (error != null)
         {
             return;
         }
+	String outlog = System.getProperty("LOG");
+	if (outlog != null) {
+	    try {
+		out = new PrintStream(new FileOutputStream(outlog));
+	    } catch (IOException ex) {
+		out = null;
+		System.out.println("no log file");
+		System.out.println(ex);
+	    }
+	}
 
         up = true;
 
@@ -139,6 +154,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
     /** treat a request from the given connection */
     public void treat(String s, Connection c)
     {
+	if (out != null) { out.println(s); out.flush(); }
         synchronized (inQueue)
         {
             inQueue.addElement(new Command(s, c));

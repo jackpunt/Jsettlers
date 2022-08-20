@@ -157,6 +157,11 @@ public class SOCGame implements Serializable, Cloneable
     private int currentDice;
 
     /**
+     * set when we have a winner; drives SOCGame.OVER state
+     */
+    private boolean gameOver;
+
+    /**
      * the current game state
      */
     private int gameState;
@@ -240,6 +245,7 @@ public class SOCGame implements Serializable, Cloneable
         playerWithLargestArmy = -1;
         playerWithLongestRoad = -1;
         numDevCards = 25;
+	gameOver = false;
         gameState = NEW;
         oldPlayerWithLongestRoad = new Stack();
         startTime = new Date();
@@ -743,6 +749,7 @@ public class SOCGame implements Serializable, Cloneable
 
         /**
          * update which player has longest road
+	 * road or settlement can change longest road!
          */
         if (pp.getType() != SOCPlayingPiece.CITY)
         {
@@ -1159,8 +1166,12 @@ public class SOCGame implements Serializable, Cloneable
      */
     public void endTurn()
     {
-        gameState = PLAY;
         currentDice = 0;
+	if (gameOver) {
+	    gameState = OVER;
+	    return;
+	}
+        gameState = PLAY;
         advanceTurn();
         players[currentPlayerNumber].setPlayedDevCard(false);
         players[currentPlayerNumber].getDevCards().newToOld();
@@ -1187,15 +1198,23 @@ public class SOCGame implements Serializable, Cloneable
         }
     }
 
+    int[] diceRolls = new int[7]; // diceRolls[0] is count of dice-rolls
+    int[] totalRolls = new int[13]; // don't use [0], [1]; [2..12] counts
+
+    public int[] getDieStats() { return diceRolls; }
+    public int[] getRollStats() { return totalRolls; }
+
     /**
      * roll the dice
      */
     public IntPair rollDice()
     {
-        int die1 = Math.abs(rand.nextInt() % 6) + 1;
-        int die2 = Math.abs(rand.nextInt() % 6) + 1;
+        int die1 = rand.nextInt(6) + 1;
+        int die2 = rand.nextInt(6) + 1;
 
         currentDice = die1 + die2;
+
+	diceRolls[0]++; diceRolls[die1]++; diceRolls[die2]++; totalRolls[currentDice]++;
 
         /**
          * handle the seven case
@@ -1216,14 +1235,17 @@ public class SOCGame implements Serializable, Cloneable
             }
 
             /**
-             * if no one needs to discard, then wait for
-             * the robber to move
+             * if no one needs to discard, then wait for the robber to move
              */
             if (gameState != WAITING_FOR_DISCARDS)
             {
-                oldGameState = PLAY1;
-                gameState = PLACING_ROBBER;
-            }
+		if (name.startsWith("NR") || name.startsWith("NTNR")) {
+		    gameState = PLAY1;
+		} else {
+		    oldGameState = PLAY1;
+		    gameState = PLACING_ROBBER;
+		}
+	    }
         }
         else
         {
@@ -1411,14 +1433,15 @@ public class SOCGame implements Serializable, Cloneable
         }
 
         /**
-         * if no one needs to discard, then wait for
-         * the robber to move
+         * if no one needs to discard, then wait for the robber to move
          */
         if (gameState != WAITING_FOR_DISCARDS)
-        {
-            oldGameState = PLAY1;
-            gameState = PLACING_ROBBER;
-        }
+	    if (name.startsWith("NR") || name.startsWith("NTNR")) {
+		gameState = PLAY1;
+	    } else {
+		oldGameState = PLAY1;
+		gameState = PLACING_ROBBER;
+	    }
     }
 
     /**
@@ -1792,7 +1815,7 @@ public class SOCGame implements Serializable, Cloneable
             }
         }
 
-        int pick = Math.abs(rand.nextInt() % cnt);
+        int pick = rand.nextInt(cnt);
 
         /**
          * and transfer it to the current player
@@ -2297,6 +2320,9 @@ public class SOCGame implements Serializable, Cloneable
         players[currentPlayerNumber].incrementNumKnights();
         updateLargestArmy();
         checkForWinner();
+	if (name.startsWith("NR") || name.startsWith("NTNR")) {
+	    return;
+	}
         oldGameState = gameState;
         gameState = PLACING_ROBBER;
     }
@@ -2524,7 +2550,8 @@ public class SOCGame implements Serializable, Cloneable
         {
             if (players[i].getTotalVP() >= 10)
             {
-                gameState = OVER;
+		gameOver = true;
+                //gameState = OVER;
 
                 break;
             }
