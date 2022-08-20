@@ -18,3 +18,11 @@ http://sourceforge.net/projects/jsettlers.
 
 Forums for discussions and community based support are provided at
 SourceForge.
+
+start server: 
+
+  > java -jar target/JSettlersServer.jar PORT 5 dbUser dbPass Able '' Baker '' Charlie '' Dawn '' &
+
+start client:
+
+  > java -jar JSettlers.jar SERVER_HOST SERVER_PORT

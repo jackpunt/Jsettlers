@@ -78,6 +78,10 @@ directory which contains both JSettlers.jar, settlers-server.jar and the
 
   java -jar JSettlersServer.jar 8880 10 dbUser dbPass
 
+OR - start Robots with Server:
+
+  java -jar target/JSettlersServer.jar 8088 5 dbUser dbPass Able '' Baker '' Charlie '' Dawn '' &
+
 If MySQL is not installed and running (See "Database Setup"), you will
 see a warning with the appropriate explanation:
 
