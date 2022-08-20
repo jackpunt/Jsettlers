@@ -143,6 +143,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
     private static final String MESSAGE_PANEL = "message";
     public static boolean SHOWALL = true; // monitor & show resources for all players
     protected Hashtable resourcesToGain = new Hashtable(5); // HashMap<SOCGame,SOCResourceSet>()
+    protected static String defaultGame = "My Game";
 
     protected static String STATSPREFEX = "  [";
     protected TextField nick;
@@ -240,6 +241,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         status.setEditable(false);
         channel = new TextField(20);
         game = new TextField(20);
+	game.setText(defaultGame);
         chlist = new java.awt.List(10, false);
         chlist.add(" ");
         gmlist = new java.awt.List(10, false);
@@ -724,7 +726,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
                 pi.show();
             }
 
-            game.setText("");
+            game.setText(defaultGame);
 
             return;
         }

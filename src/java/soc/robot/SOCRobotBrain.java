@@ -20,7 +20,7 @@
  **/
 package soc.robot;
 
-import soc.disableDebug.D;
+import soc.disableDebug.D;		// 
 
 import soc.game.SOCBoard;
 import soc.game.SOCCity;
@@ -608,6 +608,7 @@ public class SOCRobotBrain extends Thread
                     if (mes != null)
                     {
                         mesType = mes.getType();
+			if ((mesType == SOCMessage.GAMETEXTMSG) && (((SOCGameTextMsg) mes).getText().equals("*PING*"))) {} else 
                         D.ebugPrintln("mes - " + mes);
                     }
                     else
@@ -2365,11 +2366,11 @@ public class SOCRobotBrain extends Thread
     }
 
     protected void markPortType(SOCBoard board, boolean[] ports, int node) {
-	D.ebugPrint("ports: ");
+	D.ebugPrint(" ports:");
 	Integer nodeInt = new Integer(node);
-	for (int portType = SOCBoard.MIN_PORT; portType <= SOCBoard.MAX_PORT; portType++) {
+	for (int portType = SOCBoard.MISC_PORT; portType <= SOCBoard.MAX_PORT; portType++) {
 	    ports[portType] = (board.getPortCoordinates(portType).contains(nodeInt));
-	    D.ebugPrint(ports[portType] + "  ");
+	    D.ebugPrint(" " + ports[portType]);
 	    // each node is of most one port type:
 	    // if (ports[portType]) break;
 	}
@@ -2419,7 +2420,7 @@ public class SOCRobotBrain extends Thread
                 D.ebugPrintln("]");
 		markPortType(board, ports, firstNode);
                 D.ebugPrintln();
-                D.ebugPrintln("probTotal = " + probTotal);
+                D.ebugPrintln(" probTotal = " + probTotal);
                 estimate.recalculateEstimates(playerNumbers);
 
 		int testSpeed = 300;
@@ -2434,11 +2435,13 @@ public class SOCRobotBrain extends Thread
 		// Debug print estimate as of first settlement:
 		{
 		    int[] rolls = estimate.getEstimatesFromNothingFast(ports, testSpeed);
+		    D.ebugPrint(" speed = " + speed + " -- ( ");
+
 		    D.ebugPrint(" road: " + rolls[SOCBuildingSpeedEstimate.ROAD]);
 		    D.ebugPrint(" stlmt: " + rolls[SOCBuildingSpeedEstimate.SETTLEMENT]);
 		    D.ebugPrint(" city: " + rolls[SOCBuildingSpeedEstimate.CITY]);
-		    D.ebugPrintln(" card: " + rolls[SOCBuildingSpeedEstimate.CARD]);
-		    D.ebugPrintln("speed = " + speed);
+		    D.ebugPrint(" card: " + rolls[SOCBuildingSpeedEstimate.CARD]);
+		    D.ebugPrintln(" )");
 		}
                 //
                 // end test
@@ -2451,8 +2454,8 @@ public class SOCRobotBrain extends Thread
                     if ((ourPlayerData.isPotentialSettlement(secondNode)) &&
 			(!SOCBoard.getAdjacentNodesToNode(secondNode).contains(firstNodeInt)))
                     {
-                        D.ebugPrintln("firstNode = " + board.nodeCoordToString(firstNode));
-                        D.ebugPrintln("secondNode = " + board.nodeCoordToString(secondNode));
+                        //D.ebugPrintln("firstNode = " + board.nodeCoordToString(firstNode));
+                        //D.ebugPrintln("secondNode = " + board.nodeCoordToString(secondNode));
 
                         /**
                          * get the numbers for these settlements
@@ -2465,9 +2468,9 @@ public class SOCRobotBrain extends Thread
 			probTotal += addNumbersForHex(board, playerNumbers, secondNode);
                         D.ebugPrintln("]");
 			markPortType(board, ports, firstNode, secondNode);
-
                         D.ebugPrintln();
-                        D.ebugPrintln("probTotal = " + probTotal);
+
+                        D.ebugPrintln(" probTotal = " + probTotal);
 
                         /**
                          * estimate the building speed for this pair
@@ -2484,12 +2487,14 @@ public class SOCRobotBrain extends Thread
 
 			{
 			    int[] rolls = estimate.getEstimatesFromNothingFast(ports, bestSpeed);
+			    D.ebugPrintln(" allTheWay = " + allTheWay);
+			    D.ebugPrint(" speed = " + speed + " -- ( ");
+			    
 			    D.ebugPrint(" road: " + rolls[SOCBuildingSpeedEstimate.ROAD]);
 			    D.ebugPrint(" stlmt: " + rolls[SOCBuildingSpeedEstimate.SETTLEMENT]);
 			    D.ebugPrint(" city: " + rolls[SOCBuildingSpeedEstimate.CITY]);
-			    D.ebugPrintln(" card: " + rolls[SOCBuildingSpeedEstimate.CARD]);
-			    D.ebugPrintln("allTheWay = " + allTheWay);
-			    D.ebugPrintln("speed = " + speed);
+			    D.ebugPrint(" card: " + rolls[SOCBuildingSpeedEstimate.CARD]);
+			    D.ebugPrintln(" )");
 			}
                         /**
                          * keep the settlements with the best speed
@@ -2591,19 +2596,19 @@ public class SOCRobotBrain extends Thread
 		probTotal += addNumbersForHex(board, playerNumbers, secondNode);
 		D.ebugPrint("]");
 		markPortType(board, ports, firstNode, secondNode);
-
                 D.ebugPrintln();
-                D.ebugPrintln("probTotal = " + probTotal);
+
+                D.ebugPrintln(" probTotal = " + probTotal);
 
                 /**
                  * estimate the building speed for this pair
                  */
                 estimate.recalculateEstimates(playerNumbers);
 
-                int speed = 0;
+                int speed = 0;	// estimated rolls to produce resources
 		boolean allTheWay = true; 
 		
-		// see if this rolls-to-resources is low for this pair:
+		// see if rolls-to-resources is low for this pair:
 		for (int rst = SOCBuildingSpeedEstimate.MIN; rst < SOCBuildingSpeedEstimate.MAXPLUSONE; rst++) {
 		    if (speed > bestSpeed) { allTheWay = false; break; }
 		    speed += estimate.calculateRollsFast(emptySet, SOCBuildingSpeedEstimate.buildTargets[rst], bestSpeed, ports);
@@ -2621,8 +2626,12 @@ public class SOCRobotBrain extends Thread
                     secondSettlement = secondNode;
                     bestSpeed = speed;
                     bestProbTotal = probTotal;
-                    D.ebugPrintln("firstSettlement = " + Integer.toHexString(firstSettlement));
-                    D.ebugPrintln("secondSettlement = " + Integer.toHexString(secondSettlement));
+		    int number = board.getNumberOnHexFromCoord(secondNode);
+		    int resource = board.getHexTypeFromCoord(secondNode);
+
+                    D.ebugPrintln("secondSettlement = " + Integer.toHexString(secondSettlement)
+				  + "=" + board.nodeCoordToString(secondSettlement)
+				  + " speed=" + bestSpeed);
 
                     int[] rolls = estimate.getEstimatesFromNothingFast(ports);
                     D.ebugPrint("road: " + rolls[SOCBuildingSpeedEstimate.ROAD]);

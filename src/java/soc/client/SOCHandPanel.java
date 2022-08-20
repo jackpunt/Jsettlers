@@ -81,6 +81,7 @@ public class SOCHandPanel extends Panel implements ActionListener
     protected static final String CARD = "  Play Card  ";
     protected static final String GIVE = "I Give: ";
     protected static final String GET = "I Get: ";
+    protected static final Color LCOLOR = new Color(142, 45, 10);
     protected Button sitBut;
     protected Button robotBut;
     protected Button startBut;
@@ -351,11 +352,11 @@ public class SOCHandPanel extends Panel implements ActionListener
         add(vpSq);
         
         larmyLab = new Label("", Label.CENTER);
-        larmyLab.setForeground(new Color(142, 45, 10));
+        larmyLab.setForeground(LCOLOR);
         add(larmyLab);
         
         lroadLab = new Label("", Label.CENTER);
-        lroadLab.setForeground(new Color(142, 45, 10));
+        lroadLab.setForeground(LCOLOR);
         add(lroadLab);
 
         // set the starting state of the panel
@@ -1144,7 +1145,9 @@ public class SOCHandPanel extends Panel implements ActionListener
 
         case SETTLEMENTS:
 
-            settlementSq.setIntValue(player.getNumPieces(SOCPlayingPiece.SETTLEMENT));
+	        int nstl = player.getNumPieces(SOCPlayingPiece.SETTLEMENT);
+            settlementSq.setIntValue(nstl);
+            settlementSq.setColor((nstl == 0) ? Color.red : ColorSquare.GREY);
 
             break;
 

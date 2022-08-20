@@ -112,6 +112,8 @@ import soc.util.IntPair;
 import soc.util.SOCRobotParameters;
 import soc.util.Version;
 
+import soc.robot.SOCRobotClient;
+
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Enumeration;
@@ -5236,5 +5238,11 @@ public class SOCServer extends Server
         SOCServer server = new SOCServer(port, mc, args[2], args[3]);
         server.setPriority(5);
         server.start();
+	try {Thread.sleep(3000);} 
+	catch (InterruptedException ex) {}
+	for (int i = 5; i < args.length; i+=2) {
+	    SOCRobotClient ex1 = new SOCRobotClient("localhost", port, args[i-1], args[i]);
+	    ex1.init();
+	}
     }
 }

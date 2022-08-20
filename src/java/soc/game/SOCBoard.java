@@ -1132,50 +1132,26 @@ public class SOCBoard implements Serializable, Cloneable
      */
     public boolean isNodeOnBoard(int node)
     {
-        if (nodesOnBoard.containsKey(new Integer(node)))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+	return nodesOnBoard.containsKey(new Integer(node));
     }
 
     /**
-     * @return a string representation of a node coordinate
+     * "string representation of node coords" (sic)
+     * @return a String of 3 numbers from hexes surrounding the given node.
      */
     public String nodeCoordToString(int node)
     {
-        String str;
+        String str = "";
+	String sep = "";
         Enumeration hexes = getAdjacentHexesToNode(node).elements();
-        Integer hex = (Integer) hexes.nextElement();
-        int number = getNumberOnHexFromCoord(hex.intValue());
-
-        if (number == 0)
-        {
-            str = "-";
-        }
-        else
-        {
-            str = "" + number;
-        }
 
         while (hexes.hasMoreElements())
         {
-            hex = (Integer) hexes.nextElement();
-            number = getNumberOnHexFromCoord(hex.intValue());
-
-            if (number == 0)
-            {
-                str += "/-";
-            }
-            else
-            {
-                str += ("/" + number);
-            }
-        }
-
+            int hex = ((Integer) hexes.nextElement()).intValue();
+            int number = getNumberOnHexFromCoord(hex);
+	    str += ((number == 0) ? (sep+"-") : (sep+number));
+	    sep = "/";
+	}
         return str;
     }
 
