@@ -1,0 +1,5 @@
+#!/bin/sh
+echo $(dirname $0) > /tmp/foo.txt
+cd $(dirname $0)
+echo $PWD >> /tmp/foo.txt
+java -cp JSettlers.jar -jar JSettlersServer.jar 8808 5 dbUser dbPass Able '' Baker '' Charlie '' Dawn ''

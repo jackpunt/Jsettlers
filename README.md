@@ -21,8 +21,14 @@ SourceForge.
 
 start server: 
 
-  > java -jar target/JSettlersServer.jar PORT 5 dbUser dbPass Able '' Baker '' Charlie '' Dawn '' &
+  > java -cp target/JSettlers.jar -jar target/JSettlersServer.jara PORT 5 dbUser dbPass Able '' Baker '' Charlie '' Dawn '' &
 
 start client:
 
   > java -jar JSettlers.jar SERVER_HOST SERVER_PORT
+
+On Mac OS: (having installed the jar files in these directories)
+
+  > bin/JSettlersServer.app/JSettlersServer
+
+  > bin/JSettlersServer.app/JSettlers
