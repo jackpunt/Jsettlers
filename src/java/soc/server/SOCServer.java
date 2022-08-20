@@ -233,6 +233,8 @@ public class SOCServer extends Server
         super(p);
         maxConnections = mc;
 
+        System.err.println("Java Settlers Server TL=\"" + (System.getProperty("TL")) +"\"");
+
         System.err.println("Java Settlers Server " + Version.version() +
                            ", " + Version.copyright());
         System.err.println("Network layer based on code by Cristian Bogdan.");
@@ -256,7 +258,7 @@ public class SOCServer extends Server
         serverRobotPinger = new SOCServerRobotPinger(robots);
         serverRobotPinger.start();
         gameTimeoutChecker = new SOCGameTimeoutChecker(this);
-        gameTimeoutChecker.start();
+        if (!"none".equals(System.getProperty("TL"))) gameTimeoutChecker.start();
         this.databaseUserName = databaseUserName;
         this.databasePassword = databasePassword;
     }
@@ -1857,7 +1859,7 @@ public class SOCServer extends Server
 	}
 	messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, dmsg));
 	dmsg = ">";
-	int[] ev = {0,0,2,3,4,5,6,7,6,5,4,3,2};
+	int[] ev = {0,0,1,2,3,4,5,6,5,4,3,2,1};
 	for (int i = 2; i<=12; i++) {
 	    int evi = nr*ev[i];
 	    double rdif = (rollStats[i]*36.0 - evi)/evi;

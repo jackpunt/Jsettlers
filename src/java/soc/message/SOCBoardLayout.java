@@ -128,7 +128,7 @@ public class SOCBoardLayout extends SOCMessage
             cmd += (sep2 + hl[i]);
         }
 
-        for (int i = 0; i < 37; i++)
+        for (int i = 0; i < 37; i++) // (int i=5, i<32; ++)
         {
             cmd += (sep2 + nl[i]);
         }

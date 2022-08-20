@@ -2354,7 +2354,7 @@ public class SOCRobotBrain extends Thread
 	    int number = board.getNumberOnHexFromCoord(hex);
 	    int resource = board.getHexTypeFromCoord(hex);
 	    playerNumbers.addNumberForResource(number, resource, hex);
-	    probTotal += SOCNumberProbabilities.INT_VALUES[number];
+	    probTotal += SOCNumberProbabilities.INT_VALUES[number]; // integer percents
 	    D.ebugPrint(number + " ");
 	}
 	return probTotal;
@@ -2935,7 +2935,7 @@ public class SOCRobotBrain extends Thread
             resourceEstimates[0] = 0;
 
             // look at each land hex (ignore ports)
-            for (int i = 0; i < 37; i++)
+            for (int i = 0; i < 37; i++) // 4..31
             {
                 int hexNumber = board.getNumberOnHexFromNumber(i);
 

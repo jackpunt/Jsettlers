@@ -1,0 +1,5 @@
+1. isoloted colors for resources and for players
+1.b color arrows, color monopoly and discard screens
+2. restructured layout (and other code) to allow reordering resources
+3. simplied some SOCBoard.java structures
+4. let board get wider.

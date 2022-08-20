@@ -235,6 +235,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         setFont(new Font("Monaco", Font.PLAIN, 12));
         
         nick = new TextField(20);
+	nick.setText("MyName");
         pass = new TextField(20);
         pass.setEchoChar('*');
         status = new TextField(20);

@@ -79,6 +79,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
      * the display for the players' hands
      */
     protected SOCHandPanel[] hands;
+    final static int handWidth=188; // min or fixed width of hand panel
 
     /**
      * the player colors
@@ -141,7 +142,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
         game = ga;
 
         /**
-         * initialize the player colors
+         * initialize the player colors (keep these sync'd with .gif images)
          */
         playerColors = new Color[4];
         playerColors[0] = new Color(153, 204, 255); // blue
@@ -187,7 +188,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
         for (int i = 0; i < SOCGame.MAXPLAYERS; i++)
         {
             hands[i] = new SOCHandPanel(this, game.getPlayer(i));
-            hands[i].setSize(180, 180);
+            hands[i].setSize(handWidth, 180); // height is not relevant?
             add(hands[i]);
         }
 
@@ -195,14 +196,14 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          * initialize the building interface and add it to the main interface
          */
         buildingPanel = new SOCBuildingPanel(this);
-        buildingPanel.setSize(200, 160);
+        buildingPanel.setSize(SOCBoardPanel.getPanelX(), 160);
         add(buildingPanel);
 
         /**
          * initialize the game board display and add it to the interface
          */
         boardPanel = new SOCBoardPanel(this);
-        boardPanel.setBackground(new Color(112, 45, 10));
+        boardPanel.setBackground(new Color(112, 45, 10)); // Brown?
         boardPanel.setForeground(Color.black);
         boardPanel.setSize(SOCBoardPanel.getPanelX(), SOCBoardPanel.getPanelY());
         add(boardPanel);
@@ -560,33 +561,35 @@ public class SOCPlayerInterface extends Frame implements ActionListener
         dim.width -= (i.left + i.right);
         dim.height -= (i.top + i.bottom); 	// minus insets/boarders
 
-        int bw = SOCBoardPanel.getPanelX();
-        int bh = SOCBoardPanel.getPanelY(); 	// bh = board/map height
-        int hw = (dim.width - bw - 16) / 2;
+        int hw = 188;
         int hh = (dim.height - 12) / 2;		// hh = 'hand' panel height
+
+        int bw = dim.width - ( 2*hw + 16) ;
+        int bh = SOCBoardPanel.getPanelY(); 	// bh = board/map height
+//         int hw = (dim.width - bw - 16) / 2;
+//         int hh = (dim.height - 12) / 2;		// hh = 'hand' panel height
         int kw = bw;
         int kh = buildingPanel.getSize().height; //kh = build panel
         int tfh = textInput.getSize().height; 	// tfh = fontsize+4
         int tah = dim.height - bh - kh - tfh - 16; // preallocated - borders
 
-        boardPanel.setBounds(i.left + hw + 8, i.top + tah + tfh + 8, SOCBoardPanel.getPanelX(), SOCBoardPanel.getPanelY());
-
+        boardPanel.setBounds(   i.left + hw + 8, i.top + tah + tfh + 8,       bw, bh);
         buildingPanel.setBounds(i.left + hw + 8, i.top + tah + tfh + bh + 12, kw, kh);
 
         hands[0].setBounds(i.left + 4, i.top + 4, hw, hh);
 
         if (SOCGame.MAXPLAYERS > 1)
         {
-            hands[1].setBounds(i.left + hw + bw + 12, i.top + 4, hw, hh);
+            hands[1].setBounds(i.left + hw + bw + 12, i.top + 4,      hw, hh);
             hands[2].setBounds(i.left + hw + bw + 12, i.top + hh + 8, hw, hh);
-            hands[3].setBounds(i.left + 4, i.top + hh + 8, hw, hh);
+            hands[3].setBounds(i.left + 4,            i.top + hh + 8, hw, hh);
         }
 
         int cdh = tah / 4;	// could be 2, 3, 4
         int tdh = tah - cdh;	// bias for more text, especially when one human!
-        textDisplay.setBounds(i.left + hw + 8, i.top + 4, bw, tdh);
+        textDisplay.setBounds(i.left + hw + 8, i.top + 4,       bw, tdh);
         chatDisplay.setBounds(i.left + hw + 8, i.top + 4 + tdh, bw, cdh);
-        textInput.setBounds(i.left + hw + 8, i.top + 4 + tah, bw, tfh);
+        textInput.setBounds(  i.left + hw + 8, i.top + 4 + tah, bw, tfh);
 
         npix = textDisplay.getPreferredSize().width;
         ncols = (int) ((((float) bw) * 100.0) / ((float) npix)) - 2;

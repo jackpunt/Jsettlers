@@ -162,7 +162,7 @@ public class TradeOfferPanel extends Panel
         SOCResourceSet get;
         int[] giveInt = new int[5];
         int[] getInt = new int[5];
-        boolean acceptable = false;
+	boolean acceptable = false;
         boolean counterOfferMode = false;
 
         /**
@@ -250,8 +250,8 @@ public class TradeOfferPanel extends Panel
         }
 
         /**
-         * update OfferPanel.
-         * 
+	 * update OfferPanel.
+	 * 
          * @param  give  the set of resources being given
          * @param  get   the set of resources being asked for
          * @param  to    a boolean array where 'true' means that the offer
@@ -273,7 +273,7 @@ public class TradeOfferPanel extends Panel
 
             if (player != null)
             {
-                acceptable = SOCResourceSet.gte(player.getResources(), get); // only used as: (offered && acceptable)
+		acceptable = SOCResourceSet.gte(player.getResources(), get); // only used as: (offered && acceptable)
 
                 Color ourPlayerColor = pi.getPlayerColor(player.getPlayerNumber());
                 giveLab2.setBackground(ourPlayerColor);

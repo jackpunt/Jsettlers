@@ -41,12 +41,13 @@ import java.awt.event.MouseMotionListener;
 
 import java.util.Enumeration;
 
+import soc.debug.D;		// isableD
 
 /**
  * This is a component that can display a Settlers of Catan Board.
  * It can be used in an applet or an application.
  * It loads gifs from a directory named "images" in the same
- * directory at the code.
+ * directory as the code.
  */
 public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionListener
 {
@@ -154,6 +155,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
     private static Image arrowR;
     private static Image arrowL;
     private static Image[] dice;
+    private static Image[] arrows;
 
     /**
      * Old pointer coords for interface
@@ -613,10 +615,13 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
      */
     public void paint(Graphics g)
     {
-        if (buffer == null)
+        if (buffer == null ||
+	    buffer.getWidth(null) < getWidth() ||
+	    buffer.getHeight(null) < getHeight())
         {
-            buffer = this.createImage(panelx, panely);
-        }
+            buffer = this.createImage(getWidth(), getHeight());	// panelx, panely
+	    //D.ebugPrintln("paint: buffer - ["+getWidth()+", "+getHeight()+"]");
+	}
         drawBoard(buffer.getGraphics());
         buffer.flush();
         g.drawImage(buffer, 0, 0, this);
@@ -641,19 +646,23 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         int[] numberLayout = board.getNumberLayout();
         int hexType = hexLayout[hexNum];
 
+        int wx = (getWidth() - panelx) / 2 + hexX[hexNum];
+
         tmp = hexType & 15; // get only the last 4 bits;
-        g.drawImage(hexes[tmp], hexX[hexNum], hexY[hexNum], this);
+        g.drawImage(hexes[tmp], wx, hexY[hexNum], this);
 
         tmp = hexType >> 4; // get the facing of the port
 
         if (tmp > 0)
         {
-            g.drawImage(ports[tmp], hexX[hexNum], hexY[hexNum], this);
+            // overlay with port facing graphic:
+            g.drawImage(ports[tmp],wx, hexY[hexNum], this);
         }
 
-        if (numberLayout[hexNum] >= 0)
+        if (numberLayout[hexNum] >= 2)
         {
-            g.drawImage(numbers[numberLayout[hexNum]], hexX[hexNum] + 9, hexY[hexNum] + 12, this);
+            // overlay with dice number graphic:
+            g.drawImage(numbers[numberLayout[hexNum]], wx + 9, hexY[hexNum] + 12, this);
         }
     }
 
@@ -665,10 +674,11 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         int[] tmpX = new int[14];
         int[] tmpY = new int[14];
         int hexNum = hexIDtoNum[hexID];
+        int wx = (getWidth() - panelx) / 2;
 
         for (int i = 0; i < 14; i++)
         {
-            tmpX[i] = robberX[i] + hexX[hexNum] + 18;
+            tmpX[i] = robberX[i] + hexX[hexNum] + 18 + wx;
             tmpY[i] = robberY[i] + hexY[hexNum] + 12;
         }
 
@@ -688,6 +698,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         int[] tmpX = new int[5];
         int[] tmpY = new int[5];
         int hexNum;
+        int wx = (getWidth() - panelx) / 2;
 
         if ((((edgeNum & 0x0F) + (edgeNum >> 4)) % 2) == 0)
         { // If first and second digit 
@@ -695,18 +706,18 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 5; i++)
             {
-                tmpX[i] = vertRoadX[i] + hexX[hexNum];
+                tmpX[i] = vertRoadX[i] + hexX[hexNum] + wx;
                 tmpY[i] = vertRoadY[i] + hexY[hexNum];
             }
         }
         else if (((edgeNum >> 4) % 2) == 0)
         { // If first digit is even,
             hexNum = hexIDtoNum[edgeNum + 0x10]; // then it is '/'.
-            hexNum = hexIDtoNum[edgeNum + 0x10];
+            //hexNum = hexIDtoNum[edgeNum + 0x10];
 
             for (i = 0; i < 5; i++)
             {
-                tmpX[i] = upRoadX[i] + hexX[hexNum];
+                tmpX[i] = upRoadX[i] + hexX[hexNum] + wx;
                 tmpY[i] = upRoadY[i] + hexY[hexNum];
             }
         }
@@ -716,7 +727,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 5; i++)
             {
-                tmpX[i] = downRoadX[i] + hexX[hexNum];
+                tmpX[i] = downRoadX[i] + hexX[hexNum] + wx;
                 tmpY[i] = downRoadY[i] + hexY[hexNum];
             }
         }
@@ -737,6 +748,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         int[] tmpX = new int[7];
         int[] tmpY = new int[7];
         int hexNum;
+        int wx = (getWidth() - panelx) / 2;
 
         if (((nodeNum >> 4) % 2) == 0)
         { // If first digit is even,
@@ -744,7 +756,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 7; i++)
             {
-                tmpX[i] = settlementX[i] + hexX[hexNum];
+                tmpX[i] = settlementX[i] + hexX[hexNum] + wx;
                 tmpY[i] = settlementY[i] + hexY[hexNum] + 11;
             }
         }
@@ -754,7 +766,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 7; i++)
             {
-                tmpX[i] = settlementX[i] + hexX[hexNum] + 18;
+                tmpX[i] = settlementX[i] + hexX[hexNum] + wx + 18;
                 tmpY[i] = settlementY[i] + hexY[hexNum] + 2;
             }
         }
@@ -775,6 +787,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         int[] tmpX = new int[13];
         int[] tmpY = new int[13];
         int hexNum;
+        int wx = (getWidth() - panelx) / 2;
 
         if (((nodeNum >> 4) % 2) == 0)
         { // If first digit is even,
@@ -782,7 +795,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 13; i++)
             {
-                tmpX[i] = cityX[i] + hexX[hexNum];
+                tmpX[i] = cityX[i] + hexX[hexNum] + wx;
                 tmpY[i] = cityY[i] + hexY[hexNum] + 11;
             }
         }
@@ -792,7 +805,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 13; i++)
             {
-                tmpX[i] = cityX[i] + hexX[hexNum] + 18;
+                tmpX[i] = cityX[i] + hexX[hexNum] + wx + 18;
                 tmpY[i] = cityY[i] + hexY[hexNum] + 2;
             }
         }
@@ -807,57 +820,19 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
     /**
      * draw the arrow that shows whos turn it is
      */
-    private final void drawArrow(Graphics g, int pnum, int diceResult)
-    {
-        switch (pnum)
-        {
-        case 0:
-
-            // top left
-            g.drawImage(arrowL, 3, 5, this);
-
-            if ((diceResult >= 2) && (game.getGameState() != SOCGame.PLAY))
-            {
-                g.drawImage(dice[diceResult], 13, 10, this);
-            }
-
-            break;
-
-        case 1:
-
-            // top right
-            g.drawImage(arrowR, 213, 5, this);
-
-            if ((diceResult >= 2) && (game.getGameState() != SOCGame.PLAY))
-            {
-                g.drawImage(dice[diceResult], 213, 10, this);
-            }
-
-            break;
-
-        case 2:
-
-            // bottom right
-            g.drawImage(arrowR, 213, 180, this);
-
-            if ((diceResult >= 2) && (game.getGameState() != SOCGame.PLAY))
-            {
-                g.drawImage(dice[diceResult], 213, 185, this);
-            }
-
-            break;
-
-        case 3:
-
-            // bottom left
-            g.drawImage(arrowL, 3, 180, this);
-
-            if ((diceResult >= 2) && (game.getGameState() != SOCGame.PLAY))
-            {
-                g.drawImage(dice[diceResult], 13, 185, this);
-            }
-
-            break;
+    private final void drawArrow(Graphics g, int pnum, int diceResult) {
+        if (pnum < 0) return;
+        // {blue, pink, green, yellow}
+        // {top-left, top-right, bottom-right, bottom-left} 253, 222
+        int wx = getWidth(); // >= panelx
+        int hy = getHeight(); // >= panely; mostly =panely
+        int[] px = { +3, wx - 40, wx - 40, +3 };
+        int[] py = { +5, +5, hy - 42, hy - 42 };
+        int[] pxd = { 13, wx - 40, wx - 40, 13 };
+        int[] pyd = { 10, 10, hy - 37, hy - 37 };
+        g.drawImage(arrows[pnum], px[pnum], py[pnum], this);
+        if ((diceResult >= 2) && (game.getGameState() != SOCGame.PLAY)) {
+            g.drawImage(dice[diceResult], pxd[pnum], pyd[pnum], this);
         }
     }
 
@@ -867,9 +842,9 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
     private void drawBoard(Graphics g)
     {
         g.setPaintMode();
-
         g.setColor(getBackground());
-        g.fillRect(0, 0, panelx, panely);
+        g.fillRect(0, 0, getWidth(), getHeight());
+        // D.ebugPrintln("drawBoard - ["+getWidth()+", "+getHeight()+"]");
 
         for (int i = 0; i < 37; i++)
         {
@@ -1139,7 +1114,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
      */
     public void mouseMoved(MouseEvent e)
     {
-        int x = e.getX();
+        int x = e.getX() - (getWidth()-panelx)/2;
         int y = e.getY();
 
         int edgeNum;
@@ -1363,7 +1338,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
      */
     public void mousePressed(MouseEvent evt)
     {
-        int x = evt.getX();
+        int x = evt.getX() - (getWidth()-panelx)/2;
         int y = evt.getY();
 
         if (hilight > 0)
@@ -1494,6 +1469,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         // find which grid section the pointer is in 
         // ( 31 is the y-distance between the centers of two hexes )
         int sector = (x / 18) + ((y / 10) * 15);
+	if (sector < 0 || sector >= edgeMap.length) return 0;
 
         // System.out.println("SECTOR = "+sector+" | EDGE = "+edgeMap[sector]);
         return edgeMap[sector];
@@ -1511,6 +1487,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         // find which grid section the pointer is in 
         // ( 31 is the y-distance between the centers of two hexes )
         int sector = ((x + 9) / 18) + (((y + 5) / 10) * 15);
+        if (sector < 0 || sector >= nodeMap.length) return 0;
 
         // System.out.println("SECTOR = "+sector+" | NODE = "+nodeMap[sector]);
         return nodeMap[sector];
@@ -1528,6 +1505,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         // find which grid section the pointer is in 
         // ( 31 is the y-distance between the centers of two hexes )
         int sector = (x / 18) + ((y / 10) * 15);
+        if (sector < 0 || sector >= hexMap.length) return 0;
 
         // System.out.println("SECTOR = "+sector+" | HEX = "+hexMap[sector]);
         return hexMap[sector];
@@ -1552,6 +1530,12 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
     {
         return mode;
     }
+    private static Image getImage(Toolkit tk, Class clazz, MediaTracker tracker, String name)
+    {
+	Image img=tk.getImage(clazz.getResource(IMAGEDIR + "/"+name+".gif"));
+	tracker.addImage(img,0);
+	return img;
+    }
 
     /**
      * load the images for the board
@@ -1560,83 +1544,64 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
      */
     private static synchronized void loadImages(Component c)
     {
-        if (hexes == null)
-        {
-            MediaTracker tracker = new MediaTracker(c);
-            Toolkit tk = c.getToolkit();
-            Class clazz = c.getClass();
-        
-            hexes = new Image[13];
-            numbers = new Image[10];
-            ports = new Image[7];
+        if (hexes != null) { return; }
 
-            dice = new Image[14];
+        MediaTracker tracker = new MediaTracker(c);
+        Toolkit tk = c.getToolkit();
+        Class clazz = c.getClass();
 
-            hexes[SOCBoard.DESERT_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/desertHex.gif"));
-            hexes[SOCBoard. CLAY_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/clayHex.gif"));
-            hexes[SOCBoard.  ORE_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/oreHex.gif"));
-            hexes[SOCBoard.SHEEP_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/sheepHex.gif"));
-            hexes[SOCBoard.WHEAT_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/wheatHex.gif"));
-            hexes[SOCBoard. WOOD_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/woodHex.gif"));
-            hexes[SOCBoard.WATER_HEX] = tk.getImage(clazz.getResource(IMAGEDIR + "/waterHex.gif"));
+        String[] numberNames = { "null", "null", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+                "eleven", "twelve" };
+        // String[] numberNames = { "two", "three", "four", "five", "six", "eight",
+        // "nine", "ten", "eleven", "twelve" };
 
-            for (int i = 0; i < 7; i++)
-            {
-                tracker.addImage(hexes[i], 0);
-            }
+        hexes = new Image[13];
+        numbers = new Image[numberNames.length];
+        ports = new Image[7];
 
-	    // generic 3:1 Misc Port tile:
-            for (int i = 0; i < 6; i++)
-            {
-                hexes[i + 7] = tk.getImage(clazz.getResource(IMAGEDIR + "/miscPort" + i + ".gif"));
-                tracker.addImage(hexes[i + 7], 0);
-            }
+	    dice = new Image[14];
+        arrows = new Image[4];
+	
+        hexes[SOCBoard.DESERT_HEX] = getImage(tk, clazz, tracker, "desertHex");
+        hexes[SOCBoard.CLAY_HEX] = getImage(tk, clazz, tracker, "clayHex");
+        hexes[SOCBoard.ORE_HEX] = getImage(tk, clazz, tracker, "oreHex");
+        hexes[SOCBoard.SHEEP_HEX] = getImage(tk, clazz, tracker, "sheepHex");
+        hexes[SOCBoard.WHEAT_HEX] = getImage(tk, clazz, tracker, "wheatHex");
+        hexes[SOCBoard.WOOD_HEX] = getImage(tk, clazz, tracker, "woodHex");
+        hexes[SOCBoard.WATER_HEX] = getImage(tk, clazz, tracker, "waterHex");
 
-	    // untyped resource port tile:
-            for (int i = 0; i < 6; i++)
-            {
-                ports[i + 1] = tk.getImage(clazz.getResource(IMAGEDIR + "/port" + i + ".gif"));
-                tracker.addImage(ports[i + 1], 0);
-            }
+        // generic 3:1 Misc Port tile, on per facing:
+        for (int i = 0; i < 6; i++) {
+            hexes[i + 7] = getImage(tk, clazz, tracker, "miscPort" + i);
+        }
 
-            numbers[0] = tk.getImage(clazz.getResource(IMAGEDIR + "/two.gif"));
-            numbers[1] = tk.getImage(clazz.getResource(IMAGEDIR + "/three.gif"));
-            numbers[2] = tk.getImage(clazz.getResource(IMAGEDIR + "/four.gif"));
-            numbers[3] = tk.getImage(clazz.getResource(IMAGEDIR + "/five.gif"));
-            numbers[4] = tk.getImage(clazz.getResource(IMAGEDIR + "/six.gif"));
-            numbers[5] = tk.getImage(clazz.getResource(IMAGEDIR + "/eight.gif"));
-            numbers[6] = tk.getImage(clazz.getResource(IMAGEDIR + "/nine.gif"));
-            numbers[7] = tk.getImage(clazz.getResource(IMAGEDIR + "/ten.gif"));
-            numbers[8] = tk.getImage(clazz.getResource(IMAGEDIR + "/eleven.gif"));
-            numbers[9] = tk.getImage(clazz.getResource(IMAGEDIR + "/twelve.gif"));
+        // untyped resource port tile, one per facing:
+        for (int i = 0; i < 6; i++) {
+            ports[i + 1] = getImage(tk, clazz, tracker, "port" + i);
+        }
 
-            for (int i = 0; i < 10; i++)
-            {
-                tracker.addImage(numbers[i], 0);
-            }
+        for (int i = 0; i < numbers.length; i++) {
+            numbers[i] = getImage(tk, clazz, tracker, numberNames[i]);
+        }
 
-            arrowL = tk.getImage(clazz.getResource(IMAGEDIR + "/arrowL.gif"));
-            arrowR = tk.getImage(clazz.getResource(IMAGEDIR + "/arrowR.gif"));
+        arrowL = getImage(tk, clazz, tracker, "arrowL");
+        arrowR = getImage(tk, clazz, tracker, "arrowR");
 
-            tracker.addImage(arrowL, 0);
-            tracker.addImage(arrowR, 0);
+        for (int i = 0; i < 4; i++) {
+            arrows[i] = getImage(tk, clazz, tracker, "arrow" + i);
+        }
 
-            for (int i = 2; i < 13; i++)
-            {
-                dice[i] = tk.getImage(clazz.getResource(IMAGEDIR + "/dice" + i + ".gif"));
-                tracker.addImage(dice[i], 0);
-            }
+        for (int i = 2; i < 13; i++) {
+            dice[i] = getImage(tk, clazz, tracker, "dice" + i);
+        }
 
-            try
-            {
-                tracker.waitForID(0);
-            }
-            catch (InterruptedException e) {}
+        try {
+            tracker.waitForID(0);
+        } catch (InterruptedException e) {
+        }
 
-            if (tracker.isErrorID(0))
-            {
-                System.out.println("Error loading board images");
-            }
+        if (tracker.isErrorID(0)) {
+            System.out.println("Error loading board images");
         }
     }
 

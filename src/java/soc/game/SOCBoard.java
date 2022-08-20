@@ -36,16 +36,18 @@ import java.util.Vector;
 public class SOCBoard implements Serializable, Cloneable
 {
     public static final int DESERT_HEX = 0;
-    public static final int  CLAY_HEX = SOCResourceConstants.CLAY; // these need to sync with SOCResourceConstants!
+    // these need to sync with SOCResourceConstants!
+    // so we synch them:
+    public static final int  CLAY_HEX = SOCResourceConstants.CLAY; 
     public static final int   ORE_HEX = SOCResourceConstants.ORE;
     public static final int SHEEP_HEX = SOCResourceConstants.SHEEP;
     public static final int WHEAT_HEX = SOCResourceConstants.WHEAT;
-    public static final int  WOOD_HEX = SOCResourceConstants.WOOD;
+    public static final int  WOOD_HEX = SOCResourceConstants.WOOD; // 5
     public static final int  LAND_HEX = SOCResourceConstants.MAX;
     public static final int WATER_HEX = 6;
 
-    // we believe these are never actually used... (hexLayout[] = 7..12)
     public static final int  MISC_PORT_HEX =  7; // 3-for-1 port
+    // per getHexTypeFromNumber, these constants/values are never actually used
     public static final int  CLAY_PORT_HEX =  CLAY_HEX+MISC_PORT_HEX;
     public static final int   ORE_PORT_HEX =   ORE_HEX+MISC_PORT_HEX;
     public static final int SHEEP_PORT_HEX = SHEEP_HEX+MISC_PORT_HEX;
@@ -132,13 +134,14 @@ public class SOCBoard implements Serializable, Cloneable
      **************************************************/
 
     /*
-       private int hexLayout[] = { 51, 6, 10, 6,
-       6, 5, 3, 4, 68,
-       8, 1, 2, 1, 3, 6,
+       private int hexLayout[] = {
+           51, 6, 10, 6,
+          6, 5, 3, 4, 68,
+         8, 1, 2, 1, 3, 6,
        6, 0, 5, 4, 5, 4, 85,
-       8, 1, 3, 3, 2, 6,
-       6, 2, 4, 5, 12,
-       18, 6, 97, 6 };
+         8, 1, 3, 3, 2,  6,
+           6, 2, 4, 5, 12,
+            18, 6, 97, 6 };
      */
     private int[] hexLayout = 
     {
@@ -146,52 +149,35 @@ public class SOCBoard implements Serializable, Cloneable
         6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
     };
 
-    /**
-     * Key to the numbers[] :
-     *     0 : 2
-     *     1 : 3
-     *     2 : 4
-     *     3 : 5
-     *     4 : 6
-     *     5 : 8
-     *     6 : 9
-     *     7 : 10
-     *     8 : 11
-     *     9 : 12
-     */
-    private int[] boardNum2Num = { -1, -1, 0, 1, 2, 3, 4, -1, 5, 6, 7, 8, 9 };
-    private int[] num2BoardNum = { 2, 3, 4, 5, 6, 8, 9, 10, 11, 12 };
-
-    /*
-       private int numberLayout[] = { -1, -1, -1, -1,
-       -1, 8, 9, 6, -1,
-       -1, 2, 4, 3, 7, -1,
-       -1, -1, 1, 8, 2, 5, -1,
-       -1, 5, 7, 6, 1, -1,
-       -1, 3, 0, 4, -1,
-       -1, -1, -1, -1 };
+    /* For -one- placement of robber:
+       private int numberLayout[] = {
+              0,  0,  0,  0,
+            0, 11, 12,  9,  0,
+          0,  4,  3,  6, 10,  0,
+        0,  8, 11,  0,  5,  8,  0,
+          0,  10,  9,  4,  3,  0,
+            0,  5,  2,  6,  0,
+              0,  0,  0,  0 };
      */
     private int[] numberLayout = 
     {
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1
-    };
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    };				// 37 elements
     private int[] numToHexID = 
     {
-              0x17, 0x39, 0x5B, 0x7D,
+              0x17, 0x39, 0x5B, 0x7D, 		// 0-4
         
-           0x15, 0x37, 0x59, 0x7B, 0x9D,
+	   0x15, 0x37, 0x59, 0x7B, 0x9D,	// 5-9
         
-        0x13, 0x35, 0x57, 0x79, 0x9B, 0xBD,
+        0x13, 0x35, 0x57, 0x79, 0x9B, 0xBD, 	// 10-15
         
-     0x11, 0x33, 0x55, 0x77, 0x99, 0xBB, 0xDD,
+     0x11, 0x33, 0x55, 0x77, 0x99, 0xBB, 0xDD, 	// 16-22
         
-        0x31, 0x53, 0x75, 0x97, 0xB9, 0xDB,
+        0x31, 0x53, 0x75, 0x97, 0xB9, 0xDB, 	// 23-28
         
-           0x51, 0x73, 0x95, 0xB7, 0xD9,
+           0x51, 0x73, 0x95, 0xB7, 0xD9, 	// 29-33
         
-              0x71, 0x93, 0xB5, 0xD7
+              0x71, 0x93, 0xB5, 0xD7 		// 34-37
     };
 
     /**
@@ -215,7 +201,7 @@ public class SOCBoard implements Serializable, Cloneable
     private int robberHex;
 
     /**
-     * where the ports are
+     * where the ports are: elts={node1_ID, node2_ID}
      */
     private Vector[] ports;
 
@@ -247,7 +233,7 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * a list of nodes on the board
      */
-    protected Hashtable nodesOnBoard;
+    protected boolean[] nodesOnBoard;
 
     /**
      * Create a new Settlers of Catan Board
@@ -284,70 +270,28 @@ public class SOCBoard implements Serializable, Cloneable
          * initialize the hexIDtoNum array
          */
         hexIDtoNum = new int[0xEE];
+        nodesOnBoard = new boolean[0xEE];
 
         for (i = 0; i < 0xEE; i++)
         {
             hexIDtoNum[i] = 0;
+            nodesOnBoard[i] = false;
         }
 
-        initHexIDtoNumAux(0x17, 0x7D, 0);
-        initHexIDtoNumAux(0x15, 0x9D, 4);
-        initHexIDtoNumAux(0x13, 0xBD, 9);
-        initHexIDtoNumAux(0x11, 0xDD, 15);
-        initHexIDtoNumAux(0x31, 0xDB, 22);
-        initHexIDtoNumAux(0x51, 0xD9, 28);
-        initHexIDtoNumAux(0x71, 0xD7, 33);
-
-        nodesOnBoard = new Hashtable();
+        // insert index to Hex within numToHexID:
+        for (i = 0; i < numToHexID.length; i++) {
+            hexIDtoNum[numToHexID[i]] = i;
+        }
 
         /**
          * initialize the list of nodes on the board
          */
-        Boolean t = new Boolean(true);
-
-        for (i = 0x27; i <= 0x8D; i += 0x11)
-        {
-            nodesOnBoard.put(new Integer(i), t);
-        }
-
-        for (i = 0x25; i <= 0xAD; i += 0x11)
-        {
-            nodesOnBoard.put(new Integer(i), t);
-        }
-
-        for (i = 0x23; i <= 0xCD; i += 0x11)
-        {
-            nodesOnBoard.put(new Integer(i), t);
-        }
-
-        for (i = 0x32; i <= 0xDC; i += 0x11)
-        {
-            nodesOnBoard.put(new Integer(i), t);
-        }
-
-        for (i = 0x52; i <= 0xDA; i += 0x11)
-        {
-            nodesOnBoard.put(new Integer(i), t);
-        }
-
-        for (i = 0x72; i <= 0xD8; i += 0x11)
-        {
-            nodesOnBoard.put(new Integer(i), t);
-        }
-    }
-
-    /**
-     * Auxillery method for initializing the hexIDtoNum array
-     */
-    private final void initHexIDtoNumAux(int begin, int end, int num)
-    {
-        int i;
-
-        for (i = begin; i <= end; i += 0x22)
-        {
-            hexIDtoNum[i] = num;
-            num++;
-        }
+        for (i = 0x27; i <= 0x8D; i += 0x11) {nodesOnBoard[i]=true;}
+        for (i = 0x25; i <= 0xAD; i += 0x11) {nodesOnBoard[i]=true;}
+        for (i = 0x23; i <= 0xCD; i += 0x11) {nodesOnBoard[i]=true;}
+        for (i = 0x32; i <= 0xDC; i += 0x11) {nodesOnBoard[i]=true;}
+        for (i = 0x52; i <= 0xDA; i += 0x11) {nodesOnBoard[i]=true;}
+        for (i = 0x72; i <= 0xD8; i += 0x11) {nodesOnBoard[i]=true;}
     }
 
     /**
@@ -361,13 +305,15 @@ public class SOCBoard implements Serializable, Cloneable
 			  SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, 
 			  WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, 
 			  WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, };
-	// 8 port tiles:
+	// 8 port tiles: { 0,0,0,0,1,2,3,4,5}
         int[] portHex = { MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
 			  CLAY_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX };
 	
 	// A,B,C,...Q; indicating which die roll activates this resource tile:
 	// 0-9 -> [2-6,8-12]  (also -1 for the desert)
-        int[] number = { 3, 0, 4, 1, 5, 7, 6, 9, 8, 2, 5, 7, 6, 2, 3, 4, 1, 8 };
+        // int[] number = { 3, 0, 4, 1, 5, 7, 6, 9, 8, 2, 5, 7, 6, 2, 3, 4, 1, 8 };
+        // use direct dice numbers:
+        int[] number = { 5, 2, 6, 3, 8,10, 9,12,11, 4, 8,10, 9, 4, 5, 6, 3,11 };
 	// place shuffled stack on hex map in this order: (these are the grid numbers)
         int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
         int i;
@@ -391,11 +337,11 @@ public class SOCBoard implements Serializable, Cloneable
             // place the land hexes
             hexLayout[numPath[i]] = landHex[i];
 
-            // place the robber
+            // place the robber on desert
             if (landHex[i] == 0)
             {
                 robberHex = numToHexID[numPath[i]];
-                numberLayout[numPath[i]] = -1;
+                numberLayout[numPath[i]] = 0; // no number[] for robber
             }
             else
             {
@@ -423,36 +369,10 @@ public class SOCBoard implements Serializable, Cloneable
         placePort(portHex[5], 22, 2);
         placePort(portHex[6], 32, 6);
         placePort(portHex[7], 33, 1);
-        placePort(portHex[8], 35, 6);
+	placePort(portHex[8], 35, 6);
 
-        // fill out the ports[] vectors
-	// coordinates of port vertices:
-        ports[portHex[0]].addElement(new Integer(0x27));
-        ports[portHex[0]].addElement(new Integer(0x38));
-
-        ports[portHex[1]].addElement(new Integer(0x5A));
-        ports[portHex[1]].addElement(new Integer(0x6B));
-
-        ports[portHex[2]].addElement(new Integer(0x9C));
-        ports[portHex[2]].addElement(new Integer(0xAD));
-
-        ports[portHex[3]].addElement(new Integer(0x25));
-        ports[portHex[3]].addElement(new Integer(0x34));
-
-        ports[portHex[4]].addElement(new Integer(0xCD));
-        ports[portHex[4]].addElement(new Integer(0xDC));
-
-        ports[portHex[5]].addElement(new Integer(0x43));
-        ports[portHex[5]].addElement(new Integer(0x52));
-
-        ports[portHex[6]].addElement(new Integer(0xC9));
-        ports[portHex[6]].addElement(new Integer(0xDA));
-
-        ports[portHex[7]].addElement(new Integer(0x72));
-        ports[portHex[7]].addElement(new Integer(0x83));
-
-        ports[portHex[8]].addElement(new Integer(0xA5));
-        ports[portHex[8]].addElement(new Integer(0xB6));
+        // fill out the ports[] vectors (or call setHexLayout(hexLayout)!)
+	setHexLayout(hexLayout); // just to set the port-node vectors
     }
 
     /* ***************************************
@@ -483,10 +403,11 @@ public class SOCBoard implements Serializable, Cloneable
         if (port == 0)
         {
             // generic port, MISC_PORT, 3:1 port
-            hexLayout[hex] = face + 6;// add 6 to face to indicate MISC_PORT
+            hexLayout[hex] = MISC_PORT_HEX + face-1; // add face to MISC_PORT_HEX
         }
         else
         {
+	    // port value is: [0..8] (3, make it 4 bits)
             hexLayout[hex] = (face << 4) + port; // else code face in high bits!
         }
     }
@@ -567,17 +488,13 @@ public class SOCBoard implements Serializable, Cloneable
      * @return the type of port given a hex type
      * @param hex  the hex type
      */
-    public int getPortTypeFromHex(int hex)
+    public int getPortTypeFromHex(int hex) // private...?
     {
-        int portType = 0;
+        int portType = hex & 0xF;
 
-        if ((hex >= 7) && (hex <= 12))
+        if (portType >= 7)
         {
-            portType = 0;
-        }
-        else
-        {
-            portType = hex & 0xF;
+            portType = 0;	// MISC_PORT_HEX (7-12) -> MISC_PORT (0)
         }
 
         return portType;
@@ -604,7 +521,7 @@ public class SOCBoard implements Serializable, Cloneable
     }
 
     /**
-     * @return the list of coordinates for a type of port
+     * @return the list of (node) coordinates for a type of port 
      *
      * @param portType  the type of port
      */
@@ -626,24 +543,15 @@ public class SOCBoard implements Serializable, Cloneable
     }
 
     /**
-     * Given a hex number, return the number on that hex
+     * Given a hex number, return the number on that hex [or zero]
      *
      * @param hex  the number of a hex
      *
-     * @return the number on that hex
+     * @return the number on that hex (or zero, if not a resource)
      */
-    public int getNumberOnHexFromNumber(int hex)
+    public int getNumberOnHexFromNumber(int ndx)
     {
-        int num = numberLayout[hex];
-
-        if (num < 0)
-        {
-            return 0;
-        }
-        else
-        {
-            return num2BoardNum[num];
-        }
+	return Math.max(0,numberLayout[ndx]);
     }
 
     /**
@@ -672,15 +580,15 @@ public class SOCBoard implements Serializable, Cloneable
     {
         int hexType = hexLayout[hex];
 
-        if (hexType < 7) {
-            return hexType;
-        } else if ((hexType >= 7) && (hexType <= 12)) {
-	    // remove MISC_PORT 'facing' info:
-            return MISC_PORT_HEX;
+        if (hexType < MISC_PORT_HEX) {
+            return hexType;	// DESERT, ORE, ..., WATER
+        } else if ((hexType >= MISC_PORT_HEX) && (hexType < MISC_PORT_HEX+6)) {
+            return MISC_PORT_HEX; // remove MISC_PORT 'facing' info:
         }
-	int rv = (hexType & 7);
+	int rv = (hexType & 7);	// extract 3 low-bits (port type?)
 	// remove resource port facing info:
 	return ((rv >= 1) && (rv <= 5)) ? MISC_PORT_HEX + rv : -1;
+	// there are no "water" ports...
     }
 
     /**
@@ -1132,7 +1040,7 @@ public class SOCBoard implements Serializable, Cloneable
      */
     public boolean isNodeOnBoard(int node)
     {
-	return nodesOnBoard.containsKey(new Integer(node));
+	return nodesOnBoard[node];
     }
 
     /**
