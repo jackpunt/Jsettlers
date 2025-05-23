@@ -719,7 +719,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
     {
       // aligned with SOCBoard
       Color[] colors = {
-        ColorSquare.GREY, // index 0, presumably not used
+        ColorSquare.DESERT, // index 0, presumably not used
         ColorSquare.CLAY, // 1
         ColorSquare.ORE,  // 2
         ColorSquare.SHEEP,// 3

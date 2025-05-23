@@ -1,0 +1,56 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Launch Java Program",
+      "request": "launch",
+      "mainClass": ""
+    },
+    {
+      "type": "java",
+      "name": "Current File",
+      "request": "launch",
+      "mainClass": "${file}"
+    },
+    {
+      "type": "java",
+      "name": "SOCAccountClient",
+      "request": "launch",
+      "mainClass": "soc.client.SOCAccountClient",
+      "projectName": "JSettlers_1e765702"
+    },
+    {
+      "type": "java",
+      "name": "SOCDisplaylessPlayerClient",
+      "request": "launch",
+      "mainClass": "soc.client.SOCDisplaylessPlayerClient",
+      "projectName": "JSettlers_1e765702"
+    },
+    {
+      "type": "java",
+      "name": "SOCPlayerClient",
+      "request": "launch",
+      "mainClass": "soc.client.SOCPlayerClient",
+      "args": [ "localhost", "8808"],
+      "projectName": "JSettlers_1e765702"
+    },
+    {
+      "type": "java",
+      "name": "SOCRobotClient",
+      "request": "launch",
+      "mainClass": "soc.robot.SOCRobotClient",
+      "projectName": "JSettlers_1e765702"
+    },
+    {
+      "type": "java",
+      "name": "SOCServer",
+      "request": "launch",
+      "mainClass": "soc.server.SOCServer",
+      "projectName": "JSettlers_1e765702"
+    }
+  ]
+}
