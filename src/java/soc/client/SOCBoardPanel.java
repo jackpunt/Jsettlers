@@ -32,6 +32,7 @@ import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Rectangle2D;
 import java.util.Enumeration;
 
 import soc.game.SOCBoard;
@@ -62,13 +63,13 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
     private static int dydr = 30; // 30 = 1.5*hexrad
     private static double sqrt3 = Math.sqrt(3);
     private static double sqrt3_2 = Math.sqrt(3)/2;
-    private static Color edge = new Color(200, 200, 200);
+    private static Color edge = new Color(0xFF9966);
 
     int dxdc() {
-      return (int) Math.round(hexrad * sqrt3); // half of dxdc
+      return rnd(hexrad * sqrt3); // half of dxdc
     }
     int dydc() {
-      return (int) Math.round(1.5 * hexrad);
+      return rnd(1.5 * hexrad);
     }
 
     /**
@@ -656,31 +657,36 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
       new Color(0x445566), // 0 not used
       new Color(0x445566), // 1 not used
       new Color(0xFFFF00), // 2
-      new Color(0xFFBF00), // 3
-      new Color(0xFF8000), // 4
-      new Color(0xFF4000), // 5
+      new Color(0xFFE000), // 3
+      new Color(0xFFA000), // 4
+      new Color(0xFF7000), // 5
       new Color(0xFF0000), // 6
       new Color(0xAAAAAA), // 7 (grey)
       new Color(0xFF0000), // 8
-      new Color(0xFF4000), // 9
-      new Color(0xFF8000), // 10
-      new Color(0xFFBF00), // 11
+      new Color(0xFF7000), // 9
+      new Color(0xFFA000), // 10
+      new Color(0xFFE000), // 11
       new Color(0xFFFF00), // 12
     };
 
-    static Font diceNumFont = Font.getFont("Nunito-16");
+    static Font diceNumFont = new Font("SF Compact Rounded", Font.PLAIN, 14);
 
     void drawDiceNum(int diceNum, double lx, double ty, Graphics g) 
     {
       Color color = colorForDiceNum[diceNum];
-      int cx = (int) Math.round(lx + hexrad);
-      int cy = (int) Math.round(ty + hexrad * sqrt3_2);
-      int r1 = (int) hexrad;
-      g.setColor(color);
-      g.drawOval(cx, cy, r1, r1);
+      double cx = (lx + hexrad * sqrt3_2);
+      double cy = (ty + hexrad);
+      double r1 = hexrad;
+      String num = Integer.toString(diceNum);
       g.setFont(diceNumFont);
-      g.drawString(Integer.toString(diceNum), cx, cy);
+      Rectangle2D sb = g.getFontMetrics().getStringBounds(num, g);
+      g.setColor(color);
+      g.fillOval(rnd(cx-r1/2), rnd(cy-r1/2), rnd(r1), rnd(r1));
+      g.setColor(Color.BLACK);
+      g.drawString(Integer.toString(diceNum), rnd(cx-sb.getCenterX()), rnd(cy-sb.getCenterY()));
     }
+
+    int rnd(double v) { return (int) Math.round(v); }
 
     /**
      * Add hex (hexrad) to Graphics, given top-left corner filled with color.
@@ -691,17 +697,17 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
      */
     void drawHex1(Color color, double lx, double ty, Graphics g) 
     {
-      int cx = (int) Math.round(lx + hexrad);
-      int cy = (int) Math.round(ty + hexrad * sqrt3_2);
-      int d2 = (int) Math.round(hexrad * sqrt3_2); // half of dxdc
-      int r2 = (int) hexrad/2;  // half of hexrad
-      int r1 = (int) hexrad;
-      int[] xPoints = { cx+ 0, cx+d2, cx+d2, cx+ 0, cx-d2, cx-d2 };
-      int[] yPoints = { cy-r1, cy-r2, cy+r2, cy+r1, cy+r2, cy-r1 };
-      g.setColor(edge);
-      g.drawPolygon(xPoints, yPoints, 6);
+      double cx = (lx + hexrad * sqrt3_2);
+      double cy = (ty + hexrad);
+      double d2 = (hexrad * sqrt3_2); // half of dxdc
+      double r2 =  hexrad/2;  // half of hexrad
+      double r1 =  hexrad;
+      int[] xPoints = { rnd(cx+ 0), rnd(cx+d2), rnd(cx+d2), rnd(cx+ 0), rnd(cx-d2), rnd(cx-d2), };
+      int[] yPoints = { rnd(cy-r1), rnd(cy-r2), rnd(cy+r2), rnd(cy+r1), rnd(cy+r2), rnd(cy-r2), };
       g.setColor(color);
       g.fillPolygon(xPoints, yPoints, 6);
+      g.setColor(edge);
+      g.drawPolygon(xPoints, yPoints, 6);
     }
 
     /**
@@ -721,7 +727,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         ColorSquare.WOOD, // 5
         ColorSquare.WATER,// 6
       };
-      return colors[type];
+      return type < 6 ? colors[type] : ColorSquare.WATER;
     }
 
     /**
@@ -744,13 +750,13 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         if (port > 0)
         {
             // overlay with port facing graphic:
-            g.drawImage(ports[port],wx, wy, this);
+            g.drawImage(ports[port], wx, wy, this);
         }
 
         if (numberLayout[hexNum] >= 2)
         {
             // overlay with dice number graphic:
-            this.drawDiceNum(numberLayout[hexNum], wy, hexType, g);
+            this.drawDiceNum(numberLayout[hexNum], wx, wy, g);
         }
     }
 
