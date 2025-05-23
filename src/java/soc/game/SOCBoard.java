@@ -21,9 +21,7 @@
 package soc.game;
 
 import java.io.Serializable;
-
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Random;
 import java.util.Vector;
 
@@ -167,7 +165,7 @@ public class SOCBoard implements Serializable, Cloneable
     {
               0x17, 0x39, 0x5B, 0x7D, 		// 0-4
         
-	   0x15, 0x37, 0x59, 0x7B, 0x9D,	// 5-9
+	         0x15, 0x37, 0x59, 0x7B, 0x9D,	// 5-9
         
         0x13, 0x35, 0x57, 0x79, 0x9B, 0xBD, 	// 10-15
         

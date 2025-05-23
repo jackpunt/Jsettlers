@@ -20,17 +20,11 @@
  **/
 package soc.client;
 
-import soc.game.SOCBoard;
-import soc.game.SOCCity;
-import soc.game.SOCGame;
-import soc.game.SOCPlayer;
-import soc.game.SOCRoad;
-import soc.game.SOCSettlement;
-
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
@@ -38,10 +32,14 @@ import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-
 import java.util.Enumeration;
 
-import soc.debug.D;		// isableD
+import soc.game.SOCBoard;
+import soc.game.SOCCity;
+import soc.game.SOCGame;
+import soc.game.SOCPlayer;
+import soc.game.SOCRoad;
+import soc.game.SOCSettlement;
 
 /**
  * This is a component that can display a Settlers of Catan Board.
@@ -59,8 +57,22 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
     public static final int panelx = 253;
     public static final int panely = 222;
     
+    private static double hexrad = 20;  //
+    private static int dxdc = 37; // 20 * 1.732 = 34.64, but gifs are 37...
+    private static int dydr = 30; // 30 = 1.5*hexrad
+    private static double sqrt3 = Math.sqrt(3);
+    private static double sqrt3_2 = Math.sqrt(3)/2;
+    private static Color edge = new Color(200, 200, 200);
+
+    int dxdc() {
+      return (int) Math.round(hexrad * sqrt3); // half of dxdc
+    }
+    int dydc() {
+      return (int) Math.round(1.5 * hexrad);
+    }
+
     /**
-     * hex coordinates for drawing
+     * hex coordinates for drawing (EW topo: dxdc = 36, dydr = 30)
      */
     private static final int[] hexX = 
     {
@@ -68,6 +80,9 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         36, 72, 108, 144, 180, 216, 18, 54, 90, 126, 162, 198, 36, 72, 108, 144,
         180, 54, 90, 126, 162
     };
+    /** 
+     * row = 0..6; dydr = 30
+     */
     private static final int[] hexY = 
     {
         0, 0, 0, 0, 30, 30, 30, 30, 30, 60, 60, 60, 60, 60, 60, 90, 90, 90, 90,
@@ -636,6 +651,109 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         paint(g);
     }
 
+    Color[] colorForDiceNum = 
+    {
+      new Color(0x445566), // 0 not used
+      new Color(0x445566), // 1 not used
+      new Color(0xFFFF00), // 2
+      new Color(0xFFBF00), // 3
+      new Color(0xFF8000), // 4
+      new Color(0xFF4000), // 5
+      new Color(0xFF0000), // 6
+      new Color(0xAAAAAA), // 7 (grey)
+      new Color(0xFF0000), // 8
+      new Color(0xFF4000), // 9
+      new Color(0xFF8000), // 10
+      new Color(0xFFBF00), // 11
+      new Color(0xFFFF00), // 12
+    };
+
+    static Font diceNumFont = Font.getFont("Nunito-16");
+
+    void drawDiceNum(int diceNum, double lx, double ty, Graphics g) 
+    {
+      Color color = colorForDiceNum[diceNum];
+      int cx = (int) Math.round(lx + hexrad);
+      int cy = (int) Math.round(ty + hexrad * sqrt3_2);
+      int r1 = (int) hexrad;
+      g.setColor(color);
+      g.drawOval(cx, cy, r1, r1);
+      g.setFont(diceNumFont);
+      g.drawString(Integer.toString(diceNum), cx, cy);
+    }
+
+    /**
+     * Add hex (hexrad) to Graphics, given top-left corner filled with color.
+     * @param color fill Color
+     * @param lx top-x
+     * @param ty left-y
+     * @param g Graphics
+     */
+    void drawHex1(Color color, double lx, double ty, Graphics g) 
+    {
+      int cx = (int) Math.round(lx + hexrad);
+      int cy = (int) Math.round(ty + hexrad * sqrt3_2);
+      int d2 = (int) Math.round(hexrad * sqrt3_2); // half of dxdc
+      int r2 = (int) hexrad/2;  // half of hexrad
+      int r1 = (int) hexrad;
+      int[] xPoints = { cx+ 0, cx+d2, cx+d2, cx+ 0, cx-d2, cx-d2 };
+      int[] yPoints = { cy-r1, cy-r2, cy+r2, cy+r1, cy+r2, cy-r1 };
+      g.setColor(edge);
+      g.drawPolygon(xPoints, yPoints, 6);
+      g.setColor(color);
+      g.fillPolygon(xPoints, yPoints, 6);
+    }
+
+    /**
+     * 
+     * @param type
+     * @return
+     */
+    Color colorOfHexType(int type) 
+    {
+      // aligned with SOCBoard
+      Color[] colors = {
+        ColorSquare.GREY, // index 0, presumably not used
+        ColorSquare.CLAY, // 1
+        ColorSquare.ORE,  // 2
+        ColorSquare.SHEEP,// 3
+        ColorSquare.WHEAT,// 4
+        ColorSquare.WOOD, // 5
+        ColorSquare.WATER,// 6
+      };
+      return colors[type];
+    }
+
+    /**
+     * draw a board tile (new: paint graphics)
+     */
+    private final void drawHex2(Graphics g, int hexNum)
+    {
+        int[] hexLayout = board.getHexLayout();
+        int[] numberLayout = board.getNumberLayout();
+        int hexType = hexLayout[hexNum];
+
+        int wx = (getWidth() - panelx) / 2 + hexX[hexNum];
+        int wy = hexY[hexNum];
+
+        int type = hexType & 0xF; // get only the last 4 bits;
+        this.drawHex1(this.colorOfHexType(type), wx, wy, g);
+
+        int port = hexType >> 4; // get the facing of the port
+
+        if (port > 0)
+        {
+            // overlay with port facing graphic:
+            g.drawImage(ports[port],wx, wy, this);
+        }
+
+        if (numberLayout[hexNum] >= 2)
+        {
+            // overlay with dice number graphic:
+            this.drawDiceNum(numberLayout[hexNum], wy, hexType, g);
+        }
+    }
+
     /**
      * draw a board tile
      */
@@ -827,9 +945,9 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         int wx = getWidth(); // >= panelx
         int hy = getHeight(); // >= panely; mostly =panely
         int[] px = { +3, wx - 40, wx - 40, +3 };
-        int[] py = { +5, +5, hy - 42, hy - 42 };
+        int[] py = { +5, +5, hy - HEXHEIGHT, hy - HEXHEIGHT };
         int[] pxd = { 13, wx - 40, wx - 40, 13 };
-        int[] pyd = { 10, 10, hy - 37, hy - 37 };
+        int[] pyd = { 10, 10, hy - HEXWIDTH, hy - HEXWIDTH };
         g.drawImage(arrows[pnum], px[pnum], py[pnum], this);
         if ((diceResult >= 2) && (game.getGameState() != SOCGame.PLAY)) {
             g.drawImage(dice[diceResult], pxd[pnum], pyd[pnum], this);
@@ -848,7 +966,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
         for (int i = 0; i < 37; i++)
         {
-            drawHex(g, i);
+            drawHex2(g, i);
         }
 
         if ((mode != PLACE_ROBBER) && (board.getRobberHex() != -1))
