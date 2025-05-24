@@ -20,15 +20,14 @@
  **/
 package soc.client;
 
-import soc.game.SOCGame;
-
 import java.awt.Button;
 import java.awt.Color;
-import java.awt.Dialog;
 import java.awt.Font;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import soc.game.SOCGame;
 
 
 /**
@@ -73,10 +72,11 @@ class SOCChoosePlayerDialog extends SOCDialog implements ActionListener
 
         for (int i = 0; i < number; i++)
         {
-            buttons[i] = new Button(ga.getPlayer(players[i]).getName());
-            buttons[i].setBackground(pi.getPlayerColor(players[i]));
-            add(buttons[i]);
-            buttons[i].addActionListener(this);
+            Button button = new Button(ga.getPlayer(players[i]).getName());
+            button.setBackground(pi.getPlayerColor(players[i]));
+            button.addActionListener(this);
+            buttons[i] = button;
+            add(button);
         }
     }
 

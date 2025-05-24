@@ -20,8 +20,32 @@
  **/
 package soc.client;
 
-import soc.disableDebug.D;		// debug.D
+import java.applet.Applet;
+import java.applet.AppletContext;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.TextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
+import soc.disableDebug.D;		// debug.D
 import soc.game.SOCBoard;
 import soc.game.SOCCity;
 import soc.game.SOCDevCardSet;
@@ -33,7 +57,6 @@ import soc.game.SOCResourceSet;
 import soc.game.SOCRoad;
 import soc.game.SOCSettlement;
 import soc.game.SOCTradeOffer;
-
 import soc.message.SOCAcceptOffer;
 import soc.message.SOCBCastTextMsg;
 import soc.message.SOCBankTrade;
@@ -94,39 +117,7 @@ import soc.message.SOCStartGame;
 import soc.message.SOCStatusMessage;
 import soc.message.SOCTextMsg;
 import soc.message.SOCTurn;
-
 import soc.util.Version;
-
-import java.applet.Applet;
-import java.applet.AppletContext;
-
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.TextField;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
-import java.net.Socket;
-
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
 
 
 /**
@@ -1848,17 +1839,17 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 
 		    // if 1 card was robbed, and we know what it might be:
 		    if ((mv == 1) && (rg != null)) {
-			pi.print(">>> Perp: "+pl.getName()+": "+ rg );
-			if (rg.getTotal() == 1) {
-			    rs.add(rg); // add that card
-			} else {
-			    ur.add(rg);	// one of these unknowns
-			    rs.add(mv, SOCResourceConstants.UNKNOWN);
-			} 
+          pi.print(">>> Perp: "+pl.getName()+": "+ rg );
+          if (rg.getTotal() == 1) {
+              rs.add(rg); // add that card
+          } else {
+              ur.add(rg);	// one of these unknowns
+              rs.add(mv, SOCResourceConstants.UNKNOWN);
+          } 
 		    } else {
-			// should never get here; unless older server:
-			// no idea what the card was:
-			rs.add(mv, SOCResourceConstants.UNKNOWN);
+        // should never get here; unless older server:
+        // no idea what the card was:
+        rs.add(mv, SOCResourceConstants.UNKNOWN);
 		    }
 
                     break;
@@ -1892,10 +1883,10 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 		    // if (mv == 1) then it must have been robbery!
 		    // resourcesToGain.put(ga, (mv == 1) ? rl : null);
 		    if (mv == 1) {
-			resourcesToGain.put(ga, rl);
-			pi.print(">>> Vict: "+pl.getName()+": "+ rl );
+          resourcesToGain.put(ga, rl);
+          pi.print(">>> Vict: "+pl.getName()+": "+ rl );
 		    } else {
-			resourcesToGain.remove(ga);
+	    		resourcesToGain.remove(ga);
 		    }
                     break;
                 }

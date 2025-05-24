@@ -20,11 +20,6 @@
  **/
 package soc.client;
 
-import soc.disableDebug.D;
-
-import soc.game.SOCGame;
-import soc.game.SOCPlayer;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -38,8 +33,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import java.util.StringTokenizer;
+
+import soc.disableDebug.D;
+import soc.game.SOCGame;
 
 
 /**
@@ -171,7 +168,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          * more initialization stuff
          */
         setLocation(50, 50);
-        setSize(660, 600);
+        setSize(900, 900);
         validate();
     }
 
