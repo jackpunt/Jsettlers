@@ -76,10 +76,10 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
     }
 
     int dxdc() {
-      return rnd(hexrad * sqrt3); // half of dxdc
+      return rnd(hexrad * sqrt3); // half of dxdc: 34.6
     }
     int dydc() {
-      return rnd(1.5 * hexrad);
+      return rnd(1.5 * hexrad);   // 30
     }
 
     /**
@@ -785,10 +785,10 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
       // aligned with SOCBoard
       Color[] colors = {
         ColorSquare.DESERT, // index 0, presumably not used
-        ColorSquare.CLAY, // 1
-        ColorSquare.ORE,  // 2
+        ColorSquare.ORE, // 1
+        ColorSquare.WHEAT,  // 2
         ColorSquare.SHEEP,// 3
-        ColorSquare.WHEAT,// 4
+        ColorSquare.CLAY,// 4
         ColorSquare.WOOD, // 5
         ColorSquare.WATER,// 6
         ColorSquare.PORT, // 7
@@ -832,21 +832,22 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
      */
     private final void drawRobber(Graphics g, int hexID)
     {
-        int[] tmpX = new int[14];
-        int[] tmpY = new int[14];
+        int len = robberX.length;
+        int[] tmpX = new int[len];
+        int[] tmpY = new int[len];
         int hexNum = hexIDtoNum[hexID];
         int wx = (getWidth() - panelx) / 2;
 
-        for (int i = 0; i < 14; i++)
+        for (int i = 0; i < len; i++)
         {
-            tmpX[i] = robberX[i] + hexX(hexNum) + 18 + wx;
-            tmpY[i] = robberY[i] + hexY(hexNum) + 12;
+            tmpX[i] = scalexy * robberX[i] + hexX(hexNum) + 18 + wx;
+            tmpY[i] = scalexy * robberY[i] + hexY(hexNum) + 12;
         }
 
         g.setColor(Color.lightGray);
-        g.fillPolygon(tmpX, tmpY, 13);
+        g.fillPolygon(tmpX, tmpY, len-1);
         g.setColor(Color.black);
-        g.drawPolygon(tmpX, tmpY, 14);
+        g.drawPolygon(tmpX, tmpY, len);
     }
 
     /**
@@ -867,8 +868,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 5; i++)
             {
-                tmpX[i] = vertRoadX[i] + hexX(hexNum) + wx;
-                tmpY[i] = vertRoadY[i] + hexY(hexNum);
+                tmpX[i] = scalexy * vertRoadX[i] + hexX(hexNum) + wx;
+                tmpY[i] = scalexy * vertRoadY[i] + hexY(hexNum);
             }
         }
         else if (((edgeNum >> 4) % 2) == 0)
@@ -878,8 +879,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 5; i++)
             {
-                tmpX[i] = upRoadX[i] + hexX(hexNum) + wx;
-                tmpY[i] = upRoadY[i] + hexY(hexNum);
+                tmpX[i] = scalexy * upRoadX[i] + hexX(hexNum) + wx;
+                tmpY[i] = scalexy * upRoadY[i] + hexY(hexNum);
             }
         }
         else
@@ -888,8 +889,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 5; i++)
             {
-                tmpX[i] = downRoadX[i] + hexX(hexNum) + wx;
-                tmpY[i] = downRoadY[i] + hexY(hexNum);
+                tmpX[i] = scalexy * downRoadX[i] + hexX(hexNum) + wx;
+                tmpY[i] = scalexy * downRoadY[i] + hexY(hexNum);
             }
         }
 
@@ -917,8 +918,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 7; i++)
             {
-                tmpX[i] = settlementX[i] + hexX(hexNum) + wx;
-                tmpY[i] = settlementY[i] + hexY(hexNum) + 11;
+                tmpX[i] = scalexy * settlementX[i] + hexX(hexNum) + wx;
+                tmpY[i] = scalexy * (settlementY[i] + 8) + hexY(hexNum) + 3;
             }
         }
         else
@@ -927,8 +928,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 7; i++)
             {
-                tmpX[i] = settlementX[i] + hexX(hexNum) + wx + 18;
-                tmpY[i] = settlementY[i] + hexY(hexNum) + 2;
+                tmpX[i] = scalexy * (settlementX[i] + 16) + hexX(hexNum) + wx + 2;
+                tmpY[i] = scalexy * settlementY[i] + hexY(hexNum) + 2;
             }
         }
 
@@ -956,8 +957,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 13; i++)
             {
-                tmpX[i] = cityX[i] + hexX(hexNum) + wx;
-                tmpY[i] = cityY[i] + hexY(hexNum) + 11;
+                tmpX[i] = scalexy * cityX[i] + hexX(hexNum) + wx;
+                tmpY[i] = scalexy * (cityY[i] + 8) + hexY(hexNum) + 3;
             }
         }
         else
@@ -966,8 +967,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 13; i++)
             {
-                tmpX[i] = cityX[i] + hexX(hexNum) + wx + 18;
-                tmpY[i] = cityY[i] + hexY(hexNum) + 2;
+                tmpX[i] = scalexy * (cityX[i] + 16) + hexX(hexNum) + wx + 2;
+                tmpY[i] = scalexy * cityY[i] + hexY(hexNum) + 2;
             }
         }
 
@@ -1627,9 +1628,11 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
      */
     private final int findEdge(int x, int y)
     {
+        int px = 18 * scalexy;
+        int py = 10 * scalexy;
         // find which grid section the pointer is in 
         // ( 31 is the y-distance between the centers of two hexes )
-        int sector = (x / 18) + ((y / 10) * 15);
+        int sector = (x / px) + ((y / py) * 15);
 	if (sector < 0 || sector >= edgeMap.length) return 0;
 
         // System.out.println("SECTOR = "+sector+" | EDGE = "+edgeMap[sector]);
@@ -1645,9 +1648,11 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
      */
     private final int findNode(int x, int y)
     {
+        int px = 18 * scalexy;
+        int py = 10 * scalexy;
         // find which grid section the pointer is in 
         // ( 31 is the y-distance between the centers of two hexes )
-        int sector = ((x + 9) / 18) + (((y + 5) / 10) * 15);
+        int sector = ((x + px/2) / px) + (((y + py/2) / py) * 15);
         if (sector < 0 || sector >= nodeMap.length) return 0;
 
         // System.out.println("SECTOR = "+sector+" | NODE = "+nodeMap[sector]);
@@ -1663,9 +1668,11 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
      */
     private final int findHex(int x, int y)
     {
+        int px = 18 * scalexy;
+        int py = 10 * scalexy;
         // find which grid section the pointer is in 
-        // ( 31 is the y-distance between the centers of two hexes )
-        int sector = (x / 18) + ((y / 10) * 15);
+        // ( 31 is the y-distance between the centers of two hexes: 1.5 * hexrad == dydr )
+        int sector = (x / px) + ((y / py) * 15);
         if (sector < 0 || sector >= hexMap.length) return 0;
 
         // System.out.println("SECTOR = "+sector+" | HEX = "+hexMap[sector]);

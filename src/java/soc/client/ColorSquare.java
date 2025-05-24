@@ -44,7 +44,7 @@ public class ColorSquare extends Canvas implements MouseListener
     public final static Color ORE = new Color(153, 153, 153);
     public final static Color SHEEP = new Color(51, 204, 51);
     public final static Color WHEAT = new Color(204, 204, 51);
-    public final static Color WOOD = new Color(204, 153, 102);
+    public final static Color WOOD = new Color(203, 144, 85);
     public final static Color GREY = new Color(204, 204, 204);
     public final static Color WATER = new Color(0x4d4ae8); // blue/violet water
     public final static Color PORT = new Color(0xFFFFFF); // tmp -- port color
