@@ -53,15 +53,14 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 {
     private static String IMAGEDIR = "/soc/client/images";
 
+    private static int scalexy = 2; 
     /**
      * size of the whole panel
      */
-    public static final int panelx = 253;
-    public static final int panely = 222;
+    public static final int panelx = 253 * scalexy;
+    public static final int panely = 222 * scalexy;
     
-    private static double hexrad = 20;  //
-    private static int dxdc = 37; // 20 * 1.732 = 34.64, but gifs are 37...
-    private static int dydr = 30; // 30 = 1.5*hexrad
+    private static double hexrad = 20 * scalexy;  //
     private static double sqrt3 = Math.sqrt(3);
     private static double sqrt3_2 = Math.sqrt(3)/2;
     private static Color edge = new Color(0xFF9966);
@@ -91,6 +90,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         90, 90, 90, 120, 120, 120, 120, 120, 120, 150, 150, 150, 150, 150, 180,
         180, 180, 180
     };
+    private int hexX(int ndx) { return hexX[ndx] * scalexy;}
+    private int hexY(int ndx) { return hexY[ndx] * scalexy;}
 
     /**
      * coordinates for drawing the playing pieces
@@ -734,7 +735,6 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
       double ex = cx + r1 * sqrt3_2;;
       int[] orient = { -60, 0, 60, 120, 180, 240, };
       double theta = orient[type-7] / (180 / Math.PI);
-      System.out.format("type=%d, orient=%d, theta=%f\n", type, orient[type-7], theta);
       Graphics2D g = (Graphics2D) g0.create();
       g.setColor(threePortColor);
       g.fillOval(rnd(cx-r2), rnd(cy-r2), rnd(r1), rnd(r1));
@@ -784,8 +784,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         int[] numberLayout = board.getNumberLayout();
         int hexType = hexLayout[hexNum];
 
-        int wx = (getWidth() - panelx) / 2 + hexX[hexNum];
-        int wy = hexY[hexNum];
+        int wx = (getWidth() - panelx) / 2 + hexX(hexNum);
+        int wy = hexY(hexNum);
 
         int type = hexType & 0xF; // get only the last 4 bits;
         this.drawHex1(type, wx, wy, g);
@@ -818,23 +818,23 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         int[] numberLayout = board.getNumberLayout();
         int hexType = hexLayout[hexNum];
 
-        int wx = (getWidth() - panelx) / 2 + hexX[hexNum];
+        int wx = (getWidth() - panelx) / 2 + hexX(hexNum);
 
         tmp = hexType & 15; // get only the last 4 bits;
-        g.drawImage(hexes[tmp], wx, hexY[hexNum], this);
+        g.drawImage(hexes[tmp], wx, hexY(hexNum), this);
 
         tmp = hexType >> 4; // get the facing of the port
 
         if (tmp > 0)
         {
             // overlay with port facing graphic:
-            g.drawImage(ports[tmp],wx, hexY[hexNum], this);
+            g.drawImage(ports[tmp],wx, hexY(hexNum), this);
         }
 
         if (numberLayout[hexNum] >= 2)
         {
             // overlay with dice number graphic:
-            g.drawImage(numbers[numberLayout[hexNum]], wx + 9, hexY[hexNum] + 12, this);
+            g.drawImage(numbers[numberLayout[hexNum]], wx + 9, hexY(hexNum) + 12, this);
         }
     }
 
@@ -850,8 +850,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
         for (int i = 0; i < 14; i++)
         {
-            tmpX[i] = robberX[i] + hexX[hexNum] + 18 + wx;
-            tmpY[i] = robberY[i] + hexY[hexNum] + 12;
+            tmpX[i] = robberX[i] + hexX(hexNum) + 18 + wx;
+            tmpY[i] = robberY[i] + hexY(hexNum) + 12;
         }
 
         g.setColor(Color.lightGray);
@@ -878,8 +878,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 5; i++)
             {
-                tmpX[i] = vertRoadX[i] + hexX[hexNum] + wx;
-                tmpY[i] = vertRoadY[i] + hexY[hexNum];
+                tmpX[i] = vertRoadX[i] + hexX(hexNum) + wx;
+                tmpY[i] = vertRoadY[i] + hexY(hexNum);
             }
         }
         else if (((edgeNum >> 4) % 2) == 0)
@@ -889,8 +889,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 5; i++)
             {
-                tmpX[i] = upRoadX[i] + hexX[hexNum] + wx;
-                tmpY[i] = upRoadY[i] + hexY[hexNum];
+                tmpX[i] = upRoadX[i] + hexX(hexNum) + wx;
+                tmpY[i] = upRoadY[i] + hexY(hexNum);
             }
         }
         else
@@ -899,8 +899,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 5; i++)
             {
-                tmpX[i] = downRoadX[i] + hexX[hexNum] + wx;
-                tmpY[i] = downRoadY[i] + hexY[hexNum];
+                tmpX[i] = downRoadX[i] + hexX(hexNum) + wx;
+                tmpY[i] = downRoadY[i] + hexY(hexNum);
             }
         }
 
@@ -928,8 +928,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 7; i++)
             {
-                tmpX[i] = settlementX[i] + hexX[hexNum] + wx;
-                tmpY[i] = settlementY[i] + hexY[hexNum] + 11;
+                tmpX[i] = settlementX[i] + hexX(hexNum) + wx;
+                tmpY[i] = settlementY[i] + hexY(hexNum) + 11;
             }
         }
         else
@@ -938,8 +938,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 7; i++)
             {
-                tmpX[i] = settlementX[i] + hexX[hexNum] + wx + 18;
-                tmpY[i] = settlementY[i] + hexY[hexNum] + 2;
+                tmpX[i] = settlementX[i] + hexX(hexNum) + wx + 18;
+                tmpY[i] = settlementY[i] + hexY(hexNum) + 2;
             }
         }
 
@@ -967,8 +967,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 13; i++)
             {
-                tmpX[i] = cityX[i] + hexX[hexNum] + wx;
-                tmpY[i] = cityY[i] + hexY[hexNum] + 11;
+                tmpX[i] = cityX[i] + hexX(hexNum) + wx;
+                tmpY[i] = cityY[i] + hexY(hexNum) + 11;
             }
         }
         else
@@ -977,8 +977,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 13; i++)
             {
-                tmpX[i] = cityX[i] + hexX[hexNum] + wx + 18;
-                tmpY[i] = cityY[i] + hexY[hexNum] + 2;
+                tmpX[i] = cityX[i] + hexX(hexNum) + wx + 18;
+                tmpY[i] = cityY[i] + hexY(hexNum) + 2;
             }
         }
 
