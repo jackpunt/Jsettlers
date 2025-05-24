@@ -827,6 +827,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         }
     }
 
+    private Color robberBodyColor = new Color(128, 128, 128, 128);
     /**
      * draw the robber
      */
@@ -841,10 +842,10 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         for (int i = 0; i < len; i++)
         {
             tmpX[i] = scalexy * robberX[i] + hexX(hexNum) + 18 + wx;
-            tmpY[i] = scalexy * robberY[i] + hexY(hexNum) + 12;
+            tmpY[i] = scalexy * (robberY[i] + 10) + hexY(hexNum) + 2;
         }
 
-        g.setColor(Color.lightGray);
+        g.setColor(robberBodyColor);
         g.fillPolygon(tmpX, tmpY, len-1);
         g.setColor(Color.black);
         g.drawPolygon(tmpX, tmpY, len);

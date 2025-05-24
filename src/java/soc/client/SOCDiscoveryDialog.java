@@ -20,16 +20,15 @@
  **/
 package soc.client;
 
-import soc.game.SOCResourceSet;
-import soc.game.SOCResourceConstants;
-
 import java.awt.Button;
 import java.awt.Color;
-import java.awt.Dialog;
 import java.awt.Font;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import soc.game.SOCResourceConstants;
+import soc.game.SOCResourceSet;
 
 
 class SOCDiscoveryDialog extends SOCDialog implements ActionListener
@@ -73,7 +72,7 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
         rsrc = new ColorSquare[5];
         for (int i = 0; i < 5; i++)
         {
-	    rsrc[i] = new ColorSquare(ColorSquare.BOUNDED_INC, true, ColorSquare.RES_COLORS[i], 2, 0);
+	          rsrc[i] = new ColorSquare(ColorSquare.BOUNDED_INC, true, ColorSquare.RES_COLORS[i], 2, 0);
             add(rsrc[i]);
         }
     }
@@ -146,9 +145,10 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
             }
         }
         catch (NullPointerException e) {
-	    System.err.println(e);
-	    e.printStackTrace(System.err);
-	}
+          System.err.print(e); // somehow this.rsrc == null
+          System.err.println(" -- rsrc is null");
+          // e.printStackTrace(System.err);
+      }
     }
 
     /**

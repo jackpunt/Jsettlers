@@ -215,16 +215,10 @@ public class SOCGame implements Serializable, Cloneable
      */
     long expiration;
 
-    /**
-     * create a new game
-     *
-     * @param n  the name of the game
-     */
-    public SOCGame(String n)
-    {
-        active = true;
-        inUse = false;
+    void initCommonValues(String n, boolean a) {
         name = n;
+        active = a;
+        inUse = false;
         board = new SOCBoard();
         players = new SOCPlayer[MAXPLAYERS];
         seats = new int[MAXPLAYERS];
@@ -234,7 +228,7 @@ public class SOCGame implements Serializable, Cloneable
         {
             players[i] = new SOCPlayer(i, this);
             seats[i] = VACANT;
-            seatLocks[i] = UNLOCKED;
+            seatLocks[i] = UNLOCKED; // inactive version did not set...
         }
 
         currentPlayerNumber = -1;
@@ -242,42 +236,35 @@ public class SOCGame implements Serializable, Cloneable
         currentDice = -1;
         playerWithLargestArmy = -1;
         playerWithLongestRoad = -1;
-        numDevCards = 25;
-	gameOver = false;
+        numDevCards = initialNumOfDevCards();
+        System.out.format("%s numDevCards = %d\n", new Date(), numDevCards);
+      	gameOver = false;
         gameState = NEW;
-        oldPlayerWithLongestRoad = new Stack();
-        startTime = new Date();
+        oldPlayerWithLongestRoad = new Stack<SOCOldLRStats>();
+        if (active) startTime = new Date();
+
+    }
+
+    /**
+     * create a new game
+     *
+     * @param n  the name of the game
+     */
+    public SOCGame(String n)
+    {
+      initCommonValues(n, true);
     }
 
     /**
      * create a new game that can be INACTIVE
-     *
+     * 
+     * Apparently used: 2025/05/24
      * @param n  the name of the game
      * @param a  true if this is an active game, false for inactive
      */
     public SOCGame(String n, boolean a)
     {
-        active = a;
-        inUse = false;
-        name = n;
-        board = new SOCBoard();
-        players = new SOCPlayer[MAXPLAYERS];
-        seats = new int[MAXPLAYERS];
-
-        for (int i = 0; i < MAXPLAYERS; i++)
-        {
-            players[i] = new SOCPlayer(i, this);
-            seats[i] = VACANT;
-        }
-
-        currentPlayerNumber = -1;
-        firstPlayerNumber = -1;
-        currentDice = -1;
-        playerWithLargestArmy = -1;
-        playerWithLongestRoad = -1;
-        numDevCards = 25;
-        gameState = NEW;
-        oldPlayerWithLongestRoad = new Stack();
+      initCommonValues(n, a);
     }
     
     /**
@@ -1049,27 +1036,36 @@ public class SOCGame implements Serializable, Cloneable
         oldLRStats.restoreOldStats(this);
     }
 
+    int[][] nOfEachDev= {
+      {SOCDevCardConstants.KNIGHT, 14},
+      {SOCDevCardConstants.ROADS, 2},
+      {SOCDevCardConstants.MONO, 2},
+      {SOCDevCardConstants.DISC, 2},
+      {SOCDevCardConstants.CAP, 1},
+      {SOCDevCardConstants.LIB, 1},
+      {SOCDevCardConstants.UNIV, 1},
+      {SOCDevCardConstants.TEMP, 1},
+      {SOCDevCardConstants.TOW, 1},
+    };
+
+    int initialNumOfDevCards() {
+      int tot = 0;
+      for (int i = 0; i < nOfEachDev.length; i++) {
+        tot += nOfEachDev[i][1];
+      }
+      return tot;
+    }
+
     /**
      * add requisite number of each dev card and shuffle:
      */
     void makeDevDeck() {
-      int[][] nOfEach = {
-        {SOCDevCardConstants.KNIGHT, 14},
-        {SOCDevCardConstants.ROADS, 2},
-        {SOCDevCardConstants.MONO, 2},
-        {SOCDevCardConstants.DISC, 2},
-        {SOCDevCardConstants.MONO, 1},
-        {SOCDevCardConstants.CAP, 1},
-        {SOCDevCardConstants.LIB, 1},
-        {SOCDevCardConstants.UNIV, 1},
-        {SOCDevCardConstants.TEMP, 1},
-        {SOCDevCardConstants.TOW, 1},
-      };
-      devCardDeck = new int[25];
+
+      devCardDeck = new int[initialNumOfDevCards()];
       int nInDeck = 0;  // does Java have array.push()?
-      for (int i = 0; i < nOfEach.length; i++) {
-        int cid = nOfEach[i][0];
-        int n = nOfEach[i][1];
+      for (int i = 0; i < nOfEachDev.length; i++) {
+        int cid = nOfEachDev[i][0];
+        int n = nOfEachDev[i][1];
         for (int j = 0; j < n; j++) {
           devCardDeck[nInDeck++] = cid;
         }
