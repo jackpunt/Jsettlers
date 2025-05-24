@@ -20,6 +20,7 @@
  **/
 package soc.client;
 
+import java.awt.BasicStroke;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Component;
@@ -57,13 +58,22 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
     /**
      * size of the whole panel
      */
-    public static final int panelx = 253 * scalexy;
-    public static final int panely = 222 * scalexy;
+    public static int panelx = 253 * scalexy;
+    public static int panely = 222 * scalexy;
     
     private static double hexrad = 20 * scalexy;  //
     private static double sqrt3 = Math.sqrt(3);
     private static double sqrt3_2 = Math.sqrt(3)/2;
     private static Color edge = new Color(0xFF9966);
+
+    void setScaleXY(int sxy) {
+      scalexy = sxy;
+      panelx = 253 * scalexy;
+      panely = 222 * scalexy;
+      hexrad = 20 * scalexy;
+      diceFontSize = 14 + (scalexy - 1) * 8;
+      portFontSize = 12 + (scalexy - 1) * 8;
+    }
 
     int dxdc() {
       return rnd(hexrad * sqrt3); // half of dxdc
@@ -671,8 +681,9 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
       new Color(0xFFFF00), // 12
     };
 
+    static int diceFontSize = scalexy == 1 ? 14 : 26;
     static String fontFamily = "SF Compact Rounded";
-    static Font diceNumFont = new Font(fontFamily, Font.PLAIN, 14);
+    static Font diceNumFont = new Font(fontFamily, Font.PLAIN, diceFontSize);
 
     void drawDiceNum(int diceNum, double lx, double ty, Graphics g) 
     {
@@ -698,12 +709,12 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
      * @param ty left-y
      * @param g Graphics
      */
-    void drawHex1(int type, double lx, double ty, Graphics g) 
+    void drawHex(int type, double lx, double ty, Graphics g) 
     {
       Color color = colorOfHexType(type);
       double cx = (lx + hexrad * sqrt3_2);
       double cy = (ty + hexrad);
-      double d2 = (hexrad * sqrt3_2); // half of dxdc
+      double d2 = (hexrad * sqrt3_2 + .75); // half of dxdc
       double r2 =  hexrad/2;  // half of hexrad
       double r1 =  hexrad;
       int[] xPoints = { rnd(cx+ 0), rnd(cx+d2), rnd(cx+d2), rnd(cx+ 0), rnd(cx-d2), rnd(cx-d2), };
@@ -714,45 +725,54 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
       g.drawPolygon(xPoints, yPoints, 6);
     }
 
-    static Font threePortFont = new Font(fontFamily, Font.PLAIN, 12);
-    static Color threePortColor = new Color(0xffffb4);
+    static int portFontSize = scalexy == 1 ? 12 : 20;
+    static Font threePortFont = new Font(fontFamily, Font.PLAIN, portFontSize);
+    static Color threePortColor = new Color(0xffffb4); // light cream
 
     /**
-     * Draw a 3:1 port and rotate it
-     * @param type specifies orientation
-     * @param lx left-x
-     * @param ty top-y
-     * @param g0 Graphics
+     * todo: draw port to back of hex
+     * @param type 1-5 (resource type)
+     * @param port     (orientation: )
+     * @param lx
+     * @param ty
+     * @param g0
      */
-    void drawThreePort(int type, double lx, double ty, Graphics g0) {
+    void drawPort(int type, int port, double lx, double ty, Graphics g0) 
+    {
+      // g.drawImage(ports[port], rnd(lx), rnd(ty), this);
       double cx = (lx + hexrad * sqrt3_2);
       double cy = (ty + hexrad);
       double r1 = hexrad;
       double r2 =  hexrad/2;  // half of hexrad
       double dy0 = r2*.25;
       double dy1 = r2;
-      double ex0 = cx + r1 * .2;
+      double ex0 = cx + r1 * .0;
       double ex = cx + r1 * sqrt3_2;;
       int[] orient = { -60, 0, 60, 120, 180, 240, };
-      double theta = orient[type-7] / (180 / Math.PI);
+      double theta = orient[port-1] / (180 / Math.PI);
       Graphics2D g = (Graphics2D) g0.create();
-      g.setColor(threePortColor);
-      g.fillOval(rnd(cx-r2), rnd(cy-r2), rnd(r1), rnd(r1));
-
-      g.setColor(Color.BLACK);
-      g.setFont(threePortFont);
-      String num = "3:1";
-      Rectangle2D sb = g0.getFontMetrics().getStringBounds(num, g);
-      g.drawString(num, rnd(cx-sb.getCenterX()), rnd(cy-sb.getCenterY()));
 
       g.rotate(theta, cx, cy);
-      g.setColor(threePortColor);
+      g.setColor(Color.WHITE);
+      g.setStroke(new BasicStroke(1 * scalexy));
       g.drawLine(rnd(ex0), rnd(cy-dy0), rnd(ex), rnd(cy + dy1));
       g.drawLine(rnd(ex0), rnd(cy+dy0), rnd(ex), rnd(cy - dy1));
-      int cr = 5;
+      int cr = 8; // todo: draw arc
       g.fillOval(rnd(ex-cr/2), rnd(cy+dy1-cr/2), cr, cr);
       g.fillOval(rnd(ex-cr/2), rnd(cy-dy1-cr/2), cr, cr);
+
+      g.setColor(colorOfHexType(type > 6 ? 7 : type));
+      g.fillOval(rnd(cx-r2), rnd(cy-r2), rnd(r1), rnd(r1));
+
       g.dispose();
+
+      if (type > 6) {
+        g0.setColor(Color.BLACK);
+        g0.setFont(threePortFont);
+        String num = "3:1";
+        Rectangle2D sb = g0.getFontMetrics().getStringBounds(num, g);
+        g0.drawString(num, rnd(cx-sb.getCenterX()), rnd(cy-sb.getCenterY()));
+      }
     }
 
     /**
@@ -771,6 +791,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         ColorSquare.WHEAT,// 4
         ColorSquare.WOOD, // 5
         ColorSquare.WATER,// 6
+        ColorSquare.PORT, // 7
       };
       return type < colors.length ? colors[type] : ColorSquare.WATER; 
     }
@@ -787,54 +808,22 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         int wx = (getWidth() - panelx) / 2 + hexX(hexNum);
         int wy = hexY(hexNum);
 
-        int type = hexType & 0xF; // get only the last 4 bits;
-        this.drawHex1(type, wx, wy, g);
+        // this could be cleaner; encode 3:1 as 7 + dir << 4;
+        int type = hexType & 0xF; // get only the last 4 bits; (7-12 implies the 3:1 port direction)
+        int port = hexType >> 4; // get the facing of the 2-port
+
+        this.drawHex(hexType <= 6 ? type : 6, wx, wy, g);
+
         if (type > 6) {
-          this.drawThreePort(type, wx, wy, g);
-        }
-
-        int port = hexType >> 4; // get the facing of the port
-
-        if (port > 0)
-        {
-            // overlay with port facing graphic:
-            g.drawImage(ports[port], wx, wy, this);
+          drawPort(type, type-6, wx, wy, g); // generic 3:1 port
+        } else if (port > 0) {
+          drawPort(type, port, wx, wy, g); // 2:1 port
         }
 
         if (numberLayout[hexNum] >= 2)
         {
             // overlay with dice number graphic:
             this.drawDiceNum(numberLayout[hexNum], wx, wy, g);
-        }
-    }
-
-    /**
-     * draw a board tile
-     */
-    private final void drawHex(Graphics g, int hexNum)
-    {
-        int tmp;
-        int[] hexLayout = board.getHexLayout();
-        int[] numberLayout = board.getNumberLayout();
-        int hexType = hexLayout[hexNum];
-
-        int wx = (getWidth() - panelx) / 2 + hexX(hexNum);
-
-        tmp = hexType & 15; // get only the last 4 bits;
-        g.drawImage(hexes[tmp], wx, hexY(hexNum), this);
-
-        tmp = hexType >> 4; // get the facing of the port
-
-        if (tmp > 0)
-        {
-            // overlay with port facing graphic:
-            g.drawImage(ports[tmp],wx, hexY(hexNum), this);
-        }
-
-        if (numberLayout[hexNum] >= 2)
-        {
-            // overlay with dice number graphic:
-            g.drawImage(numbers[numberLayout[hexNum]], wx + 9, hexY(hexNum) + 12, this);
         }
     }
 
