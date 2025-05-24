@@ -20,17 +20,15 @@
  **/
 package soc.game;
 
-import soc.disableDebug.D;
-
-import soc.util.IntPair;
-
 import java.io.Serializable;
-
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Random;
 import java.util.Stack;
 import java.util.Vector;
+
+import soc.disableDebug.D;
+import soc.util.IntPair;
 
 
 /**
@@ -1052,6 +1050,42 @@ public class SOCGame implements Serializable, Cloneable
     }
 
     /**
+     * add requisite number of each dev card and shuffle:
+     */
+    void makeDevDeck() {
+      int[][] nOfEach = {
+        {SOCDevCardConstants.KNIGHT, 14},
+        {SOCDevCardConstants.ROADS, 2},
+        {SOCDevCardConstants.MONO, 2},
+        {SOCDevCardConstants.DISC, 2},
+        {SOCDevCardConstants.MONO, 1},
+        {SOCDevCardConstants.CAP, 1},
+        {SOCDevCardConstants.LIB, 1},
+        {SOCDevCardConstants.UNIV, 1},
+        {SOCDevCardConstants.TEMP, 1},
+        {SOCDevCardConstants.TOW, 1},
+      };
+      devCardDeck = new int[25];
+      int nInDeck = 0;  // does Java have array.push()?
+      for (int i = 0; i < nOfEach.length; i++) {
+        int cid = nOfEach[i][0];
+        int n = nOfEach[i][1];
+        for (int j = 0; j < n; j++) {
+          devCardDeck[nInDeck++] = cid;
+        }
+      }
+      // Shuffle devCardDeck
+      for (int i = 1; i < devCardDeck.length; i++) // don't swap 0 with 0!
+      {
+          // Swap a random card below the ith card with the ith card
+          int idx = Math.abs(rand.nextInt() % (devCardDeck.length - 1));
+          int tmp = devCardDeck[idx];
+          devCardDeck[idx] = devCardDeck[i];
+          devCardDeck[i] = tmp;
+      }
+    }
+
+    /**
      * do the things involved in starting a game
      * shuffle the tiles and cards
      * make a board
@@ -1060,57 +1094,13 @@ public class SOCGame implements Serializable, Cloneable
     {
         board.makeNewBoard();
 
-        /**
-         * shuffle the development cards
-         */
-        devCardDeck = new int[25];
-
-        int i;
-        int j;
-
-        for (i = 0; i < 14; i++)
-        {
-            devCardDeck[i] = SOCDevCardConstants.KNIGHT;
-        }
-
-        for (i = 14; i < 16; i++)
-        {
-            devCardDeck[i] = SOCDevCardConstants.ROADS;
-        }
-
-        for (i = 16; i < 18; i++)
-        {
-            devCardDeck[i] = SOCDevCardConstants.MONO;
-        }
-
-        for (i = 18; i < 20; i++)
-        {
-            devCardDeck[i] = SOCDevCardConstants.DISC;
-        }
-
-        devCardDeck[20] = SOCDevCardConstants.CAP;
-        devCardDeck[21] = SOCDevCardConstants.LIB;
-        devCardDeck[22] = SOCDevCardConstants.UNIV;
-        devCardDeck[23] = SOCDevCardConstants.TEMP;
-        devCardDeck[24] = SOCDevCardConstants.TOW;
-
-        for (j = 0; j < 10; j++)
-        {
-            for (i = 1; i < devCardDeck.length; i++) // don't swap 0 with 0!
-            {
-                // Swap a random card below the ith card with the ith card
-                int idx = Math.abs(rand.nextInt() % (devCardDeck.length - 1));
-                int tmp = devCardDeck[idx];
-                devCardDeck[idx] = devCardDeck[i];
-                devCardDeck[i] = tmp;
-            }
-        }
+        makeDevDeck();
 
         allOriginalPlayers = true;
         gameState = START1A;
 
         /**
-         * choose to goes first
+         * choose who goes first
          */
         currentPlayerNumber = Math.abs(rand.nextInt() % MAXPLAYERS);
         setFirstPlayer(currentPlayerNumber);
@@ -1147,18 +1137,7 @@ public class SOCGame implements Serializable, Cloneable
      */
     public boolean canEndTurn(int pn)
     {
-        if (currentPlayerNumber != pn)
-        {
-            return false;
-        }
-        else if (gameState != PLAY1)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return (currentPlayerNumber == pn) && (gameState == PLAY1);
     }
 
     /**
@@ -1184,18 +1163,7 @@ public class SOCGame implements Serializable, Cloneable
      */
     public boolean canRollDice(int pn)
     {
-        if (currentPlayerNumber != pn)
-        {
-            return false;
-        }
-        else if (gameState != PLAY)
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+      return (currentPlayerNumber == pn) && (gameState == PLAY);
     }
 
     int[] diceRolls = new int[7]; // diceRolls[0] is count of dice-rolls
@@ -1214,7 +1182,7 @@ public class SOCGame implements Serializable, Cloneable
 
         currentDice = die1 + die2;
 
-	diceRolls[0]++; diceRolls[die1]++; diceRolls[die2]++; totalRolls[currentDice]++;
+      	diceRolls[0]++; diceRolls[die1]++; diceRolls[die2]++; totalRolls[currentDice]++;
 
         /**
          * handle the seven case

@@ -791,7 +791,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         ColorSquare.CLAY,// 4
         ColorSquare.WOOD, // 5
         ColorSquare.WATER,// 6
-        ColorSquare.PORT, // 7
+        ColorSquare.PORT, // 7 WHITE background "3:1"
       };
       return type < colors.length ? colors[type] : ColorSquare.WATER; 
     }
@@ -868,7 +868,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 
             for (i = 0; i < 5; i++)
             {
-                tmpX[i] = scalexy * vertRoadX[i] + hexX(hexNum) + wx;
+                tmpX[i] = scalexy * (vertRoadX[i] - 1) + hexX(hexNum) + 1 + wx;
                 tmpY[i] = scalexy * vertRoadY[i] + hexY(hexNum);
             }
         }
@@ -919,7 +919,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
             for (i = 0; i < 7; i++)
             {
                 tmpX[i] = scalexy * settlementX[i] + hexX(hexNum) + wx;
-                tmpY[i] = scalexy * (settlementY[i] + 8) + hexY(hexNum) + 3;
+                tmpY[i] = scalexy * (settlementY[i] + 9) + hexY(hexNum) + 1;
             }
         }
         else
@@ -929,7 +929,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
             for (i = 0; i < 7; i++)
             {
                 tmpX[i] = scalexy * (settlementX[i] + 16) + hexX(hexNum) + wx + 2;
-                tmpY[i] = scalexy * settlementY[i] + hexY(hexNum) + 2;
+                tmpY[i] = scalexy * (settlementY[i] + 1) + hexY(hexNum) + 1;
             }
         }
 
