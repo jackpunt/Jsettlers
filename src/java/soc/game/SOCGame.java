@@ -1164,6 +1164,7 @@ public class SOCGame implements Serializable, Cloneable
 
     int[] diceRolls = new int[7]; // diceRolls[0] is count of dice-rolls
     int[] totalRolls = new int[13]; // don't use [0], [1]; [2..12] counts
+    public int forceDice = 0;   // debug hack to force particular value of roll.
 
     public int[] getDieStats() { return diceRolls; }
     public int[] getRollStats() { return totalRolls; }
@@ -1179,6 +1180,8 @@ public class SOCGame implements Serializable, Cloneable
         currentDice = die1 + die2;
 
       	diceRolls[0]++; diceRolls[die1]++; diceRolls[die2]++; totalRolls[currentDice]++;
+
+        if (forceDice > 0) currentDice = forceDice;  // override: yes, the stats will be wrong.
 
         /**
          * handle the seven case

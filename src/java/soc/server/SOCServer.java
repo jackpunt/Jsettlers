@@ -20,8 +20,15 @@
  **/
 package soc.server;
 
-import soc.debug.D;		// isableD
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Random;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
+import soc.debug.D;		// isableD
 import soc.game.SOCBoard;
 import soc.game.SOCCity;
 import soc.game.SOCDevCardConstants;
@@ -35,7 +42,6 @@ import soc.game.SOCResourceSet;
 import soc.game.SOCRoad;
 import soc.game.SOCSettlement;
 import soc.game.SOCTradeOffer;
-
 import soc.message.SOCAcceptOffer;
 import soc.message.SOCAdminPing;
 import soc.message.SOCAdminReset;
@@ -102,25 +108,13 @@ import soc.message.SOCStatusMessage;
 import soc.message.SOCTextMsg;
 import soc.message.SOCTurn;
 import soc.message.SOCUpdateRobotParams;
-
+import soc.robot.SOCRobotClient;
 import soc.server.database.SOCDBHelper;
-
 import soc.server.genericServer.Connection;
 import soc.server.genericServer.Server;
-
 import soc.util.IntPair;
 import soc.util.SOCRobotParameters;
 import soc.util.Version;
-
-import soc.robot.SOCRobotClient;
-
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Random;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
 /**
  * A server for Settlers of Catan
@@ -1356,24 +1350,37 @@ public class SOCServer extends Server
                     //createNewGameEventRecord();
                     //currentGameEventRecord.setMessageIn(new SOCMessageRecord(mes, c.data, "SERVER"));
                     SOCGameTextMsg gameTextMsgMes = (SOCGameTextMsg) mes;
-		    String game = gameTextMsgMes.getGame(); // game name
+	            	    String game = gameTextMsgMes.getGame(); // game name
 
                     recordGameEvent(game, gameTextMsgMes.toCmd());
 
                     ga = gameList.getGameData(game);
+                    String msgText = gameTextMsgMes.getText();
 
                     //currentGameEventRecord.setSnapshot(ga);
-                    if ((gameTextMsgMes.getText().startsWith("**")) ||
-                            (gameTextMsgMes.getText().toLowerCase().startsWith("*showdice*"))) {
+                    if ((msgText.startsWith("**")) ||
+                        (msgText.toLowerCase().startsWith("*showdice*"))) {
                         showDice(ga);
+                    }
+                    if (msgText.toLowerCase().startsWith("*roll*")) {
+                      int forceValue = 0;
+                      try {
+                        String[] tokens =  msgText.split(" ");
+                        if (tokens.length > 1) {
+                          forceValue = Integer.parseInt(tokens[1]);
+                        }
+                      } catch (NumberFormatException nfe) {
+                        System.err.println(nfe);
+                      }
+                      ga.forceDice = forceValue;
                     }
 
                     ///
                     /// command to add time to a game
                     ///
-                    if ((gameTextMsgMes.getText().startsWith("++")) ||
-                            (gameTextMsgMes.getText().toLowerCase().startsWith("*addtime*")) ||
-                            (gameTextMsgMes.getText().toLowerCase().startsWith("addtime")))
+                    if ((msgText.startsWith("++")) ||
+                            (msgText.toLowerCase().startsWith("*addtime*")) ||
+                            (msgText.toLowerCase().startsWith("addtime")))
                     {
                         SOCGame gameData = gameList.getGameData(game);
 
@@ -1388,12 +1395,12 @@ public class SOCServer extends Server
                     ///
                     /// Check the time remaining for this game
                     ///
-                    if (gameTextMsgMes.getText().startsWith("*CHECKTIME*"))
+                    if (msgText.startsWith("*CHECKTIME*"))
                     {
                         SOCGame gameData = gameList.getGameData(game);
                         messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, "> This game will expire in " + ((gameData.getExpiration() - System.currentTimeMillis()) / 60000) + " minutes."));
                     }
-                    else if (gameTextMsgMes.getText().startsWith("*WHO*"))
+                    else if (msgText.startsWith("*WHO*"))
                     {
                         Vector gameMembers = null;
                         gameList.takeMonitorForGame(game);
@@ -1427,22 +1434,22 @@ public class SOCServer extends Server
                     if (c.data.equals("debug"))
                     {
 
-                        if (gameTextMsgMes.getText().startsWith("res:"))
+                        if (msgText.startsWith("res:"))
                         {
-			    messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, ">>"+gameTextMsgMes.getText()));
-			    giveResources(gameTextMsgMes, ga);
+                            messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, ">>"+msgText));
+                            giveResources(gameTextMsgMes, ga);
                         }
-                        else if (gameTextMsgMes.getText().startsWith("dev:"))
+                        else if (msgText.startsWith("dev:"))
                         {
-			    messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, ">>"+gameTextMsgMes.getText()));
-                            giveDevCard(gameTextMsgMes.getText(), ga, SOCDevCardSet.NEW);
+			                      messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, ">>"+msgText));
+                            giveDevCard(msgText, ga, SOCDevCardSet.NEW);
                         }
-                        else if (gameTextMsgMes.getText().startsWith("odev:"))
+                        else if (msgText.startsWith("odev:"))
                         {
-			    messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, ">>"+gameTextMsgMes.getText()));
-                            giveDevCard(gameTextMsgMes.getText(), ga, SOCDevCardSet.OLD);
+			                      messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, ">>"+msgText));
+                            giveDevCard(msgText, ga, SOCDevCardSet.OLD);
                         }
-                        else if (gameTextMsgMes.getText().startsWith("*KILLGAME*"))
+                        else if (msgText.startsWith("*KILLGAME*"))
                         {
                             messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, "********** " + (String) c.data + " KILLED THE GAME!!! **********"));
                             gameList.takeMonitor();
@@ -1459,7 +1466,7 @@ public class SOCServer extends Server
                             gameList.releaseMonitor();
                             broadcast(SOCDeleteGame.toCmd(game));
                         }
-                        else if (gameTextMsgMes.getText().startsWith("*STATS*"))
+                        else if (msgText.startsWith("*STATS*"))
                         {
                             long diff = System.currentTimeMillis() - startTime;
                             long hours = diff / (60 * 60 * 1000);
@@ -1475,14 +1482,14 @@ public class SOCServer extends Server
                             messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, "> Total Memory: " + rt.totalMemory()));
                             messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, "> Free Memory: " + rt.freeMemory()));
                         }
-                        else if (gameTextMsgMes.getText().startsWith("*GC*"))
+                        else if (msgText.startsWith("*GC*"))
                         {
                             Runtime rt = Runtime.getRuntime();
                             rt.gc();
                             messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, "> GARBAGE COLLECTING DONE"));
                             messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, "> Free Memory: " + rt.freeMemory()));
                         }
-                        else if (gameTextMsgMes.getText().startsWith("*STOP*"))
+                        else if (msgText.startsWith("*STOP*"))
                         {
                             try
                             {
@@ -1493,14 +1500,14 @@ public class SOCServer extends Server
                             stopServer();
                             System.exit(0);
                         }
-                        else if (gameTextMsgMes.getText().startsWith("*BCAST* "))
+                        else if (msgText.startsWith("*BCAST* "))
                         {
                             ///
                             /// broadcast to all chat channels and games
                             ///
-                            broadcast(SOCBCastTextMsg.toCmd(gameTextMsgMes.getText().substring(8)));
+                            broadcast(SOCBCastTextMsg.toCmd(msgText.substring(8)));
                         }
-                        else if (gameTextMsgMes.getText().startsWith("*BOTLIST*"))
+                        else if (msgText.startsWith("*BOTLIST*"))
                         {
                             Enumeration robotsEnum = robots.elements();
 
@@ -1511,9 +1518,9 @@ public class SOCServer extends Server
                                 robotConn.put(SOCAdminPing.toCmd((game)));
                             }
                         }
-                        else if (gameTextMsgMes.getText().startsWith("*RESETBOT* "))
+                        else if (msgText.startsWith("*RESETBOT* "))
                         {
-                            String botName = gameTextMsgMes.getText().substring(11).trim();
+                            String botName = msgText.substring(11).trim();
                             messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, "> botName = '" + botName + "'"));
 
                             Enumeration robotsEnum = robots.elements();
@@ -1534,9 +1541,9 @@ public class SOCServer extends Server
                                 }
                             }
                         }
-                        else if (gameTextMsgMes.getText().startsWith("*KILLBOT* "))
+                        else if (msgText.startsWith("*KILLBOT* "))
                         {
-                            String botName = gameTextMsgMes.getText().substring(10).trim();
+                            String botName = msgText.substring(10).trim();
                             messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, "> botName = '" + botName + "'"));
 
                             Enumeration robotsEnum = robots.elements();
@@ -1561,7 +1568,7 @@ public class SOCServer extends Server
                             //
                             // Send the message to the members of the game
                             //
-                            messageToGame(game, new SOCGameTextMsg(game, (String) c.data, gameTextMsgMes.getText()));
+                            messageToGame(game, new SOCGameTextMsg(game, (String) c.data, msgText));
                         }
                     }
                     else
@@ -1569,7 +1576,7 @@ public class SOCServer extends Server
                         //
                         // Send the message to the members of the game
                         //
-                        messageToGame(game, new SOCGameTextMsg(game, (String) c.data, gameTextMsgMes.getText()));
+                        messageToGame(game, new SOCGameTextMsg(game, (String) c.data, msgText));
                     }
 
                     //saveCurrentGameEventRecord(game);
@@ -1853,26 +1860,26 @@ public class SOCServer extends Server
     }
 
     private void showDice(SOCGame ga) {
-	String game = ga.getName();
+      String game = ga.getName();
 
-	int[] diceRolls = ga.getDieStats();
-	int[] rollStats = ga.getRollStats();
-	int nr = diceRolls[0];
-	String dmsg = "> N = "+nr+":";
-	for (int i = 1; i<=6; i++) {
-	    dmsg += "   "+diceRolls[i];
-	}
-	messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, dmsg));
-	dmsg = ">";
-	int[] ev = {0,0,1,2,3,4,5,6,5,4,3,2,1};
-	for (int i = 2; i<=12; i++) {
-	    int evi = nr*ev[i];
-	    double rdif = (rollStats[i]*36.0 - evi)/evi;
-	    String nm = ""+rollStats[i];
-	    nm = "   ".substring(nm.length()) + nm;
-	    dmsg = (i<10?">   ":"> ")+i+": "+nm+(" = "+rdif+"    ").substring(0,8);
-	    messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, dmsg));
-	}
+      int[] diceRolls = ga.getDieStats();
+      int[] rollStats = ga.getRollStats();
+      int nr = diceRolls[0];
+      String dmsg = "> N = "+nr+":";
+      for (int i = 1; i<=6; i++) {
+          dmsg += "   "+diceRolls[i];
+      }
+      messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, dmsg));
+      dmsg = ">";
+      int[] ev = {0,0,1,2,3,4,5,6,5,4,3,2,1};
+      for (int i = 2; i<=12; i++) {
+          int evi = nr*ev[i];
+          double rdif = (rollStats[i]*36.0 - evi)/evi;
+          String nm = ""+rollStats[i];
+          nm = "   ".substring(nm.length()) + nm;
+          dmsg = (i<10?">   ":"> ")+i+": "+nm+(" = "+rdif+"    ").substring(0,8);
+          messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, dmsg));
+      }
     }
 
     /**
@@ -2931,7 +2938,7 @@ public class SOCServer extends Server
                     if (ga.canRollDice(ga.getPlayer((String) c.data).getPlayerNumber()))
                     {
                         IntPair dice = ga.rollDice();
-			int curdice = ga.getCurrentDice();
+			                  int curdice = ga.getCurrentDice();
                         messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, "----" + (String) c.data + " rolled "+curdice+"      [" + dice.getA() + " and " + dice.getB() + "]"));
                         messageToGame(gn, new SOCDiceResult(gn, curdice));
 
@@ -4484,7 +4491,7 @@ public class SOCServer extends Server
                         break;
                     }
                 }
-		showDice(ga);
+            		showDice(ga);
                 break;
             }
         }
