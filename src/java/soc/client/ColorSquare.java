@@ -57,8 +57,8 @@ public class ColorSquare extends Canvas implements MouseListener
     public final static int CHECKBOX = 2;
     public final static int BOUNDED_INC = 3;
     public final static int BOUNDED_DEC = 4;
-    public final static int WIDTH = 16;
-    public final static int HEIGHT = 16;
+    public final static int WIDTH = SOCHandPanel.fontSize + 6;  // == HEIGHT to be square
+    public final static int HEIGHT = WIDTH; // fontSize + 3 or 6 (10 -> 16)
     int intValue;
     boolean boolValue;
     boolean valueVis;
@@ -134,7 +134,7 @@ public class ColorSquare extends Canvas implements MouseListener
     {
         super();
 
-        setFont(new Font("Geneva", Font.PLAIN, 10));
+        setFont(new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize));
 
         setBackground(c);
         kind = k;
@@ -229,8 +229,8 @@ public class ColorSquare extends Canvas implements MouseListener
             {
                 FontMetrics fm = this.getFontMetrics(this.getFont());
                 int numW;
-                //int numH = fm.getHeight();
-                //int numA = fm.getAscent();
+                int numH = fm.getHeight();
+                int numA = fm.getAscent();
                 switch (kind)
                 {
                 case NUMBER:
@@ -241,8 +241,8 @@ public class ColorSquare extends Canvas implements MouseListener
 
                     x = (WIDTH - numW) / 2;
                     
-                    // y = numA + (HEIGHT - numH) / 2; // proper way
-                    y = 12; // way that works
+                    y = numA + (HEIGHT - numH) / 2; // proper way
+                    // y = 12; // way that works
 
                     g.drawString(Integer.toString(intValue), x, y);
 
@@ -255,8 +255,8 @@ public class ColorSquare extends Canvas implements MouseListener
 
                     x = (WIDTH - numW) / 2;
 
-                    // y = numA + (HEIGHT - numH) / 2; // proper way
-                    y = 12; // way that works
+                    y = numA + (HEIGHT - numH) / 2; // proper way
+                    // y = 12; // way that works
 
                     g.drawString(value, x, y);
 

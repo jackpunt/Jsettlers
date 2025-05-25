@@ -20,13 +20,8 @@
  **/
 package soc.client;
 
-import soc.game.SOCPlayer;
-import soc.game.SOCResourceConstants;
-import soc.game.SOCResourceSet;
-
 import java.awt.Button;
 import java.awt.Color;
-import java.awt.Dialog;
 import java.awt.Font;
 import java.awt.Label;
 import java.awt.Rectangle;
@@ -34,6 +29,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
+import soc.game.SOCPlayer;
+import soc.game.SOCResourceConstants;
+import soc.game.SOCResourceSet;
 
 
 /**
@@ -71,7 +70,7 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
         numDiscards = rnum;
         setBackground(new Color(255, 230, 162));
         setForeground(Color.black);
-        setFont(new Font("Geneva", Font.PLAIN, 12));
+        setFont(new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize + 2));
 
         discardBut = new Button("Discard");
 

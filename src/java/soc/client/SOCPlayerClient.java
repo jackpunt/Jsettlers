@@ -223,7 +223,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
      */
     protected void initVisualElements()
     {
-        setFont(new Font("Monaco", Font.PLAIN, 12));
+        setFont(new Font("Monaco", Font.PLAIN, SOCHandPanel.fontSize - 2));
         
         nick = new TextField(20);
 	nick.setText("MyName");

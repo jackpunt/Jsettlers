@@ -20,10 +20,6 @@
  **/
 package soc.client;
 
-import soc.game.SOCGame;
-import soc.game.SOCPlayer;
-import soc.game.SOCPlayingPiece;
-
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -33,6 +29,10 @@ import java.awt.Label;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import soc.game.SOCGame;
+import soc.game.SOCPlayer;
+import soc.game.SOCPlayingPiece;
 
 
 /**
@@ -89,7 +89,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
 
         setBackground(new Color(156, 179, 94));
         setForeground(Color.black);
-        setFont(new Font("Helvetica", Font.PLAIN, 10));
+        setFont(new Font("Helvetica", Font.PLAIN, 10)); // original panel size
 
         /*
            title = new Label("Building Costs:");

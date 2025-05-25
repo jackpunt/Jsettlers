@@ -644,12 +644,12 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
     public void paint(Graphics g)
     {
         if (buffer == null ||
-	    buffer.getWidth(null) < getWidth() ||
-	    buffer.getHeight(null) < getHeight())
+            buffer.getWidth(null) < getWidth() ||
+            buffer.getHeight(null) < getHeight())
         {
             buffer = this.createImage(getWidth(), getHeight());	// panelx, panely
-	    //D.ebugPrintln("paint: buffer - ["+getWidth()+", "+getHeight()+"]");
-	}
+            //D.ebugPrintln("paint: buffer - ["+getWidth()+", "+getHeight()+"]");
+        }
         drawBoard(buffer.getGraphics());
         buffer.flush();
         g.drawImage(buffer, 0, 0, this);

@@ -20,12 +20,6 @@
  **/
 package soc.client;
 
-import soc.game.SOCGame;
-import soc.game.SOCPlayer;
-import soc.game.SOCResourceSet;
-import soc.game.SOCResourceConstants;
-import soc.game.SOCTradeOffer;
-
 import java.awt.Button;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -36,6 +30,12 @@ import java.awt.Label;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import soc.game.SOCGame;
+import soc.game.SOCPlayer;
+import soc.game.SOCResourceConstants;
+import soc.game.SOCResourceSet;
+import soc.game.SOCTradeOffer;
 
 
 /**
@@ -105,7 +105,7 @@ public class TradeOfferPanel extends Panel
         public MessagePanel()
         {
             setLayout(null);
-            setFont(new Font("Helvetica", Font.PLAIN, 18));
+            setFont(new Font("Helvetica", Font.PLAIN, SOCHandPanel.fontSize + 8));
         
             msg = new Label(" ", Label.CENTER);
             msg.setBackground(insideBGColor);
@@ -162,7 +162,7 @@ public class TradeOfferPanel extends Panel
         SOCResourceSet get;
         int[] giveInt = new int[5];
         int[] getInt = new int[5];
-	boolean acceptable = false;
+	      boolean acceptable = false;
         boolean counterOfferMode = false;
 
         /**
@@ -171,7 +171,7 @@ public class TradeOfferPanel extends Panel
         public OfferPanel()
         {
             setLayout(null);
-            setFont(new Font("Helvetica", Font.PLAIN, 10));
+            setFont(new Font("Helvetica", Font.PLAIN, SOCHandPanel.fontSize));
 
             toWhom1 = new Label();
             toWhom1.setBackground(insideBGColor);

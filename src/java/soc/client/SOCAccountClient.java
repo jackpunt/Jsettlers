@@ -20,19 +20,8 @@
  **/
 package soc.client;
 
-import soc.disableDebug.D;
-
-import soc.message.SOCChannels;
-import soc.message.SOCCreateAccount;
-import soc.message.SOCMessage;
-import soc.message.SOCRejectConnection;
-import soc.message.SOCStatusMessage;
-
-import soc.util.Version;
-
 import java.applet.Applet;
 import java.applet.AppletContext;
-
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.CardLayout;
@@ -48,12 +37,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-
 import java.net.Socket;
+
+import soc.disableDebug.D;
+import soc.message.SOCChannels;
+import soc.message.SOCCreateAccount;
+import soc.message.SOCMessage;
+import soc.message.SOCRejectConnection;
+import soc.message.SOCStatusMessage;
+import soc.util.Version;
 
 
 /**
@@ -137,7 +132,7 @@ public class SOCAccountClient extends Applet implements Runnable, ActionListener
      */
     protected void initVisualElements()
     {
-        setFont(new Font("Monaco", Font.PLAIN, 12));
+        setFont(new Font("Monaco", Font.PLAIN, SOCHandPanel.fontSize + 2));
         
         nick = new TextField(20);
         pass = new TextField(10);

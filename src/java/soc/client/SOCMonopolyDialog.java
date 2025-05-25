@@ -22,11 +22,11 @@ package soc.client;
 
 import java.awt.Button;
 import java.awt.Color;
-import java.awt.Dialog;
 import java.awt.Font;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import soc.game.SOCResourceConstants;
 
 
@@ -48,7 +48,7 @@ class SOCMonopolyDialog extends SOCDialog implements ActionListener
         this.pi = pi;
         setBackground(new Color(255, 230, 162));
         setForeground(Color.black);
-        setFont(new Font("Geneva", Font.PLAIN, 12));
+        setFont(new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize + 2));
         setLayout(null);
         addNotify();
         setSize(280, 160);

@@ -76,7 +76,8 @@ public class SOCPlayerInterface extends Frame implements ActionListener
      * the display for the players' hands
      */
     protected SOCHandPanel[] hands;
-    final static int handWidth=188; // min or fixed width of hand panel
+    // (fontSize + 6) * 6 + 10 * (fontSize)
+    static int handWidth=(SOCHandPanel.fontSize+6)*6+8*SOCHandPanel.fontSize; // min or fixed width of hand panel
 
     /**
      * the player colors
@@ -152,7 +153,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          */
         setBackground(Color.black);
         setForeground(Color.black);
-        setFont(new Font("Geneva", Font.PLAIN, 10));
+        setFont(new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize));
 
         /**
          * setup interface elements
@@ -168,7 +169,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          * more initialization stuff
          */
         setLocation(50, 50);
-        setSize(900, 900);
+        setSize(980, 900); // (HexMap + 2*HandPanel, BoardPanel+TextPanel+BuildingPanel)
         validate();
     }
 
@@ -181,6 +182,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          * initialize the player hand displays and add them to the interface
          */
         hands = new SOCHandPanel[SOCGame.MAXPLAYERS];
+        System.out.format("SOCPlayerInterface: handWidth = %d\n", handWidth);
 
         for (int i = 0; i < SOCGame.MAXPLAYERS; i++)
         {
@@ -193,7 +195,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          * initialize the building interface and add it to the main interface
          */
         buildingPanel = new SOCBuildingPanel(this);
-        buildingPanel.setSize(SOCBoardPanel.getPanelX(), 160);
+        buildingPanel.setSize(SOCBoardPanel.getPanelX(), 160); // 160 ~ 11 * fontHeight
         add(buildingPanel);
 
         /**
@@ -210,21 +212,21 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          */
         // textDisplay = new SnippingTextArea("", 40, 80, TextArea.SCROLLBARS_VERTICAL_ONLY, 80);
         textDisplay = new TextOut(40,80,80);
-        textDisplay.setFont(new Font("Monoco", Font.PLAIN, 10));
+        textDisplay.setFont(new Font("Monoco", Font.PLAIN, SOCHandPanel.fontSize));
         textDisplay.setBackground(new Color(255, 230, 162));
         textDisplay.setForeground(Color.black);
         textDisplay.setEditable(false);
         add(textDisplay);
 
         chatDisplay = new SnippingTextArea("", 40, 80, TextArea.SCROLLBARS_VERTICAL_ONLY, 100);
-        chatDisplay.setFont(new Font("Monoco", Font.PLAIN, 10));
+        chatDisplay.setFont(new Font("Monoco", Font.PLAIN, SOCHandPanel.fontSize));
         chatDisplay.setBackground(new Color(255, 230, 162));
         chatDisplay.setForeground(Color.black);
         chatDisplay.setEditable(false);
         add(chatDisplay);
 
         textInput = new TextField();
-        textInput.setFont(new Font("Monoco", Font.PLAIN, 10));
+        textInput.setFont(new Font("Monoco", Font.PLAIN, SOCHandPanel.fontSize));
 
         FontMetrics fm = this.getFontMetrics(textInput.getFont());
         textInput.setSize(SOCBoardPanel.getPanelX(), fm.getHeight() + 4);
@@ -558,7 +560,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
         dim.width -= (i.left + i.right);
         dim.height -= (i.top + i.bottom); 	// minus insets/boarders
 
-        int hw = 188;
+        int hw = handWidth;
         int hh = (dim.height - 12) / 2;		// hh = 'hand' panel height
 
         int bw = dim.width - ( 2*hw + 16) ;

@@ -20,17 +20,6 @@
  **/
 package soc.client;
 
-import soc.disableDebug.D;
-
-import soc.game.SOCDevCardConstants;
-import soc.game.SOCDevCardSet;
-import soc.game.SOCGame;
-import soc.game.SOCPlayer;
-import soc.game.SOCPlayingPiece;
-import soc.game.SOCResourceConstants;
-import soc.game.SOCResourceSet;
-import soc.game.SOCTradeOffer;
-
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -41,6 +30,18 @@ import java.awt.List;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+
+import soc.disableDebug.D;
+import soc.game.SOCDevCardConstants;
+import soc.game.SOCDevCardSet;
+import soc.game.SOCGame;
+import soc.game.SOCPlayer;
+import soc.game.SOCPlayingPiece;
+import soc.game.SOCResourceConstants;
+import soc.game.SOCResourceSet;
+import soc.game.SOCTradeOffer;
 
 
 /**
@@ -82,7 +83,7 @@ public class SOCHandPanel extends Panel implements ActionListener
     protected static final String GIVE = "I Give: ";
     protected static final String GET = "I Get: ";
     protected static final Color LCOLOR = new Color(142, 45, 10);
-    protected Button sitBut;
+    protected JButton sitBut;
     protected Button robotBut;
     protected Button startBut;
     protected Button takeOverBut;
@@ -117,7 +118,7 @@ public class SOCHandPanel extends Panel implements ActionListener
     protected Label knightsLab;
     //protected Label cardLab; // no longer used?
     protected List cardList;
-    protected Button playCardBut;
+    protected JButton playCardBut;
     protected SquaresPanel sqPanel;
     protected Label giveLab;
     protected Label getLab;
@@ -135,6 +136,8 @@ public class SOCHandPanel extends Panel implements ActionListener
     protected boolean inPlay;
     protected int[] playerSendMap;
     protected TradeOfferPanel offer;
+    public static int fontSize = 14;
+    public static Font font = new Font("Helvetica", Font.PLAIN, fontSize);
 
     /**
      * When this flag is true, the panel is interactive.
@@ -182,7 +185,7 @@ public class SOCHandPanel extends Panel implements ActionListener
 
         setBackground(playerInterface.getPlayerColor(player.getPlayerNumber()));
         setForeground(Color.black);
-        setFont(new Font("Helvetica", Font.PLAIN, 10));
+        setFont(font);
 
         offer = new TradeOfferPanel(this, player.getPlayerNumber());
         offer.setVisible(false);
@@ -259,7 +262,8 @@ public class SOCHandPanel extends Panel implements ActionListener
         takeOverBut.setEnabled(interactive);
         add(takeOverBut);
 
-        sitBut = new Button(SIT);
+        sitBut = new JButton(SIT);
+        sitBut.setSize(new Dimension(90, 40));
         sitBut.addActionListener(this);
         sitBut.setEnabled(interactive);
         add(sitBut);
@@ -269,7 +273,8 @@ public class SOCHandPanel extends Panel implements ActionListener
         robotBut.setEnabled(interactive);
         add(robotBut);
 
-        playCardBut = new Button(CARD);
+        playCardBut = new JButton(CARD);
+        playCardBut.setSize(new Dimension(90, 40));
         playCardBut.addActionListener(this);
         playCardBut.setEnabled(interactive);
         add(playCardBut);
@@ -1176,17 +1181,17 @@ public class SOCHandPanel extends Panel implements ActionListener
      */
     public void doLayout()
     {
-	boolean showAll = true;
+	      boolean showAll = true;
         Dimension dim = getSize();
         int inset = 6;		// 8?
         int space = 2;
 
         if (!inPlay)
 	    {
-		/* just show the 'sit' button */
-		/* and the 'robot' button     */
-		sitBut.setBounds((dim.width - 60) / 2, (dim.height - 82) / 2, 60, 40);
-		return;
+        /* just show the 'sit' button */
+        /* and the 'robot' button     */
+        sitBut.setBounds((dim.width - 60) / 2, (dim.height - 82) / 2, 60, 40);
+        return;
 	    }
 
 	boolean isRobot = player.isRobot();
@@ -1213,7 +1218,7 @@ public class SOCHandPanel extends Panel implements ActionListener
 	//sqPanel.doLayout();
 	    
 	Dimension sqpDim = sqPanel.getSize();
-	int sheepW = fm.stringWidth("Sheep: ");
+	int sheepW = fm.stringWidth("Sheep: "); // longest label
 	int pcW = fm.stringWidth(CARD);
 	int giveW = fm.stringWidth(GIVE);
 	int clearW = fm.stringWidth(CLEAR);
@@ -1334,7 +1339,7 @@ public class SOCHandPanel extends Panel implements ActionListener
 	cardList.setBounds(clX, cardsY, clW, (ly - cardsY) - 2);
 	playCardBut.setBounds(((clW - pcW) / 2) + clX, ly, pcW, lineH);
 	    
-	int bbW = 50;
+	int bbW = 50; // bottom buttons width?
 	quitBut.setBounds(inset, dim.height - lineH - inset, bbW, lineH);
 	rollBut.setBounds(dim.width - (bbW + space + bbW + inset), dim.height - lineH - inset, bbW, lineH);
 	doneBut.setBounds(dim.width - inset - bbW, dim.height - lineH - inset, bbW, lineH);

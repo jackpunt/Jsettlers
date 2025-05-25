@@ -51,7 +51,7 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
         this.pi = pi;
         setBackground(new Color(255, 230, 162));
         setForeground(Color.black);
-        setFont(new Font("Geneva", Font.PLAIN, 12));
+        setFont(new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize + 2));
 
         doneBut = new Button("Done");
         clearBut = new Button("Clear");

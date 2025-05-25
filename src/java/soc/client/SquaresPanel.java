@@ -21,7 +21,6 @@
 package soc.client;
 
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Panel;
 
 
@@ -48,7 +47,7 @@ public class SquaresPanel extends Panel
 
         interactive = in;
 
-        setFont(new Font("Helvetica", Font.PLAIN, 10));
+        setFont(new Font("Helvetica", Font.PLAIN, SOCHandPanel.fontSize));
 
         give = new ColorSquare[5];
         give[0] = new ColorSquare(ColorSquare.NUMBER, in, ColorSquare.ORE);
