@@ -20,7 +20,6 @@
  **/
 package soc.client;
 
-import java.awt.Button;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -30,6 +29,9 @@ import java.awt.Label;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Stack;
+
+import javax.swing.JButton;
 
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
@@ -88,7 +90,7 @@ public class TradeOfferPanel extends Panel
         cardLayout = new CardLayout();
         setLayout(cardLayout);
 
-	// first added = first shown (ie, at back of stack)
+	      // first added = first shown (ie, at back of stack)
         add(messagePanel, MESSAGE_MODE);// SpeechBalloon to display message
         add(offerPanel, OFFER_MODE); // ShadowBox to compose counter offer
         mode = MESSAGE_MODE;
@@ -105,7 +107,7 @@ public class TradeOfferPanel extends Panel
         public MessagePanel()
         {
             setLayout(null);
-            setFont(new Font("Helvetica", Font.PLAIN, SOCHandPanel.fontSize + 8));
+            setFont(new Font("Helvetica", Font.PLAIN, SOCHandPanel.fontSize + 2));
         
             msg = new Label(" ", Label.CENTER);
             msg.setBackground(insideBGColor);
@@ -130,7 +132,8 @@ public class TradeOfferPanel extends Panel
         {
             // FontMetrics fm = this.getFontMetrics(this.getFont());
             Dimension dim = getSize();// from parent TradeOfferPanel/CardLayout
-            int w = Math.min(175, dim.width);
+            int fontW = SOCHandPanel.fontSize;
+            int w = Math.max(135+4*fontW, dim.width);
             int h = Math.min(124, dim.height);
 
             msg.setBounds(inset, ((h - 18) / 2), w - (2 * inset), 18);
@@ -147,16 +150,10 @@ public class TradeOfferPanel extends Panel
         Label getLab;
 
         SquaresPanel squares;
-        Button offerBut;
-        Button acceptBut;
-        Button rejectBut;
         ShadowedBox offerBox;
         SquaresPanel offerSquares;
         Label giveLab2;
         Label getLab2;
-        Button sendBut;
-        Button clearBut;
-        Button cancelBut;
         boolean offered;
         SOCResourceSet give;
         SOCResourceSet get;
@@ -164,6 +161,40 @@ public class TradeOfferPanel extends Panel
         int[] getInt = new int[5];
 	      boolean acceptable = false;
         boolean counterOfferMode = false;
+
+        /** ACCEPT, REJECT, OFFER */
+        JButton[] offeredButtons;
+        String[] offeredNames = {
+            ACCEPT, REJECT, OFFER,
+        };
+        /** SEND, CLEAR, CANCEL */
+        JButton[] counterButtons;
+        String[] counterNames = {
+            SEND, CLEAR, CANCEL,
+        };
+
+        JButton addButton(String name, boolean visible) 
+        {
+          FontMetrics fm = getFontMetrics(getFont());
+          String cname = name.substring(0,1).toUpperCase() + name.substring(1).toLowerCase();
+          JButton button = new JButton(cname); 
+          button.setSize(new Dimension(fm.stringWidth(name)+2, fm.getHeight()));
+          button.setOpaque(true);          // MacOS paints the background of panel?
+          // button.setBorderPainted(false);  // Stack Overflow says: use JButton & do this.
+          button.setVisible(visible);      // TODO: still not working! no text
+          button.setActionCommand(name);
+          button.addActionListener(this);
+          add(button);
+          return button;
+        }
+
+        JButton[] addButtons(String[] names, boolean vis) {
+          Stack<JButton> stk = new Stack<JButton>();
+          for (String name : names) {
+            stk.push(addButton(name, vis));
+          }
+          return stk.toArray(new JButton[stk.size()]);
+        }
 
         /**
          * Creates a new OfferPanel object.
@@ -195,38 +226,8 @@ public class TradeOfferPanel extends Panel
             giveInt = new int[5];
             getInt = new int[5];
 
-            acceptBut = new Button("Accept");
-            acceptBut.setActionCommand(ACCEPT);
-            acceptBut.addActionListener(this);
-            add(acceptBut);
-
-            rejectBut = new Button("Reject");
-            rejectBut.setActionCommand(REJECT);
-            rejectBut.addActionListener(this);
-            add(rejectBut);
-
-            offerBut = new Button("Counter");
-            offerBut.setActionCommand(OFFER);
-            offerBut.addActionListener(this);
-            add(offerBut);
-
-            sendBut = new Button("Send");
-            sendBut.setActionCommand(SEND);
-            sendBut.addActionListener(this);
-            sendBut.setVisible(false);
-            add(sendBut);
-
-            clearBut = new Button("Clear");
-            clearBut.setActionCommand(CLEAR);
-            clearBut.addActionListener(this);
-            clearBut.setVisible(false);
-            add(clearBut);
-
-            cancelBut = new Button("Cancel");
-            cancelBut.setActionCommand(CANCEL);
-            cancelBut.addActionListener(this);
-            cancelBut.setVisible(false);
-            add(cancelBut);
+            offeredButtons = addButtons(offeredNames, true);
+            counterButtons = addButtons(counterNames, false);
 
             offerSquares = new SquaresPanel(true); // counter offer
             offerSquares.setVisible(false);
@@ -250,8 +251,8 @@ public class TradeOfferPanel extends Panel
         }
 
         /**
-	 * update OfferPanel.
-	 * 
+         * update OfferPanel.
+         * 
          * @param  give  the set of resources being given
          * @param  get   the set of resources being asked for
          * @param  to    a boolean array where 'true' means that the offer
@@ -266,14 +267,14 @@ public class TradeOfferPanel extends Panel
             boolean[] offerList = offer.getTo();
             SOCGame ga = hp.getGame();
         
-	    // get player if this client is playing, else null:
+	          // get player if this client is playing, else null:
             SOCPlayer player = ga.getPlayer(hp.getClient().getNickname());
 
-	    offered = (player != null) && offerList[player.getPlayerNumber()]; // is offered to this player-client
+	          offered = (player != null) && offerList[player.getPlayerNumber()]; // is offered to this player-client
 
             if (player != null)
             {
-		acceptable = SOCResourceSet.gte(player.getResources(), get); // only used as: (offered && acceptable)
+		            acceptable = SOCResourceSet.gte(player.getResources(), get); // only used as: (offered && acceptable)
 
                 Color ourPlayerColor = pi.getPlayerColor(player.getPlayerNumber());
                 giveLab2.setBackground(ourPlayerColor);
@@ -282,20 +283,20 @@ public class TradeOfferPanel extends Panel
             }
         
             FontMetrics fm = this.getFontMetrics(this.getFont());
-            String names1 = "Offered to: ";
-            String names2 = null;
+            String names1 = "Offered to: ";  // first line of names
+            String names2 = null;            // second line
 
             for (int cnt = 0; cnt < SOCGame.MAXPLAYERS; cnt++) {
                 if (offerList[cnt]) {
                     String name = ga.getPlayer(cnt).getName();
-		    int eol = getWidth() - 2*inset;
+		                int eol = getWidth() - 2*inset;
                     
                     if (fm.stringWidth(names1+", "+name) < eol) { // getWidth()-2*inset
-			if (names1.endsWith(" ")) {
-			    names1 += name; // append first name
-			} else {
-			    names1 += ", " + name;
-			}
+                        if (names1.endsWith(" ")) {
+                            names1 += name; // append first name
+                        } else {
+                            names1 += ", " + name;
+                        }
                     } else {
                         if (names2 == null) {
                             names1 += ",";
@@ -329,75 +330,76 @@ public class TradeOfferPanel extends Panel
          */
         public void doLayout()
         {
-	    // make parent panel just big enough;
-	    // outerHeight = cancelBut.bottom + space + shadow:
-	    // 10 + 12 + 62 + 18 + 16 + 5 = 123 !
-	    // TradeOfferPanel.this.setSize(w, top + 12 + (2 * squaresHeight) + buttonH + lineH + 2 + 5);
+            // make parent panel just big enough;
+            // outerHeight = cancelBut.bottom + space + shadow:
+            // 10 + 12 + 62 + 18 + 16 + 5 = 123 !
+            // TradeOfferPanel.this.setSize(w, top + 12 + (2 * squaresHeight) + buttonH + lineH + 2 + 5);
 
             FontMetrics fm = this.getFontMetrics(this.getFont());
             Dimension dim = getSize(); // CardLayout so this matches parent!
 
-	    int squaresHeight = squares.getBounds().height; // 31
-	    int vspace = 2;
-	    int tang = SpeechBalloon.TANG;
-	    int dsh = 5;	// drop shadow height
+            int squaresHeight = squares.getBounds().height; // 31
+            int vspace = 3;
+            int tang = SpeechBalloon.TANG;
+            int dsh = 5;	// drop shadow height
 
-            int w = Math.min(175, dim.width);
-            int h = Math.min(124, dim.height); // (top + 32 + squaresHeight + 2 + 5) or 92 if counterOfferMode
-            int top = tang + 2;	// height of callout; was: (h / 8) + 5;
+            int liney = tang + vspace;	// start at top and paint down:
                 
-	    int giveW = fm.stringWidth("I Give: ") + 2;
-	    int fontH = 14;
-	    int lineH = 16;	// could derive from fm? (fontH+2)
-	    int buttonW = 48;	// enough for Accept, Reject, Counter
-	    int buttonH = 18;	// lineH + 2
-	    int ibs = (w - 2*inset - 3*buttonW + 2) / 3; // inter-button horiz space
+            int giveW = fm.stringWidth("I Give: ") + 2;
+            int fontH = fm.getHeight() + 1;   // 10 -> 14
+            int lineH = fontH + vspace;	// could derive from fm? (16)
+            int buttonW = fm.stringWidth("Counter")+1; // (48)
+            int buttonH = lineH + vspace;	// lineH + 2 (18)
+            // inset:buttonW<ibs>buttonW<ibs>buttonW:inset
+            int w = Math.max(3*buttonW + 2*inset + 2, dim.width);
+            int h = Math.min(124, dim.height); // (top + 32 + squaresHeight + 2 + 5) or 92 if counterOfferMode
+            int ibs = (w - (3 * buttonW + inset+2)) / 3; // inter-button horiz space
 
-	    int liney = top;	// start at top and paint down:
 
-	    toWhom1.setBounds(inset, liney, w - 2*inset, fontH); liney += fontH;
-	    if (toWhom2.getText() != null) {
-		toWhom2.setBounds(inset, liney, w - 2*inset, fontH); liney += fontH;
-	    } else {
-		toWhom2.setBounds(inset, liney, 0, 0);
-	    }
-	    liney += vspace;
-	    squares.setLocation(inset + giveW, liney);
-	    squares.doLayout();
-	    giveLab.setBounds(inset, liney, giveW, lineH); liney += lineH;
-	    getLab.setBounds( inset, liney, giveW, lineH); liney += lineH;
-	    liney += vspace;
+            toWhom1.setBounds(inset, liney, w - 2*inset, fontH); liney += fontH;
+            if (toWhom2.getText() != null) {
+                toWhom2.setBounds(inset, liney, w - 2*inset, fontH); liney += fontH;
+            } else {
+                toWhom2.setBounds(inset, liney, 0, 0);
+            }
+            liney += vspace;
+            squares.setLocation(inset + giveW, liney);
+            squares.doLayout();
+            giveLab.setBounds(inset, liney, giveW, lineH); liney += lineH;
+            getLab.setBounds( inset, liney, giveW, lineH); liney += lineH;
+            liney += vspace;
 
             if (counterOfferMode) {
-		balloon.setBounds(0, 0, w, liney + dsh); // was min(h,liney);
+                balloon.setBounds(0, 0, w, liney + dsh); // was min(h,liney);
                 // show the counter offer:
-		liney += vspace;
-		int boxTop = liney;
-		liney += 2*vspace;
+                liney += vspace;
+                int boxTop = liney;
+                liney += 2*vspace;
                 offerSquares.setLocation(inset + giveW, liney);
                 offerSquares.doLayout();
                 giveLab2.setBounds(inset, liney, giveW, lineH); liney += lineH;
                 getLab2.setBounds( inset, liney, giveW, lineH); liney += lineH;
 
-		liney += vspace;
-		int buttonX = inset;
-                sendBut.setBounds(  buttonX, liney, buttonW, buttonH); buttonX += buttonW + ibs;
-                clearBut.setBounds( buttonX, liney, buttonW, buttonH); buttonX += buttonW + ibs;
-                cancelBut.setBounds(buttonX, liney, buttonW, buttonH); buttonX += buttonW + ibs;
-		liney += lineH + 2*vspace;
+                liney += vspace;
+                int buttonX = inset;
+                for (JButton button : counterButtons) {
+                    button.setBounds(buttonX, liney, buttonW, buttonH); 
+                    buttonX += buttonW + ibs;
+                }
+                liney += lineH + 2*vspace;
                 offerBox.setBounds(0, boxTop, w, liney + dsh - boxTop);
             } else {
                 if (offered) {
-		    int buttonX = inset;
-                    acceptBut.setBounds(buttonX, liney, buttonW, buttonH); buttonX += buttonW + ibs;
-                    rejectBut.setBounds(buttonX, liney, buttonW, buttonH); buttonX += buttonW + ibs;
-                    offerBut.setBounds( buttonX, liney, buttonW, buttonH); buttonX += buttonW + ibs;
+                  int buttonX = inset;
+                  for (JButton button : offeredButtons) {
+                      button.setBounds(buttonX, liney, buttonW, buttonH); 
+                      buttonX += buttonW + ibs;
+                  }
                 }
-		liney += lineH;	// leave space even if buttons not shown...
-		liney += 2*vspace;
+                liney += lineH + 2*vspace;	// leave space even if buttons not shown...
                 balloon.setBounds(0, 0, w, liney + dsh);
             }
-        }
+          }
         /**
          * DOCUMENT ME!
          *
@@ -435,13 +437,13 @@ public class TradeOfferPanel extends Panel
                         getSum += get[i];
                     }
 
-		    int m1 = - SOCResourceConstants.MIN;
-		    SOCResourceSet giveSet = new SOCResourceSet(give[m1+SOCResourceConstants.CLAY],
-								give[m1+SOCResourceConstants.ORE],
-								give[m1+SOCResourceConstants.SHEEP],
-								give[m1+SOCResourceConstants.WHEAT],
-								give[m1+SOCResourceConstants.WOOD], 0);
-		    SOCResourceSet getSet = new SOCResourceSet(get[m1+SOCResourceConstants.CLAY],
+                int m1 = - SOCResourceConstants.MIN;
+                SOCResourceSet giveSet = new SOCResourceSet(give[m1+SOCResourceConstants.CLAY],
+                    give[m1+SOCResourceConstants.ORE],
+                    give[m1+SOCResourceConstants.SHEEP],
+                    give[m1+SOCResourceConstants.WHEAT],
+                    give[m1+SOCResourceConstants.WOOD], 0);
+		            SOCResourceSet getSet = new SOCResourceSet(get[m1+SOCResourceConstants.CLAY],
 							       get[m1+SOCResourceConstants.ORE],
 							       get[m1+SOCResourceConstants.SHEEP],
 							       get[m1+SOCResourceConstants.WHEAT],
@@ -482,7 +484,7 @@ public class TradeOfferPanel extends Panel
             {
                 hp.getClient().rejectOffer(hp.getGame());
 
-                rejectBut.setVisible(false);
+                counterButtons[1].setVisible(false);
             }
 
             if (target == ACCEPT)
@@ -500,16 +502,16 @@ public class TradeOfferPanel extends Panel
             getLab2.setVisible(visible);
             offerSquares.setVisible(visible);
 
-            sendBut.setVisible(visible);
-            clearBut.setVisible(visible);
-            cancelBut.setVisible(visible);
+            for (JButton button : counterButtons) {
+              button.setVisible(visible);
+            }
             offerBox.setVisible(visible);
 
-	    // see if this player has the 'give' resources!
-            acceptBut.setVisible(offered && ! visible && acceptable);
-            rejectBut.setVisible(offered && ! visible);
-            offerBut.setVisible(offered && ! visible);
-
+            // see if this player has the 'give' resources!
+            for (int i = 0; i < offeredButtons.length; i++) {
+              boolean accept = (i == 0) ? acceptable : true;
+              offeredButtons[i].setVisible(offered && ! visible && accept);
+            }
             counterOfferMode = visible;
             validate();
         }

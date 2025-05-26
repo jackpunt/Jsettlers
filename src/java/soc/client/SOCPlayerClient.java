@@ -1971,39 +1971,45 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 
         if (ga != null)
         {
-            SOCPlayer pl = ga.getPlayer(mes.getPlayerNumber());
+            int pn = mes.getPlayerNumber();
+            SOCPlayer pl = ga.getPlayer(pn);
             SOCPlayerInterface pi = (SOCPlayerInterface) playerInterfaces.get(mes.getGame());
-	    int mv = mes.getCount();
+	          int mv = mes.getCount();
+            SOCResourceSet rsrcs = pl.getResources();
 
 	    // since getTotal() includes all the 'unknown' or 'potential' cards, this is likely:
 	    // eventually, need 'virtual cards' or 'quantum cards' to represent unknown cards.
 	    // quantum card is tracked from orig to dest, so playing it could resolve unknown in other hand.
-            if (mv != pl.getResources().getTotal())
+            if (mv == 0) 
             {
-                SOCResourceSet rsrcs = pl.getResources();
+                System.out.format("player %s has ZERO resources: rsrcs=%s \n", pl.getName(), rsrcs);
+                rsrcs.clear();
+                pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.NUMRESOURCES);
+            }
+            if (mv != rsrcs.getTotal())
+            {
 
                 if (D.ebugOn || true)
                 {
                     pi.print(">>> RES CNT ERR: "+pl.getName()+": "+ mv + " != "+rsrcs.getTotal());
-		    // need to find code that handles monopoly and robber, correct the counts.
+		                // need to find code that handles monopoly and robber, correct the counts.
                 }
 
                 //
                 //  fix it: assume all are UNKNOWN!
-		// slightly better: limit each res to total.
+	            	// slightly better: limit each res to total.
                 //
                 if (!pl.getName().equals(nickname))
                 {
                     // rsrcs.clear();
-		    for (int rs = SOCResourceConstants.MIN; rs <= SOCResourceConstants.MAX; rs++) {
-			rsrcs.setAmount(Math.min(mv,rsrcs.getAmount(rs)), rs);
-		    }
-		    if (rsrcs.getTotal() != mv) {
-			rsrcs.clear();
-			rsrcs.setAmount(mv, SOCResourceConstants.UNKNOWN);
-		    }
-
-                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
+                    for (int rs = SOCResourceConstants.MIN; rs <= SOCResourceConstants.MAX; rs++) {
+                        rsrcs.setAmount(Math.min(mv, rsrcs.getAmount(rs)), rs);
+                    }
+                    if (rsrcs.getTotal() != mv) {
+                        rsrcs.clear();
+                        rsrcs.setAmount(mv, SOCResourceConstants.UNKNOWN);
+                    }
+                    pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.NUMRESOURCES);
                 }
             }
         }

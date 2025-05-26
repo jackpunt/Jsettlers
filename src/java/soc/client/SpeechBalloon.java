@@ -49,7 +49,8 @@ public class SpeechBalloon extends Canvas
     {
         super();
         height = 50;
-        width = 50;
+        width = SOCPlayerInterface.handWidth - 10;
+        setSize(getPreferedSize());
         setBackground(bg);
         setForeground(Color.black);
     }
@@ -98,7 +99,7 @@ public class SpeechBalloon extends Canvas
         g.fillPolygon(balloon);
         g.setColor(Color.black);
         g.drawPolygon(balloon);
-	// draw drop shadow, vert and horiz:
+      	// draw drop shadow, vert and horiz:
         for (i = xm; i > 0; i--)
         {
             g.drawLine(ym, h - i, w, h - i);

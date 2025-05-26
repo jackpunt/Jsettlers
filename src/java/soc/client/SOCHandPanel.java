@@ -263,7 +263,7 @@ public class SOCHandPanel extends Panel implements ActionListener
         add(takeOverBut);
 
         sitBut = new JButton(SIT);
-        sitBut.setSize(new Dimension(90, 40));
+        sitBut.setSize(new Dimension(sitWidth, sitHeight));
         sitBut.addActionListener(this);
         sitBut.setEnabled(interactive);
         add(sitBut);
@@ -338,7 +338,7 @@ public class SOCHandPanel extends Panel implements ActionListener
         quitBut.setEnabled(interactive);
         add(quitBut);
 
-	// add last so they paint last (atop offer panel)
+	      // add last so they paint last (atop offer panel)
         faceImg = new SOCFaceButton(playerInterface, player.getPlayerNumber());
         add(faceImg);
 
@@ -1175,7 +1175,8 @@ public class SOCHandPanel extends Panel implements ActionListener
             break;
         }
     }
-
+    int sitWidth = 98;
+    int sitHeight = 50;
     /**
      * Layout SOCHandPanel:
      */
@@ -1190,7 +1191,7 @@ public class SOCHandPanel extends Panel implements ActionListener
 	    {
         /* just show the 'sit' button */
         /* and the 'robot' button     */
-        sitBut.setBounds((dim.width - 60) / 2, (dim.height - 82) / 2, 60, 40);
+        sitBut.setBounds((dim.width - sitWidth) / 2, (dim.height - sitHeight) / 2, sitWidth, sitHeight);
         return;
 	    }
 
@@ -1264,8 +1265,8 @@ public class SOCHandPanel extends Panel implements ActionListener
 	// begin trade/balloon/takeover section:
 	    
 	if (!ourHand) {
-	    int tw = Math.min(dim.width - (2 * inset), 175);
-	    int th = Math.min(balloonH, 124); // height of TradeOfferPanel
+	    int tw = Math.max(dim.width - (2 * inset), 175);
+	    int th = Math.max(balloonH, 124); // height of TradeOfferPanel
 	    th = balloonH;
 	    offer.setBounds(inset, topH + space, tw, th);
 	    offer.doLayout();
