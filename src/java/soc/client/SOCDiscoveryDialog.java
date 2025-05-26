@@ -97,16 +97,16 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
      */
     public void doLayout()
     {
-        int x = getInsets().left;
+        // int x = getInsets().left;
         int y = getInsets().top;
         int width = getSize().width - getInsets().left - getInsets().right;
         int height = getSize().height - getInsets().top - getInsets().bottom;
         int space = 5;
 
-        int pix = pi.getInsets().left;
-        int piy = pi.getInsets().top;
-        int piwidth = pi.getSize().width - pi.getInsets().left - pi.getInsets().right;
-        int piheight = pi.getSize().height - pi.getInsets().top - pi.getInsets().bottom;
+        // int pix = pi.getInsets().left;
+        // int piy = pi.getInsets().top;
+        // int piwidth = pi.getSize().width - pi.getInsets().left - pi.getInsets().right;
+        // int piheight = pi.getSize().height - pi.getInsets().top - pi.getInsets().bottom;
 
         int sqwidth = ColorSquare.WIDTH;
         int sqspace = (width - (5 * sqwidth)) / 5;

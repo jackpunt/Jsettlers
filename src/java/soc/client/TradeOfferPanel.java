@@ -179,9 +179,8 @@ public class TradeOfferPanel extends Panel
           String cname = name.substring(0,1).toUpperCase() + name.substring(1).toLowerCase();
           JButton button = new JButton(cname); 
           button.setSize(new Dimension(fm.stringWidth(name)+2, fm.getHeight()));
-          button.setOpaque(true);          // MacOS paints the background of panel?
-          // button.setBorderPainted(false);  // Stack Overflow says: use JButton & do this.
-          button.setVisible(visible);      // TODO: still not working! no text
+          button.setOpaque(true);          // MacOS paints the background of panel? (Stack Overflow)
+          button.setVisible(visible);
           button.setActionCommand(name);
           button.addActionListener(this);
           add(button);

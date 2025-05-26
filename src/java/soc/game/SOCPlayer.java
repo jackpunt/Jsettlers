@@ -20,16 +20,14 @@
  **/
 package soc.game;
 
-import soc.disableDebug.D;
-
-import soc.util.IntPair;
-import soc.util.NodeLenVis;
-
 import java.io.Serializable;
-
 import java.util.Enumeration;
 import java.util.Stack;
 import java.util.Vector;
+
+import soc.disableDebug.D;
+import soc.util.IntPair;
+import soc.util.NodeLenVis;
 
 
 /**
@@ -62,22 +60,22 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     /**
      * a list of this player's pieces in play
      */
-    private Vector pieces;
+    private Vector<SOCPlayingPiece> pieces;
 
     /**
      * a list of this player's roads in play
      */
-    private Vector roads;
+    private Vector<SOCPlayingPiece> roads;
 
     /**
      * a list of this player's settlements in play
      */
-    private Vector settlements;
+    private Vector<SOCPlayingPiece> settlements;
 
     /**
      * a list of this player's cities in play
      */
-    private Vector cities;
+    private Vector<SOCPlayingPiece> cities;
 
     /**
      * The coordinates of our most recent settlement
@@ -97,7 +95,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     /**
      * list of longest paths
      */
-    private Vector lrPaths;
+    private Vector<SOCLRPathData> lrPaths;
 
     /**
      * how many (min) of each resource this player has
@@ -138,7 +136,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
      * all of the nodes that this player's roads touch
      * this is used to calculate longest road
      */
-    private Vector roadNodes;
+    private Vector<Integer> roadNodes;
 
     /**
      * a graph of what nodes are connected by this
@@ -637,7 +635,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     /**
      * @return the list of pieces in play
      */
-    public Vector getPieces()
+    public Vector<SOCPlayingPiece> getPieces()
     {
         return pieces;
     }
@@ -645,7 +643,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     /**
      * @return the list of roads in play
      */
-    public Vector getRoads()
+    public Vector<SOCPlayingPiece> getRoads()
     {
         return roads;
     }
@@ -653,7 +651,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     /**
      * @return the list of settlements in play
      */
-    public Vector getSettlements()
+    public Vector<SOCPlayingPiece> getSettlements()
     {
         return settlements;
     }
@@ -704,11 +702,11 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
      * set the longest paths vector
      * @param vec  the vector
      */
-    public void setLRPaths(Vector vec)
+    public void setLRPaths(Vector<SOCLRPathData> vec)
     {
         lrPaths.removeAllElements();
 
-        Enumeration enumr = vec.elements();
+        Enumeration<SOCLRPathData> enumr = vec.elements();
 
         while (enumr.hasMoreElements())
         {
@@ -1890,29 +1888,29 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         /**
          * we're doing a depth first search of all possible road paths
          */
-        Stack pending = new Stack();
+        Stack<NodeLenVis> pending = new Stack<NodeLenVis>();
         int longest = 0;
 
-        for (Enumeration e = roadNodes.elements(); e.hasMoreElements();)
+        for (Enumeration<Integer> e = roadNodes.elements(); e.hasMoreElements();)
         {
             Integer roadNode = (Integer) e.nextElement();
             int pathStartCoord = roadNode.intValue();
             int pathEndCoord;
             int pathLength = 0;
-            pending.push(new NodeLenVis(pathStartCoord, 0, new Vector()));
+            pending.push(new NodeLenVis(pathStartCoord, 0, new Vector<IntPair>()));
 
             while (!pending.isEmpty())
             {
                 NodeLenVis curNode = (NodeLenVis) pending.pop();
                 int coord = curNode.node;
                 int len = curNode.len;
-                Vector visited = curNode.vis;
+                Vector<IntPair> visited = curNode.vis;
                 boolean pathEnd = false;
 
                 /**
                  * check for road blocks
                  */
-                Enumeration pEnum = game.getBoard().getPieces().elements();
+                Enumeration<SOCPlayingPiece> pEnum = game.getBoard().getPieces().elements();
 
                 while (pEnum.hasMoreElements())
                 {
@@ -1956,7 +1954,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
 
                         if (!match)
                         {
-                            Vector newVis = (Vector) visited.clone();
+                            Vector<IntPair> newVis = (Vector<IntPair>) visited.clone();
                             newVis.addElement(pair);
                             pending.push(new NodeLenVis(j, len + 1, newVis));
                             pathEnd = false;
@@ -1984,7 +1982,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
 
                         if (!match)
                         {
-                            Vector newVis = (Vector) visited.clone();
+                            Vector<IntPair> newVis = (Vector<IntPair>) visited.clone();
                             newVis.addElement(pair);
                             pending.push(new NodeLenVis(j, len + 1, newVis));
                             pathEnd = false;
@@ -2012,7 +2010,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
 
                         if (!match)
                         {
-                            Vector newVis = (Vector) visited.clone();
+                            Vector<IntPair> newVis = (Vector<IntPair>) visited.clone();
                             newVis.addElement(pair);
                             pending.push(new NodeLenVis(j, len + 1, newVis));
                             pathEnd = false;
@@ -2040,7 +2038,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
 
                         if (!match)
                         {
-                            Vector newVis = (Vector) visited.clone();
+                            Vector<IntPair> newVis = (Vector<IntPair>) visited.clone();
                             newVis.addElement(pair);
                             pending.push(new NodeLenVis(j, len + 1, newVis));
                             pathEnd = false;

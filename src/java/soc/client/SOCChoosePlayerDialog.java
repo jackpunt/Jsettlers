@@ -111,10 +111,10 @@ class SOCChoosePlayerDialog extends SOCDialog implements ActionListener
         int space = 10;
         int vhite = 20;
 
-        int piX = pi.getInsets().left;
-        int piY = pi.getInsets().top;
-        int piWidth = pi.getSize().width - pi.getInsets().left - pi.getInsets().right;
-        int piHeight = pi.getSize().height - pi.getInsets().top - pi.getInsets().bottom;
+        // int piX = pi.getInsets().left;
+        // int piY = pi.getInsets().top;
+        // int piWidth = pi.getSize().width - pi.getInsets().left - pi.getInsets().right;
+        // int piHeight = pi.getSize().height - pi.getInsets().top - pi.getInsets().bottom;
 
         int bwidth = (width - ((number - 1 + 2) * space)) / number;
 

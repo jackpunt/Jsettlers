@@ -69,7 +69,7 @@ public abstract class SOCPlayingPiece implements Serializable, Cloneable
     }
 
     /**
-     * @return the coordinates for this piece
+     * @return the 'int' coordinates for this piece
      */
     public int getCoordinates()
     {

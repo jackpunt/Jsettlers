@@ -2,7 +2,6 @@ package soc.client;
 
 import java.awt.Dialog;
 import java.awt.Rectangle;
-import java.awt.Frame;
 
 /** common routines for Dialog panels. */
 public class SOCDialog extends Dialog {

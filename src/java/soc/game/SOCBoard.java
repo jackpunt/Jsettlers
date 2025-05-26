@@ -159,7 +159,7 @@ public class SOCBoard implements Serializable, Cloneable
      */
     private int[] numberLayout = 
     {
-	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+    	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     };				// 37 elements
     private int[] numToHexID = 
     {

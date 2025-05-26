@@ -1246,7 +1246,7 @@ public class SOCGame implements Serializable, Cloneable
         /**
          * check the hexes touching settlements
          */
-        Enumeration sEnum = player.getSettlements().elements();
+        Enumeration<SOCPlayingPiece> sEnum = player.getSettlements().elements();
 
         while (sEnum.hasMoreElements())
         {

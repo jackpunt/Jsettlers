@@ -44,7 +44,7 @@ public class NodeLenVis
     /**
      * nodes that we have visited along the way
      */
-    public Vector vis;
+    public Vector<IntPair> vis;
 
     /**
      * Creates a new NodeLenVis object.
@@ -53,7 +53,7 @@ public class NodeLenVis
      * @param l DOCUMENT ME!
      * @param v DOCUMENT ME!
      */
-    public NodeLenVis(int n, int l, Vector v)
+    public NodeLenVis(int n, int l, Vector<IntPair> v)
     {
         node = n;
         len = l;

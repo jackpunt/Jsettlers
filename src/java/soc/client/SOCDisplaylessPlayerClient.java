@@ -20,8 +20,14 @@
  **/
 package soc.client;
 
-import soc.disableDebug.D;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.Socket;
+import java.util.Hashtable;
 
+import soc.disableDebug.D;
 import soc.game.SOCBoard;
 import soc.game.SOCCity;
 import soc.game.SOCDevCardSet;
@@ -33,7 +39,6 @@ import soc.game.SOCResourceSet;
 import soc.game.SOCRoad;
 import soc.game.SOCSettlement;
 import soc.game.SOCTradeOffer;
-
 import soc.message.SOCAcceptOffer;
 import soc.message.SOCBCastTextMsg;
 import soc.message.SOCBankTrade;
@@ -95,15 +100,6 @@ import soc.message.SOCStatusMessage;
 import soc.message.SOCTextMsg;
 import soc.message.SOCTurn;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InterruptedIOException;
-
-import java.net.Socket;
-
-import java.util.Hashtable;
-
 
 /**
  * GUI-less standalone client for connecting to the SOCServer.
@@ -151,7 +147,7 @@ public class SOCDisplaylessPlayerClient implements Runnable
     /**
      * the games
      */
-    protected Hashtable games = new Hashtable();
+    protected Hashtable<String, SOCGame> games = new Hashtable<String, SOCGame>();
 
     /**
      * Create a SOCDisplaylessPlayerClient

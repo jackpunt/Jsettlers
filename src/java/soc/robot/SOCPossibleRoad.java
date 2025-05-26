@@ -20,9 +20,9 @@
  **/
 package soc.robot;
 
-import soc.game.SOCPlayer;
-
 import java.util.Vector;
+
+import soc.game.SOCPlayer;
 
 
 /**
@@ -33,8 +33,8 @@ import java.util.Vector;
  */
 public class SOCPossibleRoad extends SOCPossiblePiece
 {
-    protected Vector necessaryRoads;
-    protected Vector newPossibilities;
+    protected Vector<SOCPossibleRoad> necessaryRoads;
+    protected Vector<SOCPossibleRoad> newPossibilities;
     protected int longestRoadValue;
     protected int longestRoadPotential;
     protected int numberOfNecessaryRoads;
@@ -91,7 +91,7 @@ public class SOCPossibleRoad extends SOCPossiblePiece
     /**
      * @return the list of necessary roads
      */
-    public Vector getNecessaryRoads()
+    public Vector<SOCPossibleRoad> getNecessaryRoads()
     {
         return necessaryRoads;
     }
@@ -117,7 +117,7 @@ public class SOCPossibleRoad extends SOCPossiblePiece
     /**
      * @return the list of new possibilities
      */
-    public Vector getNewPossibilities()
+    public Vector<SOCPossibleRoad> getNewPossibilities()
     {
         return newPossibilities;
     }

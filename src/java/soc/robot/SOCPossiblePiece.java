@@ -20,9 +20,9 @@
  **/
 package soc.robot;
 
-import soc.game.SOCPlayer;
-
 import java.util.Vector;
+
+import soc.game.SOCPlayer;
 
 
 /**
@@ -76,12 +76,12 @@ public abstract class SOCPossiblePiece
     /**
      * this is the piece that we need to beat to build this one
      */
-    protected Vector biggestThreats;
+    protected Vector<SOCPossiblePiece> biggestThreats;
 
     /**
      * pieces that threaten this piece
      */
-    protected Vector threats;
+    protected Vector<SOCPossiblePiece> threats;
 
     /**
      * this flag is used for threat updating
@@ -110,7 +110,7 @@ public abstract class SOCPossiblePiece
     }
 
     /**
-     * @return the coordinates for this piece
+     * @return the 'int' coordinates for this piece
      */
     public int getCoordinates()
     {
@@ -209,7 +209,7 @@ public abstract class SOCPossiblePiece
     /**
      * @return the biggest threat
      */
-    public Vector getBiggestThreats()
+    public Vector<SOCPossiblePiece> getBiggestThreats()
     {
         return biggestThreats;
     }
@@ -217,7 +217,7 @@ public abstract class SOCPossiblePiece
     /**
      * @return the list of threats
      */
-    public Vector getThreats()
+    public Vector<SOCPossiblePiece> getThreats()
     {
         return threats;
     }

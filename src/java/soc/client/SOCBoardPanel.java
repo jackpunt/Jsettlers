@@ -41,6 +41,7 @@ import soc.game.SOCBoard;
 import soc.game.SOCCity;
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
+import soc.game.SOCPlayingPiece;
 import soc.game.SOCRoad;
 import soc.game.SOCSettlement;
 
@@ -1033,7 +1034,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         /**
          * draw the roads
          */
-        Enumeration roads = board.getRoads().elements();
+        Enumeration<SOCPlayingPiece> roads = board.getRoads().elements();
 
         while (roads.hasMoreElements())
         {
@@ -1044,7 +1045,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         /**
          * draw the settlements
          */
-        Enumeration settlements = board.getSettlements().elements();
+        Enumeration<SOCPlayingPiece> settlements = board.getSettlements().elements();
 
         while (settlements.hasMoreElements())
         {
@@ -1055,7 +1056,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         /**
          * draw the cities
          */
-        Enumeration cities = board.getCities().elements();
+        Enumeration<SOCPlayingPiece> cities = board.getCities().elements();
 
         while (cities.hasMoreElements())
         {
@@ -1501,8 +1502,8 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
      */
     public void mousePressed(MouseEvent evt)
     {
-        int x = evt.getX() - (getWidth()-panelx)/2;
-        int y = evt.getY();
+        // int x = evt.getX() - (getWidth()-panelx)/2;
+        // int y = evt.getY();
 
         if (hilight > 0)
         {
@@ -1701,9 +1702,9 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
     }
     private static Image getImage(Toolkit tk, Class clazz, MediaTracker tracker, String name)
     {
-	Image img=tk.getImage(clazz.getResource(IMAGEDIR + "/"+name+".gif"));
-	tracker.addImage(img,0);
-	return img;
+        Image img=tk.getImage(clazz.getResource(IMAGEDIR + "/"+name+".gif"));
+        tracker.addImage(img,0);
+        return img;
     }
 
     /**

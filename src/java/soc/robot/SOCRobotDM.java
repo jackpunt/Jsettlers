@@ -20,6 +20,7 @@ import soc.game.SOCResourceSet;
 import soc.game.SOCRoad;
 import soc.game.SOCSettlement;
 import soc.util.CutoffExceededException;
+import soc.util.IntPair;
 import soc.util.NodeLenVis;
 import soc.util.Pair;
 import soc.util.Queue;
@@ -77,10 +78,10 @@ public class SOCRobotDM {
   protected HashMap playerTrackers;
   protected SOCPlayerTracker ourPlayerTracker;
   protected SOCPlayer ourPlayerData;
-  protected Stack buildingPlan;
+  protected Stack<SOCPossiblePiece> buildingPlan;
   protected SOCGame game;
   protected Vector threatenedRoads;
-  protected Vector goodRoads;
+  protected Vector<SOCPossibleRoad> goodRoads;
   protected SOCPossibleRoad favoriteRoad;
   protected Vector threatenedSettlements;
   protected Vector goodSettlements;
@@ -511,7 +512,7 @@ public class SOCRobotDM {
 	  //
 	  // we need to build roads first
 	  //	  
-	  Stack roadPath = favoriteSettlement.getRoadPath();
+	  Stack<SOCPossibleSettlement> roadPath = favoriteSettlement.getRoadPath();
 	  while (!roadPath.empty()) {
 	    buildingPlan.push(roadPath.pop());
 	  }
@@ -778,7 +779,7 @@ public class SOCRobotDM {
   protected void scoreSettlementsForDumb(int settlementETA, SOCBuildingSpeedEstimate ourBSE) {
     D.ebugPrintln("-- scoreSettlementsForDumb --");
     Queue queue = new Queue();
-    Iterator posSetsIter = ourPlayerTracker.getPossibleSettlements().values().iterator();
+    Iterator<SOCPossibleSettlement> posSetsIter = ourPlayerTracker.getPossibleSettlements().values().iterator();
     while (posSetsIter.hasNext()) {
       SOCPossibleSettlement posSet = (SOCPossibleSettlement)posSetsIter.next();
       D.ebugPrintln("Estimate speedup of stlmt at "+game.getBoard().nodeCoordToString(posSet.getCoordinates()));
@@ -787,70 +788,70 @@ public class SOCRobotDM {
       ///
       /// find the shortest path to this settlement
       ///
-      Vector necRoadVec = posSet.getNecessaryRoads();
+      Vector<SOCPossibleRoad> necRoadVec = posSet.getNecessaryRoads();
       if (!necRoadVec.isEmpty()) {
-	queue.clear();
-	Iterator necRoadsIter = necRoadVec.iterator();
-	while (necRoadsIter.hasNext()) {
-	  SOCPossibleRoad necRoad = (SOCPossibleRoad)necRoadsIter.next();
-	  D.ebugPrintln("-- queuing necessary road at "+game.getBoard().edgeCoordToString(necRoad.getCoordinates()));
-	  queue.put(new Pair(necRoad, null));
-	}
-	//
-	// Do a BFS of the necessary road paths looking for the shortest one.
-	//
-	while (!queue.empty()) {
-	  Pair dataPair = (Pair)queue.get();
-	  SOCPossibleRoad curRoad = (SOCPossibleRoad)dataPair.getA();
-	  D.ebugPrintln("-- current road at "+game.getBoard().edgeCoordToString(curRoad.getCoordinates()));
-	  Vector necRoads = curRoad.getNecessaryRoads();
-	  if (necRoads.isEmpty()) {
-	    //
-	    // we have a path 
-	    //
-	    D.ebugPrintln("Found a path!");
-	    Stack path = new Stack();
-	    path.push(curRoad);
-	    Pair curPair = (Pair)dataPair.getB();
-	    D.ebugPrintln("curPair = "+curPair);
-	    while (curPair != null) {
-	      path.push(curPair.getA());
-	      curPair = (Pair)curPair.getB();
-	    }
-	    posSet.setRoadPath(path);
-	    queue.clear();
-	    D.ebugPrintln("Done setting path.");
-	  } else {
-	    necRoadsIter = necRoads.iterator();
-	    while (necRoadsIter.hasNext()) {
-	      SOCPossibleRoad necRoad2 = (SOCPossibleRoad)necRoadsIter.next();
-	      D.ebugPrintln("-- queuing necessary road at "+game.getBoard().edgeCoordToString(necRoad2.getCoordinates()));
-	      queue.put(new Pair(necRoad2, dataPair));
-	    }
-	  }
-	}
-	D.ebugPrintln("Done searching for path.");
+          queue.clear();
+          Iterator<SOCPossibleRoad> necRoadsIter = necRoadVec.iterator();
+          while (necRoadsIter.hasNext()) {
+            SOCPossibleRoad necRoad = (SOCPossibleRoad)necRoadsIter.next();
+            D.ebugPrintln("-- queuing necessary road at "+game.getBoard().edgeCoordToString(necRoad.getCoordinates()));
+            queue.put(new Pair(necRoad, null));
+          }
+          //
+          // Do a BFS of the necessary road paths looking for the shortest one.
+          //
+          while (!queue.empty()) {
+            Pair dataPair = (Pair)queue.get();
+            SOCPossibleRoad curRoad = (SOCPossibleRoad)dataPair.getA();
+            D.ebugPrintln("-- current road at "+game.getBoard().edgeCoordToString(curRoad.getCoordinates()));
+            Vector<SOCPossibleRoad> necRoads = curRoad.getNecessaryRoads();
+            if (necRoads.isEmpty()) {
+              //
+              // we have a path 
+              //
+              D.ebugPrintln("Found a path!");
+              Stack<SOCPossibleRoad> path = new Stack<SOCPossibleRoad>();
+              path.push(curRoad);
+              Pair curPair = (Pair)dataPair.getB();
+              D.ebugPrintln("curPair = "+curPair);
+              while (curPair != null) {
+                path.push((SOCPossibleRoad) curPair.getA());
+                curPair = (Pair)curPair.getB();
+              }
+              posSet.setRoadPath(path);
+              queue.clear();
+              D.ebugPrintln("Done setting path.");
+            } else {
+              necRoadsIter = necRoads.iterator();
+              while (necRoadsIter.hasNext()) {
+                SOCPossibleRoad necRoad2 = necRoadsIter.next();
+                D.ebugPrintln("-- queuing necessary road at "+game.getBoard().edgeCoordToString(necRoad2.getCoordinates()));
+                queue.put(new Pair(necRoad2, dataPair));
+              }
+            }
+          }
+          D.ebugPrintln("Done searching for path.");
 
-	//
-	// calculate ETA
-	//
-	SOCResourceSet targetResources = new SOCResourceSet();
-	targetResources.add(SOCGame.SETTLEMENT_SET);
-	int pathLength = 0;
-	Stack path = posSet.getRoadPath();
-	if (path != null) {
-	  pathLength = path.size();
-	}
-	for (int i = 0; i < pathLength; i++) {
-	  targetResources.add(SOCGame.ROAD_SET);
-	}
-	posSet.setETA(ourBSE.calculateRollsFast(ourPlayerData.getResources(), targetResources, 100, ourPlayerData.getPortFlags()));
+          //
+          // calculate ETA
+          //
+          SOCResourceSet targetResources = new SOCResourceSet();
+          targetResources.add(SOCGame.SETTLEMENT_SET);
+          int pathLength = 0;
+          Stack path = posSet.getRoadPath();
+          if (path != null) {
+            pathLength = path.size();
+          }
+          for (int i = 0; i < pathLength; i++) {
+            targetResources.add(SOCGame.ROAD_SET);
+          }
+          posSet.setETA(ourBSE.calculateRollsFast(ourPlayerData.getResources(), targetResources, 100, ourPlayerData.getPortFlags()));
       } else {
-	//
-	// no roads are necessary
-	//
-	posSet.setRoadPath(null);
-	posSet.setETA(settlementETA);
+          //
+          // no roads are necessary
+          //
+          posSet.setRoadPath(null);
+          posSet.setETA(settlementETA);
       }
       D.ebugPrintln("Settlement ETA = "+posSet.getETA());
     }
@@ -877,8 +878,8 @@ public class SOCRobotDM {
     int longest = 0;
     int numRoads = 500;
     Pair bestPathNode = null;
-    Stack pending = new Stack();
-    pending.push(new Pair(new NodeLenVis(startNode, pathLength, new Vector()), null));
+    Stack<Pair> pending = new Stack<Pair>();
+    pending.push(new Pair(new NodeLenVis(startNode, pathLength, new Vector<IntPair>()), null));
 
     while (!pending.empty()) {
       Pair dataPair = (Pair)pending.pop();
@@ -886,13 +887,13 @@ public class SOCRobotDM {
       D.ebugPrintln("curNode = "+curNode);
       int coord = curNode.node;
       int len = curNode.len;
-      Vector visited = curNode.vis;
+      Vector<IntPair> visited = curNode.vis;
       boolean pathEnd = false;
       
       //
       // check for road blocks 
       //
-      Enumeration pEnum = game.getBoard().getPieces().elements();
+      Enumeration<SOCPlayingPiece> pEnum = game.getBoard().getPieces().elements();
       while (pEnum.hasMoreElements()) {
 	SOCPlayingPiece p = (SOCPlayingPiece)pEnum.nextElement();
 	if ((len > 0) &&
@@ -1145,14 +1146,14 @@ public class SOCRobotDM {
     /// collect roads that we can build now
     ///
     if (ourPlayerData.getNumPieces(SOCPlayingPiece.ROAD) > 0) {
-      Iterator posRoadsIter = ourPlayerTracker.getPossibleRoads().values().iterator();
+      Iterator<SOCPossibleRoad> posRoadsIter = ourPlayerTracker.getPossibleRoads().values().iterator();
       while (posRoadsIter.hasNext()) {
-	SOCPossibleRoad posRoad = (SOCPossibleRoad)posRoadsIter.next();
-	if ((posRoad.getNecessaryRoads().isEmpty()) &&
-	    (!threatenedRoads.contains(posRoad)) &&
-	    (!goodRoads.contains(posRoad))) {
-	  goodRoads.addElement(posRoad);
-	}
+          SOCPossibleRoad posRoad = (SOCPossibleRoad)posRoadsIter.next();
+          if ((posRoad.getNecessaryRoads().isEmpty()) &&
+          (!threatenedRoads.contains(posRoad)) &&
+          (!goodRoads.contains(posRoad))) {
+            goodRoads.addElement(posRoad);
+          }
       }
     }
 

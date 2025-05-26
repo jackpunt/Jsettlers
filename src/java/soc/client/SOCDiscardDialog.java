@@ -144,17 +144,17 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
      */
     public void doLayout()
     {
-        int x = getInsets().left;
-        int y = getInsets().top;
+        // int x = getInsets().left;
+        // int y = getInsets().top;
         int width = getSize().width - getInsets().left - getInsets().right;
         int height = getSize().height - getInsets().top - getInsets().bottom;
         int space = 5;			// leading between rows
         int vhite = 20; // height of text
 
-        int cfx = playerInterface.getInsets().left;
-        int cfy = playerInterface.getInsets().top;
-        int cfwidth = playerInterface.getSize().width - playerInterface.getInsets().left - playerInterface.getInsets().right;
-        int cfheight = playerInterface.getSize().height - playerInterface.getInsets().top - playerInterface.getInsets().bottom;
+        // int cfx = playerInterface.getInsets().left;
+        // int cfy = playerInterface.getInsets().top;
+        // int cfwidth = playerInterface.getSize().width - playerInterface.getInsets().left - playerInterface.getInsets().right;
+        // int cfheight = playerInterface.getSize().height - playerInterface.getInsets().top - playerInterface.getInsets().bottom;
 
         int sqwidth = ColorSquare.WIDTH;
         int sqspace = (width - (5 * sqwidth)) / 5;
