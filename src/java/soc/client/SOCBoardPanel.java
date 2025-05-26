@@ -54,7 +54,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
 {
     private static String IMAGEDIR = "/soc/client/images";
 
-    private static int scalexy = 2; 
+    public static int scalexy = 2; 
     /**
      * size of the whole panel
      */
@@ -725,7 +725,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
       g.drawPolygon(xPoints, yPoints, 6);
     }
 
-    static int portFontSize = scalexy == 1 ? 12 : 20;
+    static int portFontSize = (scalexy == 1) ? 12 : 20;
     static Font threePortFont = new Font(fontFamily, Font.PLAIN, portFontSize);
     static Color threePortColor = new Color(0xffffb4); // light cream
 

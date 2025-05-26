@@ -136,7 +136,7 @@ public class SOCHandPanel extends Panel implements ActionListener
     protected boolean inPlay;
     protected int[] playerSendMap;
     protected TradeOfferPanel offer;
-    public static int fontSize = 14;
+    public static int fontSize = (SOCBoardPanel.scalexy == 1) ? 10 : 14;
     public static Font font = new Font("Helvetica", Font.PLAIN, fontSize);
 
     /**

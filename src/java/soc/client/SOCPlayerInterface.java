@@ -76,8 +76,8 @@ public class SOCPlayerInterface extends Frame implements ActionListener
      * the display for the players' hands
      */
     protected SOCHandPanel[] hands;
-    // (fontSize + 6) * 6 + 10 * (fontSize)
-    static int handWidth=(SOCHandPanel.fontSize+6)*6+8*SOCHandPanel.fontSize; // min or fixed width of hand panel
+    // (fontSize + 6) * 6 + 10 * (fontSize) /// scalexy == 1 ? 188 : 232
+    static int handWidth=(SOCHandPanel.fontSize+6)*6+9*SOCHandPanel.fontSize; // min or fixed width of hand panel
 
     /**
      * the player colors
