@@ -211,17 +211,17 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * roads on the board
      */
-    private Vector<SOCPlayingPiece> roads;
+    private Vector<SOCRoad> roads;
 
     /**
      * settlements on the board
      */
-    private Vector<SOCPlayingPiece> settlements;
+    private Vector<SOCSettlement> settlements;
 
     /**
      * cities on the board
      */
-    private Vector<SOCPlayingPiece> cities;
+    private Vector<SOCCity> cities;
 
     /**
      * random number generator
@@ -248,20 +248,20 @@ public class SOCBoard implements Serializable, Cloneable
         /**
          * initialize the pieces vectors
          */
-        pieces = new Vector(96);
-        roads = new Vector(60);
-        settlements = new Vector(20);
-        cities = new Vector(16);
+        pieces = new Vector<SOCPlayingPiece>(96);
+        roads = new Vector<SOCRoad>(60);
+        settlements = new Vector<SOCSettlement>(20);
+        cities = new Vector<SOCCity>(16);
 
         /**plus
          * initialize the port Vectors; holds Vector of coords for each port tile
          */
-        ports = new Vector[6];
-        ports[MISC_PORT] = new Vector(8); // 8 elements (2 coords per 4 misc port-hex)
+        ports = (Vector<Integer>[]) new Vector[6];
+        ports[MISC_PORT] = new Vector<Integer>(8); // 8 elements (2 coords per 4 misc port-hex)
 
         for (i = MIN_PORT; i <= MAX_PORT; i++)
         {
-            ports[i] = new Vector(2); // 2 elements (2 coords per resource port-hex)
+            ports[i] = new Vector<Integer>(2); // 2 elements (2 coords per resource port-hex)
         }
 
         /**
@@ -335,9 +335,9 @@ public class SOCBoard implements Serializable, Cloneable
       	// place shuffled stack on hex map in this order: (these are the grid numbers)
         int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
         int i;
-        int j;
-        int idx;
-        int tmp;
+        // int j;
+        // int idx;
+        // int tmp;
 
         permuteInt(landHex);
 
@@ -524,7 +524,7 @@ public class SOCBoard implements Serializable, Cloneable
      *
      * @param portType  the type of port
      */
-    public Vector getPortCoordinates(int portType)
+    public Vector<Integer> getPortCoordinates(int portType)
     {
         return ports[portType];
     }
@@ -600,17 +600,17 @@ public class SOCBoard implements Serializable, Cloneable
         switch (pp.getType())
         {
         case SOCPlayingPiece.ROAD:
-            roads.addElement(pp);
+            roads.addElement((SOCRoad)pp);
 
             break;
 
         case SOCPlayingPiece.SETTLEMENT:
-            settlements.addElement(pp);
+            settlements.addElement((SOCSettlement)pp);
 
             break;
 
         case SOCPlayingPiece.CITY:
-            cities.addElement(pp);
+            cities.addElement((SOCCity)pp);
 
             break;
         }
@@ -665,7 +665,7 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * get the list of roads
      */
-    public Vector<SOCPlayingPiece> getRoads()
+    public Vector<SOCRoad> getRoads()
     {
         return roads;
     }
@@ -673,7 +673,7 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * get the list of settlements
      */
-    public Vector<SOCPlayingPiece> getSettlements()
+    public Vector<SOCSettlement> getSettlements()
     {
         return settlements;
     }
@@ -681,7 +681,7 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * get the list of cities
      */
-    public Vector<SOCPlayingPiece> getCities()
+    public Vector<SOCCity> getCities()
     {
         return cities;
     }

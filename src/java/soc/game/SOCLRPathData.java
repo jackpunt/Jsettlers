@@ -22,6 +22,8 @@ package soc.game;
 
 import java.util.Vector;
 
+import soc.util.IntPair;
+
 
 /**
  * DOCUMENT ME!
@@ -34,7 +36,7 @@ public class SOCLRPathData
     private int beginningCoord;
     private int endCoord;
     private int length;
-    private Vector nodePairs;
+    private Vector<IntPair> nodePairs;
 
     /**
      * Creates a new SOCLRPathData object.
@@ -77,7 +79,7 @@ public class SOCLRPathData
      *
      * @return DOCUMENT ME!
      */
-    public Vector getNodePairs()
+    public Vector<IntPair> getNodePairs()
     {
         return nodePairs;
     }

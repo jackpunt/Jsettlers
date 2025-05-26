@@ -34,7 +34,7 @@ import soc.game.SOCPlayer;
 public class SOCPossibleRoad extends SOCPossiblePiece
 {
     protected Vector<SOCPossibleRoad> necessaryRoads;
-    protected Vector<SOCPossibleRoad> newPossibilities;
+    protected Vector<SOCPossiblePiece> newPossibilities;
     protected int longestRoadValue;
     protected int longestRoadPotential;
     protected int numberOfNecessaryRoads;
@@ -46,16 +46,16 @@ public class SOCPossibleRoad extends SOCPossiblePiece
      * @param co  coordinates
      * @param nr  necessaryRoads
      */
-    public SOCPossibleRoad(SOCPlayer pl, int co, Vector nr)
+    public SOCPossibleRoad(SOCPlayer pl, int co, Vector<SOCPossibleRoad> nr)
     {
         pieceType = SOCPossiblePiece.ROAD;
         player = pl;
         coord = co;
         necessaryRoads = nr;
         eta = 0;
-        threats = new Vector();
-        biggestThreats = new Vector();
-        newPossibilities = new Vector();
+        threats = new Vector<SOCPossiblePiece>();
+        biggestThreats = new Vector<SOCPossiblePiece>();
+        newPossibilities = new Vector<SOCPossiblePiece>();
         longestRoadValue = 0;
         longestRoadPotential = 0;
         threatUpdatedFlag = false;
@@ -76,11 +76,11 @@ public class SOCPossibleRoad extends SOCPossiblePiece
         pieceType = SOCPossiblePiece.ROAD;
         player = pr.getPlayer();
         coord = pr.getCoordinates();
-        necessaryRoads = new Vector(pr.getNecessaryRoads().size());
+        necessaryRoads = new Vector<SOCPossibleRoad>(pr.getNecessaryRoads().size());
         eta = pr.getETA();
-        threats = new Vector();
-        biggestThreats = new Vector();
-        newPossibilities = new Vector(pr.getNewPossibilities().size());
+        threats = new Vector<SOCPossiblePiece>();
+        biggestThreats = new Vector<SOCPossiblePiece>();
+        newPossibilities = new Vector<SOCPossiblePiece>(pr.getNewPossibilities().size());
         longestRoadValue = pr.getLRValue();
         longestRoadPotential = pr.getLRPotential();
         threatUpdatedFlag = false;
@@ -117,7 +117,7 @@ public class SOCPossibleRoad extends SOCPossiblePiece
     /**
      * @return the list of new possibilities
      */
-    public Vector<SOCPossibleRoad> getNewPossibilities()
+    public Vector<SOCPossiblePiece> getNewPossibilities()
     {
         return newPossibilities;
     }

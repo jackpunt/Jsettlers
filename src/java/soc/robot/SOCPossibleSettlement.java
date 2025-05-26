@@ -54,8 +54,8 @@ public class SOCPossibleSettlement extends SOCPossiblePiece
         coord = co;
         necessaryRoads = nr;
         eta = 0;
-        threats = new Vector();
-        biggestThreats = new Vector();
+        threats = new Vector<SOCPossiblePiece>();
+        biggestThreats = new Vector<SOCPossiblePiece>();
         conflicts = new Vector<SOCPossibleSettlement>();
         threatUpdatedFlag = false;
         hasBeenExpanded = false;
@@ -80,8 +80,8 @@ public class SOCPossibleSettlement extends SOCPossiblePiece
         coord = ps.getCoordinates();
         necessaryRoads = new Vector<SOCPossibleRoad>(ps.getNecessaryRoads().size());
         eta = ps.getETA();
-        threats = new Vector();
-        biggestThreats = new Vector();
+        threats = new Vector<SOCPossiblePiece>();
+        biggestThreats = new Vector<SOCPossiblePiece>();
         conflicts = new Vector<SOCPossibleSettlement>(ps.getConflicts().size());
         threatUpdatedFlag = false;
         hasBeenExpanded = false;

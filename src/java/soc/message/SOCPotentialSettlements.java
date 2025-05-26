@@ -45,7 +45,7 @@ public class SOCPotentialSettlements extends SOCMessage
     /**
      * List of potential settlements
      */
-    private Vector psList;
+    private Vector<Integer> psList;
 
     /**
      * Create a SOCPotentialSettlements message.
@@ -54,7 +54,7 @@ public class SOCPotentialSettlements extends SOCMessage
      * @param pn  the player number
      * @param ps  the list of potential settlements
      */
-    public SOCPotentialSettlements(String ga, int pn, Vector ps)
+    public SOCPotentialSettlements(String ga, int pn, Vector<Integer> ps)
     {
         messageType = POTENTIALSETTLEMENTS;
         game = ga;
@@ -81,7 +81,7 @@ public class SOCPotentialSettlements extends SOCMessage
     /**
      * @return the list of potential settlements
      */
-    public Vector getPotentialSettlements()
+    public Vector<Integer> getPotentialSettlements()
     {
         return psList;
     }
@@ -104,14 +104,14 @@ public class SOCPotentialSettlements extends SOCMessage
      * @param ps  the list of potential settlements
      * @return    the command string
      */
-    public static String toCmd(String ga, int pn, Vector ps)
+    public static String toCmd(String ga, int pn, Vector<Integer> ps)
     {
         String cmd = POTENTIALSETTLEMENTS + sep + ga + sep2 + pn;
-        Enumeration enumr = ps.elements();
+        Enumeration<Integer> enumr = ps.elements();
 
         while (enumr.hasMoreElements())
         {
-            Integer number = (Integer) enumr.nextElement();
+            Integer number = enumr.nextElement();
             cmd += (sep2 + number);
         }
 
@@ -128,7 +128,7 @@ public class SOCPotentialSettlements extends SOCMessage
     {
         String ga;
         int pn;
-        Vector ps = new Vector();
+        Vector<Integer> ps = new Vector<Integer>();
 
         StringTokenizer st = new StringTokenizer(s, sep2);
 
@@ -139,7 +139,7 @@ public class SOCPotentialSettlements extends SOCMessage
 
             while (st.hasMoreTokens())
             {
-                ps.addElement(new Integer(Integer.parseInt(st.nextToken())));
+                ps.addElement(Integer.parseInt(st.nextToken()));
             }
         }
         catch (Exception e)
@@ -156,7 +156,7 @@ public class SOCPotentialSettlements extends SOCMessage
     public String toString()
     {
         String s = "SOCPotentialSettlements:game=" + game + "|playerNum=" + playerNumber + "|list=";
-        Enumeration enumr = psList.elements();
+        Enumeration<Integer> enumr = psList.elements();
 
         while (enumr.hasMoreElements())
         {

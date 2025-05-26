@@ -20,14 +20,18 @@
  **/
 package soc.robot;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
+
 import soc.client.SOCDisplaylessPlayerClient;
-
 import soc.disableDebug.D;
-
 import soc.game.SOCBoard;
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
-
 import soc.message.SOCAcceptOffer;
 import soc.message.SOCAdminPing;
 import soc.message.SOCAdminReset;
@@ -69,19 +73,9 @@ import soc.message.SOCSitDown;
 import soc.message.SOCStartGame;
 import soc.message.SOCTurn;
 import soc.message.SOCUpdateRobotParams;
-
 import soc.util.CappedQueue;
 import soc.util.CutoffExceededException;
 import soc.util.SOCRobotParameters;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
-import java.net.Socket;
-
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
 
 
 /**
@@ -110,17 +104,17 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     /**
      * the robot's "brains" for diferent games
      */
-    private Hashtable robotBrains = new Hashtable();
+    private Hashtable<String, SOCRobotBrain> robotBrains = new Hashtable<String, SOCRobotBrain> ();
 
     /**
      * the message queues for the different brains
      */
-    private Hashtable brainQs = new Hashtable();
+    private Hashtable<String, CappedQueue> brainQs = new Hashtable<String, CappedQueue>();
 
     /**
      * a table of requests from the server to sit at games
      */
-    private Hashtable seatRequests = new Hashtable();
+    private Hashtable<String, Integer> seatRequests = new Hashtable<String, Integer>();
 
     /**
      * number of games this bot has played
@@ -601,7 +595,7 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
     protected void handleJOINGAMEREQUEST(SOCJoinGameRequest mes)
     {
         D.ebugPrintln("**** handleJOINGAMEREQUEST ****");
-        seatRequests.put(mes.getGame(), new Integer(mes.getPlayerNumber()));
+        seatRequests.put(mes.getGame(), mes.getPlayerNumber());
 
         if (put(SOCJoinGame.toCmd(nickname, password, host, mes.getGame())))
         {
@@ -700,15 +694,15 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
             if ((brain != null) && (brain.getDRecorder().isOn()))
             {
-                Vector record = brain.getDRecorder().getRecord(CURRENT_PLANS);
+                Vector<String> record = brain.getDRecorder().getRecord(CURRENT_PLANS);
 
                 if (record != null)
                 {
-                    Enumeration enumr = record.elements();
+                    Enumeration<String> enumr = record.elements();
 
                     while (enumr.hasMoreElements())
                     {
-                        String str = (String) enumr.nextElement();
+                        String str = enumr.nextElement();
                         sendText(ga, str);
                     }
                 }
@@ -722,15 +716,15 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
             if ((brain != null) && (brain.getDRecorder().isOn()))
             {
-                Vector record = brain.getDRecorder().getRecord(CURRENT_RESOURCES);
+                Vector<String> record = brain.getDRecorder().getRecord(CURRENT_RESOURCES);
 
                 if (record != null)
                 {
-                    Enumeration enumr = record.elements();
+                    Enumeration<String> enumr = record.elements();
 
                     while (enumr.hasMoreElements())
                     {
-                        String str = (String) enumr.nextElement();
+                        String str = enumr.nextElement();
                         sendText(ga, str);
                     }
                 }
@@ -743,16 +737,16 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
             if ((brain != null) && (brain.getDRecorder().isOn()))
             {
-                Vector record = brain.getOldDRecorder().getRecord(CURRENT_PLANS);
+                Vector<String> record = brain.getOldDRecorder().getRecord(CURRENT_PLANS);
 
                 if (record != null)
                 {
                     SOCGame ga = (SOCGame) games.get(mes.getGame());
-                    Enumeration enumr = record.elements();
+                    Enumeration<String> enumr = record.elements();
 
                     while (enumr.hasMoreElements())
                     {
-                        String str = (String) enumr.nextElement();
+                        String str = enumr.nextElement();
                         sendText(ga, str);
                     }
                 }
@@ -765,16 +759,16 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
 
             if ((brain != null) && (brain.getDRecorder().isOn()))
             {
-                Vector record = brain.getOldDRecorder().getRecord(CURRENT_RESOURCES);
+                Vector<String> record = brain.getOldDRecorder().getRecord(CURRENT_RESOURCES);
 
                 if (record != null)
                 {
                     SOCGame ga = (SOCGame) games.get(mes.getGame());
-                    Enumeration enumr = record.elements();
+                    Enumeration<String> enumr = record.elements();
 
                     while (enumr.hasMoreElements())
                     {
-                        String str = (String) enumr.nextElement();
+                        String str = enumr.nextElement();
                         sendText(ga, str);
                     }
                 }
@@ -816,16 +810,16 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                         break;
                     }
 
-                    Vector record = brain.getOldDRecorder().getRecord(key);
+                    Vector<String> record = brain.getOldDRecorder().getRecord(key);
 
                     if (record != null)
                     {
                         SOCGame ga = (SOCGame) games.get(mes.getGame());
-                        Enumeration enumr = record.elements();
+                        Enumeration<String> enumr = record.elements();
 
                         while (enumr.hasMoreElements())
                         {
-                            String str = (String) enumr.nextElement();
+                            String str = enumr.nextElement();
                             sendText(ga, str);
                         }
                     }
@@ -859,16 +853,16 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                     key = "CITY" + tokens[2].trim();
                 }
 
-                Vector record = brain.getOldDRecorder().getRecord(key);
+                Vector<String> record = brain.getOldDRecorder().getRecord(key);
 
                 if (record != null)
                 {
                     SOCGame ga = (SOCGame) games.get(mes.getGame());
-                    Enumeration enumr = record.elements();
+                    Enumeration<String> enumr = record.elements();
 
                     while (enumr.hasMoreElements())
                     {
-                        String str = (String) enumr.nextElement();
+                        String str = enumr.nextElement();
                         sendText(ga, str);
                     }
                 }
@@ -910,16 +904,16 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                         break;
                     }
 
-                    Vector record = brain.getDRecorder().getRecord(key);
+                    Vector<String> record = brain.getDRecorder().getRecord(key);
 
                     if (record != null)
                     {
                         SOCGame ga = (SOCGame) games.get(mes.getGame());
-                        Enumeration enumr = record.elements();
+                        Enumeration<String> enumr = record.elements();
 
                         while (enumr.hasMoreElements())
                         {
-                            String str = (String) enumr.nextElement();
+                            String str = enumr.nextElement();
                             sendText(ga, str);
                         }
                     }
@@ -953,16 +947,16 @@ public class SOCRobotClient extends SOCDisplaylessPlayerClient
                     key = "CITY" + tokens[2].trim();
                 }
 
-                Vector record = brain.getDRecorder().getRecord(key);
+                Vector<String> record = brain.getDRecorder().getRecord(key);
 
                 if (record != null)
                 {
                     SOCGame ga = (SOCGame) games.get(mes.getGame());
-                    Enumeration enumr = record.elements();
+                    Enumeration<String> enumr = record.elements();
 
                     while (enumr.hasMoreElements())
                     {
-                        String str = (String) enumr.nextElement();
+                        String str = enumr.nextElement();
                         sendText(ga, str);
                     }
                 }

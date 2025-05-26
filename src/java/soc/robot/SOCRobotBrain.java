@@ -20,8 +20,15 @@
  **/
 package soc.robot;
 
-import soc.disableDebug.D;		// 
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.Stack;
+import java.util.Vector;
 
+import soc.disableDebug.D;		// 
 import soc.game.SOCBoard;
 import soc.game.SOCCity;
 import soc.game.SOCDevCardConstants;
@@ -35,7 +42,6 @@ import soc.game.SOCResourceSet;
 import soc.game.SOCRoad;
 import soc.game.SOCSettlement;
 import soc.game.SOCTradeOffer;
-
 import soc.message.SOCAcceptOffer;
 import soc.message.SOCChoosePlayerRequest;
 import soc.message.SOCClearOffer;
@@ -57,22 +63,11 @@ import soc.message.SOCResourceCount;
 import soc.message.SOCSetPlayedDevCard;
 import soc.message.SOCSetTurn;
 import soc.message.SOCTurn;
-
 import soc.server.SOCServer;
-
 import soc.util.CappedQueue;
-import soc.util.CutoffExceededException;
 import soc.util.DebugRecorder;
 import soc.util.Queue;
 import soc.util.SOCRobotParameters;
-
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Stack;
-import java.util.Vector;
 
 
 /**
@@ -150,7 +145,7 @@ public class SOCRobotBrain extends Thread
     /**
      * This is our current building plan
      */
-    protected Stack buildingPlan;
+    protected Stack<SOCPossiblePiece> buildingPlan;
 
     /**
      * these are the two resources that we want
@@ -171,7 +166,7 @@ public class SOCRobotBrain extends Thread
     /**
      * trackers for all players
      */
-    protected HashMap playerTrackers;
+    protected HashMap<Integer, SOCPlayerTracker> playerTrackers;
 
     /**
      * the thing that determines what we want to build next
@@ -433,7 +428,7 @@ public class SOCRobotBrain extends Thread
             offerRejections[i] = false;
         }
 
-        buildingPlan = new Stack();
+        buildingPlan = new Stack<SOCPossiblePiece>();
         resourceChoices = new SOCResourceSet();
         resourceChoices.add(2, SOCResourceConstants.CLAY);
         monopolyChoice = SOCResourceConstants.SHEEP;
@@ -463,7 +458,7 @@ public class SOCRobotBrain extends Thread
     /**
      * @return the player trackers
      */
-    public HashMap getPlayerTrackers()
+    public HashMap<Integer, SOCPlayerTracker> getPlayerTrackers()
     {
         return playerTrackers;
     }
@@ -495,7 +490,7 @@ public class SOCRobotBrain extends Thread
     /**
      * @return the building plan
      */
-    public Stack getBuildingPlan()
+    public Stack<SOCPossiblePiece> getBuildingPlan()
     {
         return buildingPlan;
     }
@@ -565,15 +560,15 @@ public class SOCRobotBrain extends Thread
     {
         ourPlayerData = game.getPlayer(client.getNickname());
         ourPlayerTracker = new SOCPlayerTracker(ourPlayerData, this);
-        playerTrackers = new HashMap();
-        playerTrackers.put(new Integer(ourPlayerData.getPlayerNumber()), ourPlayerTracker);
+        playerTrackers = new HashMap<Integer, SOCPlayerTracker>();
+        playerTrackers.put(ourPlayerData.getPlayerNumber(), ourPlayerTracker);
 
         for (int pn = 0; pn < SOCGame.MAXPLAYERS; pn++)
         {
             if (pn != ourPlayerData.getPlayerNumber())
             {
                 SOCPlayerTracker tracker = new SOCPlayerTracker(game.getPlayer(pn), this);
-                playerTrackers.put(new Integer(pn), tracker);
+                playerTrackers.put(pn, tracker);
             }
         }
 
@@ -1852,11 +1847,11 @@ public class SOCRobotBrain extends Thread
                         case SOCPlayingPiece.ROAD:
 
                             SOCRoad newRoad = new SOCRoad(game.getPlayer(((SOCPutPiece) mes).getPlayerNumber()), ((SOCPutPiece) mes).getCoordinates());
-                            Iterator trackersIter = playerTrackers.values().iterator();
+                            Iterator<SOCPlayerTracker> trackersIter = playerTrackers.values().iterator();
 
                             while (trackersIter.hasNext())
                             {
-                                SOCPlayerTracker tracker = (SOCPlayerTracker) trackersIter.next();
+                                SOCPlayerTracker tracker = trackersIter.next();
                                 tracker.takeMonitor();
 
                                 try
@@ -1882,18 +1877,18 @@ public class SOCRobotBrain extends Thread
 
                                 try
                                 {
-                                    Iterator posRoadsIter = tracker.getPossibleRoads().values().iterator();
+                                    Iterator<SOCPossibleRoad> posRoadsIter = tracker.getPossibleRoads().values().iterator();
 
                                     while (posRoadsIter.hasNext())
                                     {
-                                        ((SOCPossibleRoad) posRoadsIter.next()).clearThreats();
+                                        posRoadsIter.next().clearThreats();
                                     }
 
-                                    Iterator posSetsIter = tracker.getPossibleSettlements().values().iterator();
+                                    Iterator<SOCPossibleSettlement> posSetsIter = tracker.getPossibleSettlements().values().iterator();
 
                                     while (posSetsIter.hasNext())
                                     {
-                                        ((SOCPossibleSettlement) posSetsIter.next()).clearThreats();
+                                        posSetsIter.next().clearThreats();
                                     }
                                 }
                                 catch (Exception e)
@@ -1955,18 +1950,18 @@ public class SOCRobotBrain extends Thread
                             while (trackersIter.hasNext())
                             {
                                 SOCPlayerTracker tracker = (SOCPlayerTracker) trackersIter.next();
-                                Iterator posRoadsIter = tracker.getPossibleRoads().values().iterator();
+                                Iterator<SOCPossibleRoad> posRoadsIter = tracker.getPossibleRoads().values().iterator();
 
                                 while (posRoadsIter.hasNext())
                                 {
-                                    ((SOCPossibleRoad) posRoadsIter.next()).clearThreats();
+                                    posRoadsIter.next().clearThreats();
                                 }
 
-                                Iterator posSetsIter = tracker.getPossibleSettlements().values().iterator();
+                                Iterator<SOCPossibleSettlement> posSetsIter = tracker.getPossibleSettlements().values().iterator();
 
                                 while (posSetsIter.hasNext())
                                 {
-                                    ((SOCPossibleSettlement) posSetsIter.next()).clearThreats();
+                                    posSetsIter.next().clearThreats();
                                 }
                             }
 
@@ -1982,12 +1977,12 @@ public class SOCRobotBrain extends Thread
                             /// see if this settlement bisected someone elses road
                             ///
                             int[] roadCount = { 0, 0, 0, 0 };
-                            Enumeration adjEdgeEnum = SOCBoard.getAdjacentEdgesToNode(((SOCPutPiece) mes).getCoordinates()).elements();
+                            Enumeration<Integer>adjEdgeEnum = SOCBoard.getAdjacentEdgesToNode(((SOCPutPiece) mes).getCoordinates()).elements();
 
                             while (adjEdgeEnum.hasMoreElements())
                             {
-                                Integer adjEdge = (Integer) adjEdgeEnum.nextElement();
-                                Enumeration roadEnum = game.getBoard().getRoads().elements();
+                                Integer adjEdge = adjEdgeEnum.nextElement();
+                                Enumeration<SOCRoad> roadEnum =  game.getBoard().getRoads().elements();
 
                                 while (roadEnum.hasMoreElements())
                                 {
@@ -2037,11 +2032,11 @@ public class SOCRobotBrain extends Thread
 
                                 if (tracker.getPlayer().getPlayerNumber() == ((SOCPutPiece) mes).getPlayerNumber())
                                 {
-                                    Iterator posSetsIter = tracker.getPossibleSettlements().values().iterator();
+                                    Iterator<SOCPossibleSettlement> posSetsIter = tracker.getPossibleSettlements().values().iterator();
 
                                     while (posSetsIter.hasNext())
                                     {
-                                        ((SOCPossibleSettlement) posSetsIter.next()).updateSpeedup();
+                                        posSetsIter.next().updateSpeedup();
                                     }
 
                                     break;
@@ -2059,11 +2054,11 @@ public class SOCRobotBrain extends Thread
 
                                 if (tracker.getPlayer().getPlayerNumber() == ((SOCPutPiece) mes).getPlayerNumber())
                                 {
-                                    Iterator posCitiesIter = tracker.getPossibleCities().values().iterator();
+                                    Iterator<SOCPossibleCity> posCitiesIter = tracker.getPossibleCities().values().iterator();
 
                                     while (posCitiesIter.hasNext())
                                     {
-                                        ((SOCPossibleCity) posCitiesIter.next()).updateSpeedup();
+                                        posCitiesIter.next().updateSpeedup();
                                     }
 
                                     break;
@@ -2100,11 +2095,11 @@ public class SOCRobotBrain extends Thread
 
                                 if (tracker.getPlayer().getPlayerNumber() == ((SOCPutPiece) mes).getPlayerNumber())
                                 {
-                                    Iterator posSetsIter = tracker.getPossibleSettlements().values().iterator();
+                                    Iterator<SOCPossibleSettlement> posSetsIter = tracker.getPossibleSettlements().values().iterator();
 
                                     while (posSetsIter.hasNext())
                                     {
-                                        ((SOCPossibleSettlement) posSetsIter.next()).updateSpeedup();
+                                        posSetsIter.next().updateSpeedup();
                                     }
 
                                     break;
@@ -2122,11 +2117,11 @@ public class SOCRobotBrain extends Thread
 
                                 if (tracker.getPlayer().getPlayerNumber() == ((SOCPutPiece) mes).getPlayerNumber())
                                 {
-                                    Iterator posCitiesIter = tracker.getPossibleCities().values().iterator();
+                                    Iterator<SOCPossibleCity> posCitiesIter = tracker.getPossibleCities().values().iterator();
 
                                     while (posCitiesIter.hasNext())
                                     {
-                                        ((SOCPossibleCity) posCitiesIter.next()).updateSpeedup();
+                                        posCitiesIter.next().updateSpeedup();
                                     }
 
                                     break;
@@ -2277,8 +2272,8 @@ public class SOCRobotBrain extends Thread
     }
 
     void handleResourceElement(SOCPlayer pl, SOCPlayerElement mes, int rsc) {
-	SOCResourceSet rs = pl.getResources();
-	SOCResourceSet ur = pl.getUResources();
+    SOCResourceSet rs = pl.getResources();
+    SOCResourceSet ur = pl.getUResources();
 
 	int mv = mes.getValue();
 
@@ -2346,11 +2341,11 @@ public class SOCRobotBrain extends Thread
     }
 
     protected int addNumbersForHex(SOCBoard board, SOCPlayerNumbers playerNumbers , int node) {
-	Enumeration hexes = SOCBoard.getAdjacentHexesToNode(node).elements();
+	Enumeration<Integer> hexes = SOCBoard.getAdjacentHexesToNode(node).elements();
 	int probTotal = 0;
 
 	while (hexes.hasMoreElements()) {
-	    int hex = ((Integer) hexes.nextElement()).intValue();
+	    int hex = hexes.nextElement().intValue();
 	    int number = board.getNumberOnHexFromCoord(hex);
 	    int resource = board.getHexTypeFromCoord(hex);
 	    playerNumbers.addNumberForResource(number, resource, hex);
@@ -2367,7 +2362,7 @@ public class SOCRobotBrain extends Thread
 
     protected void markPortType(SOCBoard board, boolean[] ports, int node) {
 	D.ebugPrint(" ports:");
-	Integer nodeInt = new Integer(node);
+	Integer nodeInt = node;
 	for (int portType = SOCBoard.MISC_PORT; portType <= SOCBoard.MAX_PORT; portType++) {
 	    ports[portType] = (board.getPortCoordinates(portType).contains(nodeInt));
 	    D.ebugPrint(" " + ports[portType]);
@@ -2406,7 +2401,7 @@ public class SOCRobotBrain extends Thread
         {
             if (ourPlayerData.isPotentialSettlement(firstNode))
             {
-                Integer firstNodeInt = new Integer(firstNode);
+                Integer firstNodeInt = (firstNode);
 
                 //
                 // this is just for testing purposes
@@ -2571,19 +2566,19 @@ public class SOCRobotBrain extends Thread
         SOCBuildingSpeedEstimate estimate = new SOCBuildingSpeedEstimate();
         int probTotal;
         int bestProbTotal;
-        int[] prob = SOCNumberProbabilities.INT_VALUES;
+        // int[] prob = SOCNumberProbabilities.INT_VALUES;
         int firstNode = firstSettlement;
-        Integer firstNodeInt = new Integer(firstNode);
+        Integer firstNodeInt = (firstNode);
 
         bestProbTotal = 0;
         secondSettlement = -1;
 
         for (int secondNode = 0x23; secondNode < 0xDC; secondNode++)
         {
-	    // i would expect that our firstSettlement is already on the board 
-	    // along with the other players' settlements...
+            // i would expect that our firstSettlement is already on the board 
+            // along with the other players' settlements...
             if ((ourPlayerData.isPotentialSettlement(secondNode)) &&
-		(!SOCBoard.getAdjacentNodesToNode(secondNode).contains(firstNodeInt)))
+		            (!SOCBoard.getAdjacentNodesToNode(secondNode).contains(firstNodeInt)))
             {
                 /**
                  * get the numbers for these settlements
@@ -2591,11 +2586,11 @@ public class SOCRobotBrain extends Thread
                 playerNumbers.clear();
                 probTotal = 0;
                 D.ebugPrint("numbers: [");
-		probTotal += addNumbersForHex(board, playerNumbers, firstNode);
-		D.ebugPrint("] [");
-		probTotal += addNumbersForHex(board, playerNumbers, secondNode);
-		D.ebugPrint("]");
-		markPortType(board, ports, firstNode, secondNode);
+                probTotal += addNumbersForHex(board, playerNumbers, firstNode);
+                D.ebugPrint("] [");
+                probTotal += addNumbersForHex(board, playerNumbers, secondNode);
+                D.ebugPrint("]");
+                markPortType(board, ports, firstNode, secondNode);
                 D.ebugPrintln();
 
                 D.ebugPrintln(" probTotal = " + probTotal);
@@ -2606,13 +2601,13 @@ public class SOCRobotBrain extends Thread
                 estimate.recalculateEstimates(playerNumbers);
 
                 int speed = 0;	// estimated rolls to produce resources
-		boolean allTheWay = true; 
+	            	boolean allTheWay = true; 
 		
-		// see if rolls-to-resources is low for this pair:
-		for (int rst = SOCBuildingSpeedEstimate.MIN; rst < SOCBuildingSpeedEstimate.MAXPLUSONE; rst++) {
-		    if (speed > bestSpeed) { allTheWay = false; break; }
-		    speed += estimate.calculateRollsFast(emptySet, SOCBuildingSpeedEstimate.buildTargets[rst], bestSpeed, ports);
-		}
+                // see if rolls-to-resources is low for this pair:
+                for (int rst = SOCBuildingSpeedEstimate.MIN; rst < SOCBuildingSpeedEstimate.MAXPLUSONE; rst++) {
+                    if (speed > bestSpeed) { allTheWay = false; break; }
+                    speed += estimate.calculateRollsFast(emptySet, SOCBuildingSpeedEstimate.buildTargets[rst], bestSpeed, ports);
+                }
 
                 D.ebugPrintln(Integer.toHexString(firstNode) + ", " + Integer.toHexString(secondNode) + ":" + speed);
 
@@ -2672,7 +2667,7 @@ public class SOCRobotBrain extends Thread
     public void placeInitRoad()
     {
         int settlementNode = ourPlayerData.getLastSettlementCoord();
-        Hashtable twoAway = new Hashtable();
+        Hashtable<Integer, Integer> twoAway = new Hashtable<Integer, Integer>();
 
         D.ebugPrintln("--- placeInitRoad");
 
@@ -2686,42 +2681,42 @@ public class SOCRobotBrain extends Thread
 
         if ((tmp >= SOCBoard.MINNODE) && (tmp <= SOCBoard.MAXNODE) && (ourPlayerData.isPotentialSettlement(tmp)))
         {
-            twoAway.put(new Integer(tmp), new Integer(0));
+            twoAway.put(tmp, 0);
         }
 
         tmp = settlementNode + 0x02;
 
         if ((tmp >= SOCBoard.MINNODE) && (tmp <= SOCBoard.MAXNODE) && (ourPlayerData.isPotentialSettlement(tmp)))
         {
-            twoAway.put(new Integer(tmp), new Integer(0));
+            twoAway.put(tmp, 0);
         }
 
         tmp = settlementNode + 0x22;
 
         if ((tmp >= SOCBoard.MINNODE) && (tmp <= SOCBoard.MAXNODE) && (ourPlayerData.isPotentialSettlement(tmp)))
         {
-            twoAway.put(new Integer(tmp), new Integer(0));
+            twoAway.put(tmp, 0);
         }
 
         tmp = settlementNode + 0x20;
 
         if ((tmp >= SOCBoard.MINNODE) && (tmp <= SOCBoard.MAXNODE) && (ourPlayerData.isPotentialSettlement(tmp)))
         {
-            twoAway.put(new Integer(tmp), new Integer(0));
+            twoAway.put(tmp, 0);
         }
 
         tmp = settlementNode - 0x02;
 
         if ((tmp >= SOCBoard.MINNODE) && (tmp <= SOCBoard.MAXNODE) && (ourPlayerData.isPotentialSettlement(tmp)))
         {
-            twoAway.put(new Integer(tmp), new Integer(0));
+            twoAway.put(tmp, 0);
         }
 
         tmp = settlementNode - 0x22;
 
         if ((tmp >= SOCBoard.MINNODE) && (tmp <= SOCBoard.MAXNODE) && (ourPlayerData.isPotentialSettlement(tmp)))
         {
-            twoAway.put(new Integer(tmp), new Integer(0));
+            twoAway.put(tmp, 0);
         }
 
         scoreNodesForSettlements(twoAway, 3, 5, 10);
@@ -2749,14 +2744,14 @@ public class SOCRobotBrain extends Thread
                 /**
                  * rule out where other players are going to build
                  */
-                Hashtable allNodes = new Hashtable();
+                Hashtable<Integer, Integer> allNodes = new Hashtable<Integer, Integer>();
 
                 for (int i = 0x23; i < 0xDC; i++)
                 {
                     if (ourPlayerData.isPotentialSettlement(i))
                     {
                         D.ebugPrintln("-- potential settlement at " + Integer.toHexString(i));
-                        allNodes.put(new Integer(i), new Integer(0));
+                        allNodes.put(i, 0);
                     }
                 }
 
@@ -2771,7 +2766,7 @@ public class SOCRobotBrain extends Thread
                 /**
                  * check 3:1 ports
                  */
-                Vector miscPortNodes = game.getBoard().getPortCoordinates(SOCBoard.MISC_PORT);
+                Vector<Integer> miscPortNodes = game.getBoard().getPortCoordinates(SOCBoard.MISC_PORT);
                 bestSpot2AwayFromANodeSet(allNodes, miscPortNodes, 5);
 
                 /**
@@ -2786,7 +2781,7 @@ public class SOCRobotBrain extends Thread
                      */
                     if (resourceEstimates[portType] > 33)
                     {
-                        Vector portNodes = game.getBoard().getPortCoordinates(portType);
+                        Vector<Integer> portNodes = game.getBoard().getPortCoordinates(portType);
                         int portWeight = (resourceEstimates[portType] * 10) / 56;
                         bestSpot2AwayFromANodeSet(allNodes, portNodes, portWeight);
                     }
@@ -2796,14 +2791,14 @@ public class SOCRobotBrain extends Thread
                  * create a list of potential settlements that takes into account
                  * where other players will build
                  */
-                Vector psList = new Vector();
+                Vector<Integer> psList = new Vector<Integer>();
 
                 for (int j = 0x23; j <= 0xDC; j++)
                 {
                     if (ourPlayerData.isPotentialSettlement(j))
                     {
                         D.ebugPrintln("- potential settlement at " + Integer.toHexString(j));
-                        psList.addElement(new Integer(j));
+                        psList.addElement(j);
                     }
                 }
 
@@ -2811,14 +2806,14 @@ public class SOCRobotBrain extends Thread
 
                 for (int builds = 0; builds < numberOfBuilds; builds++)
                 {
-		    //BoardNodeScorePair bestNodePair = findBestScoringNode(allNodes);
+		                //BoardNodeScorePair bestNodePair = findBestScoringNode(allNodes);
                     BoardNodeScorePair bestNodePair = new BoardNodeScorePair(0, 0);
-                    Enumeration nodesEnum = allNodes.keys();
+                    Enumeration<Integer> nodesEnum = allNodes.keys();
 
                     while (nodesEnum.hasMoreElements())
                     {
-                        Integer nodeCoord = (Integer) nodesEnum.nextElement();
-                        Integer score = (Integer) allNodes.get(nodeCoord);
+                        Integer nodeCoord = nodesEnum.nextElement();
+                        Integer score = allNodes.get(nodeCoord);
                         D.ebugPrintln("NODE = " + Integer.toHexString(nodeCoord.intValue()) + " SCORE = " + score);
 
                         if (bestNodePair.getScore() < score.intValue())
@@ -2836,7 +2831,7 @@ public class SOCRobotBrain extends Thread
                     /**
                      * remove this spot from the list of best spots
                      */
-                    allNodes.remove(new Integer(bestNodePair.getNode()));
+                    allNodes.remove(bestNodePair.getNode());
                 }
             }
         }
@@ -2845,13 +2840,13 @@ public class SOCRobotBrain extends Thread
          * Find the best-scoring node
          */
         BoardNodeScorePair bestNodePair = new BoardNodeScorePair(0, 0);
-        Enumeration enumr = twoAway.keys();
+        Enumeration<Integer> enumr = twoAway.keys();
 
         while (enumr.hasMoreElements())
         {
-	    Integer icoord = (Integer) enumr.nextElement();
+	          Integer icoord = enumr.nextElement();
             int coord = icoord.intValue();
-            int score = ((Integer) twoAway.get(icoord)).intValue();
+            int score = twoAway.get(icoord).intValue();
 
             D.ebugPrintln("Considering " + Integer.toHexString(coord) + " with a score of " + score);
 
@@ -2964,26 +2959,26 @@ public class SOCRobotBrain extends Thread
      * @param nodes    the table of nodes with scores
      * @param weight   a number that is multiplied by the score
      */
-    protected void bestSpotForNumbers(Hashtable nodes, int weight)
+    protected void bestSpotForNumbers(Hashtable<Integer, Integer> nodes, int weight)
     {
         int[] numRating = SOCNumberProbabilities.INT_VALUES;
         SOCBoard board = game.getBoard();
         int oldScore;
-        Enumeration nodesEnum = nodes.keys();
+        Enumeration<Integer> nodesEnum = nodes.keys();
 
         while (nodesEnum.hasMoreElements())
         {
-            Integer node = (Integer) nodesEnum.nextElement();
+            Integer node = nodesEnum.nextElement();
 
             //D.ebugPrintln("BSN - looking at node "+Integer.toHexString(node.intValue()));
-            oldScore = ((Integer) nodes.get(node)).intValue();
+            oldScore = nodes.get(node).intValue();
 
             int score = 0;
-            Enumeration hexesEnum = SOCBoard.getAdjacentHexesToNode(node.intValue()).elements();
+            Enumeration<Integer> hexesEnum = SOCBoard.getAdjacentHexesToNode(node.intValue()).elements();
 
             while (hexesEnum.hasMoreElements())
             {
-                Integer hex = (Integer) hexesEnum.nextElement();
+                Integer hex = hexesEnum.nextElement();
                 score += numRating[board.getNumberOnHexFromCoord(hex.intValue())];
 
                 //D.ebugPrintln(" -- -- Adding "+numRating[board.getNumberOnHexFromCoord(hex.intValue())]);
@@ -2995,7 +2990,7 @@ public class SOCRobotBrain extends Thread
              * lowest score is 0
              */
             int nScore = ((score * 100) / 40) * weight;
-            Integer finalScore = new Integer(nScore + oldScore);
+            Integer finalScore = (nScore + oldScore);
             nodes.put(node, finalScore);
 
             //D.ebugPrintln("BSN -- put node "+Integer.toHexString(node.intValue())+" with old score "+oldScore+" + new score "+nScore);
@@ -3013,26 +3008,26 @@ public class SOCRobotBrain extends Thread
      * @param player   the player that we are doing the rating for
      * @param weight   a number that is multiplied by the score
      */
-    protected void bestSpotForNumbers(Hashtable nodes, SOCPlayer player, int weight)
+    protected void bestSpotForNumbers(Hashtable<Integer, Integer> nodes, SOCPlayer player, int weight)
     {
         int[] numRating = SOCNumberProbabilities.INT_VALUES;
         SOCBoard board = game.getBoard();
         int oldScore;
-        Enumeration nodesEnum = nodes.keys();
+        Enumeration<Integer> nodesEnum = nodes.keys();
 
         while (nodesEnum.hasMoreElements())
         {
-            Integer node = (Integer) nodesEnum.nextElement();
+            Integer node = nodesEnum.nextElement();
 
             //D.ebugPrintln("BSN - looking at node "+Integer.toHexString(node.intValue()));
-            oldScore = ((Integer) nodes.get(node)).intValue();
+            oldScore = nodes.get(node).intValue();
 
             int score = 0;
-            Enumeration hexesEnum = SOCBoard.getAdjacentHexesToNode(node.intValue()).elements();
+            Enumeration<Integer> hexesEnum = SOCBoard.getAdjacentHexesToNode(node.intValue()).elements();
 
             while (hexesEnum.hasMoreElements())
             {
-                int hex = ((Integer) hexesEnum.nextElement()).intValue();
+                int hex = hexesEnum.nextElement().intValue();
                 int number = board.getNumberOnHexFromCoord(hex);
                 score += numRating[number];
 
@@ -3055,7 +3050,7 @@ public class SOCRobotBrain extends Thread
              * lowest score is 0
              */
             int nScore = ((score * 100) / 80) * weight;
-            Integer finalScore = new Integer(nScore + oldScore);
+            Integer finalScore = (nScore + oldScore);
             nodes.put(node, finalScore);
 
             //D.ebugPrintln("BSN -- put node "+Integer.toHexString(node.intValue())+" with old score "+oldScore+" + new score "+nScore);
@@ -3074,22 +3069,22 @@ public class SOCRobotBrain extends Thread
      * @param nodeSet   the set of desired nodes
      * @param weight    the score multiplier
      */
-    protected void bestSpot2AwayFromANodeSet(Hashtable nodesIn, Vector nodeSet, int weight)
+    protected void bestSpot2AwayFromANodeSet(Hashtable<Integer, Integer> nodesIn, Vector<Integer> nodeSet, int weight)
     {
-        Enumeration nodesInEnum = nodesIn.keys();
+        Enumeration<Integer> nodesInEnum = nodesIn.keys();
 
         while (nodesInEnum.hasMoreElements())
         {
-            Integer nodeCoord = (Integer) nodesInEnum.nextElement();
+            Integer nodeCoord = nodesInEnum.nextElement();
             int node = nodeCoord.intValue();
             int score = 0;
-            int oldScore = ((Integer) nodesIn.get(nodeCoord)).intValue();
+            int oldScore = nodesIn.get(nodeCoord).intValue();
 
-            Enumeration nodeSetEnum = nodeSet.elements();
+            Enumeration<Integer> nodeSetEnum = nodeSet.elements();
 
             while (nodeSetEnum.hasMoreElements())
             {
-                int target = ((Integer) nodeSetEnum.nextElement()).intValue();
+                int target = nodeSetEnum.nextElement().intValue();
 
                 if (node == target)
                 {
@@ -3126,7 +3121,7 @@ public class SOCRobotBrain extends Thread
              */
             score *= weight;
 
-            nodesIn.put(nodeCoord, new Integer(oldScore + score));
+            nodesIn.put(nodeCoord, (oldScore + score));
 
             //D.ebugPrintln("BS2AFANS -- put node "+Integer.toHexString(node)+" with old score "+oldScore+" + new score "+score);
         }
@@ -3144,22 +3139,22 @@ public class SOCRobotBrain extends Thread
      * @param nodeSet   the set of desired nodes
      * @param weight    the score multiplier
      */
-    protected void bestSpotInANodeSet(Hashtable nodesIn, Vector nodeSet, int weight)
+    protected void bestSpotInANodeSet(Hashtable<Integer, Integer> nodesIn, Vector<Integer> nodeSet, int weight)
     {
-        Enumeration nodesInEnum = nodesIn.keys();
+        Enumeration<Integer> nodesInEnum = nodesIn.keys();
 
         while (nodesInEnum.hasMoreElements())
         {
             Integer nodeCoord = (Integer) nodesInEnum.nextElement();
             int node = nodeCoord.intValue();
             int score = 0;
-            int oldScore = ((Integer) nodesIn.get(nodeCoord)).intValue();
+            int oldScore = nodesIn.get(nodeCoord).intValue();
 
-            Enumeration nodeSetEnum = nodeSet.elements();
+            Enumeration<Integer> nodeSetEnum = nodeSet.elements();
 
             while (nodeSetEnum.hasMoreElements())
             {
-                int target = ((Integer) nodeSetEnum.nextElement()).intValue();
+                int target = nodeSetEnum.nextElement().intValue();
 
                 if (node == target)
                 {
@@ -3174,7 +3169,7 @@ public class SOCRobotBrain extends Thread
              */
             score *= weight;
 
-            nodesIn.put(nodeCoord, new Integer(oldScore + score));
+            nodesIn.put(nodeCoord, (oldScore + score));
 
             //D.ebugPrintln("BSIANS -- put node "+Integer.toHexString(node)+" with old score "+oldScore+" + new score "+score);
         }
@@ -3201,11 +3196,11 @@ public class SOCRobotBrain extends Thread
          * decide which player we want to thwart
          */
         int[] winGameETAs = { 100, 100, 100, 100 };
-        Iterator trackersIter = playerTrackers.values().iterator();
+        Iterator<SOCPlayerTracker> trackersIter = playerTrackers.values().iterator();
 
         while (trackersIter.hasNext())
         {
-            SOCPlayerTracker tracker = (SOCPlayerTracker) trackersIter.next();
+            SOCPlayerTracker tracker = trackersIter.next();
             D.ebugPrintln("%%%%%%%%% TRACKER FOR PLAYER " + tracker.getPlayer().getPlayerNumber());
 
             try
@@ -3451,18 +3446,17 @@ public class SOCRobotBrain extends Thread
             /**
              *  choose discards at random
              */
-            Vector hand = new Vector(16);
+            Vector<Integer> hand = new Vector<Integer>(16);
             int cnt = 0;
 
             // System.err.println("resources="+ourPlayerData.getResources());
             for (int rsrcType = SOCResourceConstants.MIN;
                     rsrcType < SOCResourceConstants.MAX;
-		    rsrcType++)
+		                rsrcType++)
             {
-                for (int i = ourPlayerData.getResources().getAmount(rsrcType);
-                        i != 0; i--)
+                for (int i = ourPlayerData.getResources().getAmount(rsrcType); i != 0; i--)
                 {
-                    hand.addElement(new Integer(rsrcType));
+                    hand.addElement(rsrcType);
 
                     // System.err.println("rsrcType="+rsrcType);
                 }
@@ -3474,10 +3468,10 @@ public class SOCRobotBrain extends Thread
             for (; numDiscards > 0; numDiscards--)
             {
                 // System.err.println("numDiscards="+numDiscards+"|hand.size="+hand.size());
-		int idx = rand.nextInt(hand.size());
+		            int idx = rand.nextInt(hand.size());
 
                 // System.err.println("idx="+idx);
-                discards.add(1, ((Integer) hand.elementAt(idx)).intValue());
+                discards.add(1, hand.elementAt(idx).intValue());
                 hand.removeElementAt(idx);
             }
         }
@@ -3509,8 +3503,8 @@ public class SOCRobotBrain extends Thread
                 }
                 else
                 {
-                    SOCPlayerTracker tracker1 = (SOCPlayerTracker) playerTrackers.get(new Integer(i));
-                    SOCPlayerTracker tracker2 = (SOCPlayerTracker) playerTrackers.get(new Integer(choice));
+                    SOCPlayerTracker tracker1 = playerTrackers.get(i);
+                    SOCPlayerTracker tracker2 =  playerTrackers.get(choice);
 
                     if ((tracker1 != null) && (tracker2 != null) && (tracker1.getWinGameETA() < tracker2.getWinGameETA()))
                     {
@@ -3597,15 +3591,15 @@ public class SOCRobotBrain extends Thread
      * @param nodes  the table of nodes/edges
      * @return the best scoring pair
      */
-    protected BoardNodeScorePair findBestScoringNode(Hashtable nodes)
+    protected BoardNodeScorePair findBestScoringNode(Hashtable<Integer, Integer> nodes)
     {
         BoardNodeScorePair bestNodePair = new BoardNodeScorePair(0, -1);
-        Enumeration nodesEnum = nodes.keys();
+        Enumeration<Integer> nodesEnum = nodes.keys();
 
         while (nodesEnum.hasMoreElements())
         {
-            Integer nodeCoord = (Integer) nodesEnum.nextElement();
-            Integer score = (Integer) nodes.get(nodeCoord);
+            Integer nodeCoord = nodesEnum.nextElement();
+            Integer score = nodes.get(nodeCoord);
 
             //D.ebugPrintln("Checking:"+Integer.toHexString(nodeCoord.intValue())+" score:"+score);
             if (bestNodePair.getScore() < score.intValue())
@@ -3629,7 +3623,7 @@ public class SOCRobotBrain extends Thread
      * @param miscPortWeight the weight given to nodes on 3:1 ports
      * @param portWeight     the weight given to nodes on good 2:1 ports
      */
-    protected void scoreNodesForSettlements(Hashtable nodes, int numberWeight, int miscPortWeight, int portWeight)
+    protected void scoreNodesForSettlements(Hashtable<Integer, Integer> nodes, int numberWeight, int miscPortWeight, int portWeight)
     {
         /**
          * favor spots with the most high numbers
@@ -3644,7 +3638,7 @@ public class SOCRobotBrain extends Thread
          */
         if (!ourPlayerData.getPortFlag(SOCBoard.MISC_PORT))
         {
-            Vector miscPortNodes = game.getBoard().getPortCoordinates(SOCBoard.MISC_PORT);
+            Vector<Integer> miscPortNodes = game.getBoard().getPortCoordinates(SOCBoard.MISC_PORT);
             bestSpotInANodeSet(nodes, miscPortNodes, miscPortWeight);
         }
 
@@ -3653,8 +3647,7 @@ public class SOCRobotBrain extends Thread
          */
         int[] resourceEstimates = estimateResourceRarity();
 
-        for (int portType = SOCBoard.MIN_PORT; portType <= SOCBoard.MAX_PORT;
-                portType++)
+        for (int portType = SOCBoard.MIN_PORT; portType <= SOCBoard.MAX_PORT; portType++)
         {
             /**
              * if the chances of rolling a number on the resource is better than 1/3,
@@ -3662,7 +3655,7 @@ public class SOCRobotBrain extends Thread
              */
             if ((resourceEstimates[portType] > 33) && (!ourPlayerData.getPortFlag(portType)))
             {
-                Vector portNodes = game.getBoard().getPortCoordinates(portType);
+                Vector<Integer> portNodes = game.getBoard().getPortCoordinates(portType);
                 int estimatedPortWeight = (resourceEstimates[portType] * portWeight) / 56;
                 bestSpotInANodeSet(nodes, portNodes, estimatedPortWeight);
             }
@@ -3679,7 +3672,7 @@ public class SOCRobotBrain extends Thread
          * make with the bank or ports
          */
         SOCTradeTree treeRoot = new SOCTradeTree(ourPlayerData.getResources(), (SOCTradeTree) null);
-        Hashtable treeNodes = new Hashtable();
+        Hashtable<SOCResourceSet, SOCTradeTree> treeNodes = new Hashtable<SOCResourceSet, SOCTradeTree>();
         treeNodes.put(treeRoot.getResourceSet(), treeRoot);
 
         Queue queue = new Queue();
@@ -3692,11 +3685,11 @@ public class SOCRobotBrain extends Thread
             //D.ebugPrintln("%%% Expanding "+currentTreeNode.getResourceSet());
             expandTradeTreeNode(currentTreeNode, treeNodes);
 
-            Enumeration childrenEnum = currentTreeNode.getChildren().elements();
+            Enumeration<SOCTradeTree> childrenEnum = currentTreeNode.getChildren().elements();
 
             while (childrenEnum.hasMoreElements())
             {
-                SOCTradeTree child = (SOCTradeTree) childrenEnum.nextElement();
+                SOCTradeTree child = childrenEnum.nextElement();
 
                 //D.ebugPrintln("%%% Child "+child.getResourceSet());
                 if (child.needsToBeExpanded())
@@ -3715,11 +3708,11 @@ public class SOCRobotBrain extends Thread
          */
         SOCResourceSet bestTradeOutcome = null;
         int bestTradeScore = -1;
-        Enumeration possibleTrades = treeNodes.keys();
+        Enumeration<SOCResourceSet> possibleTrades = treeNodes.keys();
 
         while (possibleTrades.hasMoreElements())
         {
-            SOCResourceSet possibleTradeOutcome = (SOCResourceSet) possibleTrades.nextElement();
+            SOCResourceSet possibleTradeOutcome = possibleTrades.nextElement();
 
             //D.ebugPrintln("%%% "+possibleTradeOutcome);
             int score = scoreTradeOutcome(possibleTradeOutcome);
@@ -3738,8 +3731,8 @@ public class SOCRobotBrain extends Thread
          * then pop outcomes off of the stack and perfoem
          * the trade to get each outcome
          */
-        Stack stack = new Stack();
-        SOCTradeTree cursor = (SOCTradeTree) treeNodes.get(bestTradeOutcome);
+        Stack<SOCTradeTree> stack = new Stack<SOCTradeTree>();
+        SOCTradeTree cursor = treeNodes.get(bestTradeOutcome);
 
         while (cursor != treeRoot)
         {
@@ -3792,7 +3785,7 @@ public class SOCRobotBrain extends Thread
      * @param currentTreeNode   the tree node that we're expanding
      * @param table  the table of all of the nodes in the tree except this one
      */
-    protected void expandTradeTreeNode(SOCTradeTree currentTreeNode, Hashtable table)
+    protected void expandTradeTreeNode(SOCTradeTree currentTreeNode, Hashtable<SOCResourceSet, SOCTradeTree> table)
     {
         /**
          * the resources that we have to work with
@@ -3850,11 +3843,11 @@ public class SOCRobotBrain extends Thread
                          * equal to or worse than a trade we've already seen,
                          * then we don't want to expand this tree node
                          */
-                        Enumeration tableEnum = table.keys();
+                        Enumeration<SOCResourceSet> tableEnum = table.keys();
 
                         while (tableEnum.hasMoreElements())
                         {
-                            SOCResourceSet oldTradeResult = (SOCResourceSet) tableEnum.nextElement();
+                            SOCResourceSet oldTradeResult = tableEnum.nextElement();
 
                             /*
                                //D.ebugPrintln("%%%     "+newTradeResult);

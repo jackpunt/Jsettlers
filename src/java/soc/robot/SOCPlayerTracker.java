@@ -40,6 +40,7 @@ import soc.game.SOCPlayerNumbers;
 import soc.game.SOCPlayingPiece;
 import soc.game.SOCRoad;
 import soc.game.SOCSettlement;
+import soc.util.IntPair;
 import soc.util.NodeLenVis;
 import soc.util.Pair;
 import soc.util.Queue;
@@ -192,8 +193,8 @@ public class SOCPlayerTracker
 
             while (posRoadsIter.hasNext())
             {
-                SOCPossibleRoad posRoad = (SOCPossibleRoad) posRoadsIter.next();
-                SOCPossibleRoad posRoadCopy = (SOCPossibleRoad) possibleRoadsCopy.get(new Integer(posRoad.getCoordinates()));
+                SOCPossibleRoad posRoad = posRoadsIter.next();
+                SOCPossibleRoad posRoadCopy = possibleRoadsCopy.get(posRoad.getCoordinates());
 
                 //D.ebugPrintln(">>> posRoad     : "+posRoad);
                 //D.ebugPrintln(">>> posRoadCopy : "+posRoadCopy);
@@ -201,14 +202,14 @@ public class SOCPlayerTracker
 
                 while (necRoadsIter.hasNext())
                 {
-                    SOCPossibleRoad necRoad = (SOCPossibleRoad) necRoadsIter.next();
+                    SOCPossibleRoad necRoad = necRoadsIter.next();
 
                     //D.ebugPrintln(">> posRoad.necRoad : "+necRoad);
                     //
                     // now find the copy of this necessary road and 
                     // add it to the pos road copy's nec road list
                     //
-                    SOCPossibleRoad necRoadCopy = (SOCPossibleRoad) possibleRoadsCopy.get(new Integer(necRoad.getCoordinates()));
+                    SOCPossibleRoad necRoadCopy = possibleRoadsCopy.get(necRoad.getCoordinates());
 
                     if (necRoadCopy != null)
                     {
@@ -220,11 +221,11 @@ public class SOCPlayerTracker
                     }
                 }
 
-                Iterator<SOCPossibleRoad> newPosIter = posRoad.getNewPossibilities().iterator();
+                Iterator<SOCPossiblePiece> newPosIter = posRoad.getNewPossibilities().iterator();
 
                 while (newPosIter.hasNext())
                 {
-                    SOCPossiblePiece newPos = (SOCPossiblePiece) newPosIter.next();
+                    SOCPossiblePiece newPos = newPosIter.next();
 
                     //D.ebugPrintln(">> posRoad.newPos : "+newPos);
                     //
@@ -235,7 +236,7 @@ public class SOCPlayerTracker
                     {
                     case SOCPossiblePiece.ROAD:
 
-                        SOCPossibleRoad newPosRoadCopy = (SOCPossibleRoad) possibleRoadsCopy.get(new Integer(newPos.getCoordinates()));
+                        SOCPossibleRoad newPosRoadCopy = possibleRoadsCopy.get(newPos.getCoordinates());
 
                         if (newPosRoadCopy != null)
                         {
@@ -250,7 +251,7 @@ public class SOCPlayerTracker
 
                     case SOCPossiblePiece.SETTLEMENT:
 
-                        SOCPossibleSettlement newPosSettlementCopy = (SOCPossibleSettlement) possibleSettlementsCopy.get(new Integer(newPos.getCoordinates()));
+                        SOCPossibleSettlement newPosSettlementCopy = possibleSettlementsCopy.get(newPos.getCoordinates());
 
                         if (newPosSettlementCopy != null)
                         {
@@ -600,7 +601,7 @@ public class SOCPlayerTracker
 
         while (newPREnum.hasMoreElements())
         {
-            SOCPossibleRoad newPR = (SOCPossibleRoad) newPREnum.nextElement();
+            SOCPossibleRoad newPR = newPREnum.nextElement();
             possibleRoads.put(newPR.getCoordinates(), newPR);
         }
 
@@ -608,11 +609,11 @@ public class SOCPlayerTracker
         // expand possible roads that we've touched or added
         //
         SOCPlayer dummy = new SOCPlayer(player);
-        Enumeration expandPREnum = roadsToExpand.elements();
+        Enumeration<SOCPossibleRoad> expandPREnum = roadsToExpand.elements();
 
         while (expandPREnum.hasMoreElements())
         {
-            SOCPossibleRoad expandPR = (SOCPossibleRoad) expandPREnum.nextElement();
+            SOCPossibleRoad expandPR = expandPREnum.nextElement();
             expandRoad(expandPR, player, dummy, trackers, expandLevel);
         }
 
@@ -942,6 +943,7 @@ public class SOCPlayerTracker
             /**
              * copy a list of all the conflicting settlements
              */
+            @SuppressWarnings("unchecked")
             Vector<SOCPossibleSettlement> conflicts = (Vector<SOCPossibleSettlement>) ps.getConflicts().clone();
 
             /**
@@ -1485,7 +1487,7 @@ public class SOCPlayerTracker
 
                     if (tracker.getPlayer().getPlayerNumber() != ourPlayerNumber)
                     {
-                        SOCPossibleRoad posEnemyRoad = (SOCPossibleRoad) tracker.getPossibleRoads().get(new Integer(posRoad.getCoordinates()));
+                        SOCPossibleRoad posEnemyRoad = tracker.getPossibleRoads().get(new Integer(posRoad.getCoordinates()));
 
                         if (posEnemyRoad != null)
                         {
@@ -1832,8 +1834,8 @@ public class SOCPlayerTracker
         //
         int longest = 0;
         int numRoads = 500;
-        Stack pending = new Stack();
-        pending.push(new NodeLenVis(startNode, pathLength, new Vector()));
+        Stack<NodeLenVis> pending = new Stack<NodeLenVis>();
+        pending.push(new NodeLenVis(startNode, pathLength, new Vector<IntPair>()));
 
         while (!pending.empty())
         {
@@ -1906,7 +1908,7 @@ public class SOCPlayerTracker
                 boolean match;
 
                 j = coord - 0x11;
-                edge = new Integer(j);
+                edge = (j);
                 match = false;
 
                 if ((j >= SOCBoard.MINEDGE) && (j <= SOCBoard.MAXEDGE) && (player.isLegalRoad(j)))
@@ -1926,7 +1928,8 @@ public class SOCPlayerTracker
 
                     if (!match)
                     {
-                        Vector newVis = (Vector) visited.clone();
+                      @SuppressWarnings("unchecked")
+                      Vector<Integer> newVis = (Vector<Integer>) visited.clone();
                         newVis.addElement(edge);
 
                         // node coord and edge coord are the same
@@ -3483,9 +3486,9 @@ public class SOCPlayerTracker
      *
      * @return a copy of the player trackers with the new piece in place
      */
-    public static HashMap tryPutPiece(SOCPlayingPiece piece, SOCGame game, HashMap trackers)
+    public static HashMap<Integer, SOCPlayerTracker> tryPutPiece(SOCPlayingPiece piece, SOCGame game, HashMap trackers)
     {
-        HashMap trackersCopy = SOCPlayerTracker.copyPlayerTrackers(trackers);
+        HashMap<Integer, SOCPlayerTracker> trackersCopy = SOCPlayerTracker.copyPlayerTrackers(trackers);
 
         if (piece != null)
         {

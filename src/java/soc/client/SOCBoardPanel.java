@@ -41,7 +41,6 @@ import soc.game.SOCBoard;
 import soc.game.SOCCity;
 import soc.game.SOCGame;
 import soc.game.SOCPlayer;
-import soc.game.SOCPlayingPiece;
 import soc.game.SOCRoad;
 import soc.game.SOCSettlement;
 
@@ -1034,7 +1033,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         /**
          * draw the roads
          */
-        Enumeration<SOCPlayingPiece> roads = board.getRoads().elements();
+        Enumeration<SOCRoad> roads = board.getRoads().elements();
 
         while (roads.hasMoreElements())
         {
@@ -1045,7 +1044,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         /**
          * draw the settlements
          */
-        Enumeration<SOCPlayingPiece> settlements = board.getSettlements().elements();
+        Enumeration<SOCSettlement> settlements = board.getSettlements().elements();
 
         while (settlements.hasMoreElements())
         {
@@ -1056,7 +1055,7 @@ public class SOCBoardPanel extends Canvas implements MouseListener, MouseMotionL
         /**
          * draw the cities
          */
-        Enumeration<SOCPlayingPiece> cities = board.getCities().elements();
+        Enumeration<SOCCity> cities = board.getCities().elements();
 
         while (cities.hasMoreElements())
         {

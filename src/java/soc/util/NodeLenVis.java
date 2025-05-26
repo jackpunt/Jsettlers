@@ -29,7 +29,7 @@ import java.util.Vector;
  * @author $author$
  * @version $Revision: 1.1 $
  */
-public class NodeLenVis
+public class NodeLenVis<T>
 {
     /**
      * the coordinates of a node
@@ -44,16 +44,16 @@ public class NodeLenVis
     /**
      * nodes that we have visited along the way
      */
-    public Vector<IntPair> vis;
+    public Vector<T> vis;
 
     /**
      * Creates a new NodeLenVis object.
      *
-     * @param n DOCUMENT ME!
-     * @param l DOCUMENT ME!
-     * @param v DOCUMENT ME!
+     * @param n node coordinates
+     * @param l length of path we're going down
+     * @param v Vector< T > of visited nodes 
      */
-    public NodeLenVis(int n, int l, Vector<IntPair> v)
+    public NodeLenVis(int n, int l, Vector<T> v)
     {
         node = n;
         len = l;
