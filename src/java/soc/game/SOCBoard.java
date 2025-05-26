@@ -201,27 +201,27 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * where the ports are: elts={node1_ID, node2_ID}
      */
-    private Vector[] ports;
+    private Vector<Integer>[] ports;
 
     /**
      * pieces on the board
      */
-    private Vector pieces;
+    private Vector<SOCPlayingPiece> pieces;
 
     /**
      * roads on the board
      */
-    private Vector roads;
+    private Vector<SOCPlayingPiece> roads;
 
     /**
      * settlements on the board
      */
-    private Vector settlements;
+    private Vector<SOCPlayingPiece> settlements;
 
     /**
      * cities on the board
      */
-    private Vector cities;
+    private Vector<SOCPlayingPiece> cities;
 
     /**
      * random number generator
@@ -292,42 +292,55 @@ public class SOCBoard implements Serializable, Cloneable
         for (i = 0x72; i <= 0xD8; i += 0x11) {nodesOnBoard[i]=true;}
     }
 
+    /** permute given array in place. */
+    <T> void permute (T[] ary) {
+        int len = ary.length - 1;
+        for (int i = len; i > 0; i--) {
+          int ndx = rand.nextInt(i + 1);
+          T tmp = ary[i];
+          ary[i] = ary[ndx];
+          ary[ndx] = tmp;
+        }
+    }
+    void permuteInt (int[] ary) {
+        int len = ary.length - 1;
+        for (int i = len; i > 0; i--) {
+          int ndx = rand.nextInt(i + 1);
+          int tmp = ary[i];
+          ary[i] = ary[ndx];
+          ary[ndx] = tmp;
+        }
+    }
+
     /**
      * Shuffle the hex tiles and layout a board
      */
     public void makeNewBoard()
     {
-	// there are 8 water, 8 port, 19 land tiles: 37 total
+      	// there are 8 water, 8 port, 19 land tiles: 37 total
         // 19 land tiles:
-	int[] landHex = { DESERT_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+      	int[] landHex = { DESERT_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
 			  SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, 
 			  WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, 
 			  WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, };
-	// 8 port tiles: { 0,0,0,0,1,2,3,4,5}
+	      // 8 port tiles: { 0,0,0,0,1,2,3,4,5}
         int[] portHex = { MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
 			  CLAY_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX };
 	
-	// A,B,C,...Q; indicating which die roll activates this resource tile:
-	// 0-9 -> [2-6,8-12]  (also -1 for the desert)
+        // A,B,C,...Q; indicating which die roll activates this resource tile:
+        // 0-9 -> [2-6,8-12]  (also -1 for the desert)
         // int[] number = { 3, 0, 4, 1, 5, 7, 6, 9, 8, 2, 5, 7, 6, 2, 3, 4, 1, 8 };
         // use direct dice numbers:
         int[] number = { 5, 2, 6, 3, 8,10, 9,12,11, 4, 8,10, 9, 4, 5, 6, 3,11 };
-	// place shuffled stack on hex map in this order: (these are the grid numbers)
+      	// place shuffled stack on hex map in this order: (these are the grid numbers)
         int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
         int i;
         int j;
         int idx;
         int tmp;
 
-	for (i = 0; i < landHex.length; i++)
-            {
-		// Select ith card from random idx in range [i..length)  : (idx<length)
-                idx = i+rand.nextInt(landHex.length - i);
-                tmp = landHex[idx];
-                landHex[idx] = landHex[i];
-                landHex[i] = tmp;
-            }
-	
+        permuteInt(landHex);
+
         int cnt = 0;
 
         for (i = 0; i < landHex.length; i++)
@@ -350,13 +363,7 @@ public class SOCBoard implements Serializable, Cloneable
         }
 
         // shuffle the ports
-	for (i = 0; i < portHex.length; i++) {
-	    // select a card not yet assigned:
-	    idx = i + rand.nextInt(portHex.length - i);
-	    tmp = portHex[idx];
-	    portHex[idx] = portHex[i];
-	    portHex[i] = tmp;	// put it in the i-th slot
-	}
+        permuteInt(portHex);
 
         // set ports in place and orientation: the ports
         placePort(portHex[0],  0, 3);
@@ -367,10 +374,10 @@ public class SOCBoard implements Serializable, Cloneable
         placePort(portHex[5], 22, 2);
         placePort(portHex[6], 32, 6);
         placePort(portHex[7], 33, 1);
-	placePort(portHex[8], 35, 6);
+	      placePort(portHex[8], 35, 6);
 
         // fill out the ports[] vectors (or call setHexLayout(hexLayout)!)
-	setHexLayout(hexLayout); // just to set the port-node vectors
+      	setHexLayout(hexLayout); // just to set the port-node vectors
     }
 
     /* ***************************************
@@ -398,16 +405,10 @@ public class SOCBoard implements Serializable, Cloneable
      */
     private final void placePort(int port, int hex, int face)
     {
-        if (port == 0)
-        {
-            // generic port, MISC_PORT, 3:1 port
-            hexLayout[hex] = MISC_PORT_HEX + face-1; // add face to MISC_PORT_HEX
-        }
-        else
-        {
-	    // port value is: [0..8] (3, make it 4 bits)
-            hexLayout[hex] = (face << 4) + port; // else code face in high bits!
-        }
+        hexLayout[hex] = (port == 0) 
+          ? MISC_PORT_HEX + face-1 // add face to MISC_PORT_HEX
+          : (face << 4) + port;    // else code face in high bits!
+  	      // port value is: [0..8] (3, make it 4 bits)
     }
 
     /**
@@ -454,32 +455,32 @@ public class SOCBoard implements Serializable, Cloneable
         /**
          * fill in the port node information
          */
-        ports[getPortTypeFromHex(hexLayout[0])].addElement(new Integer(0x27));
-        ports[getPortTypeFromHex(hexLayout[0])].addElement(new Integer(0x38));
+        ports[getPortTypeFromHex(hexLayout[0])].addElement((0x27));
+        ports[getPortTypeFromHex(hexLayout[0])].addElement((0x38));
 
-        ports[getPortTypeFromHex(hexLayout[2])].addElement(new Integer(0x5A));
-        ports[getPortTypeFromHex(hexLayout[2])].addElement(new Integer(0x6B));
+        ports[getPortTypeFromHex(hexLayout[2])].addElement((0x5A));
+        ports[getPortTypeFromHex(hexLayout[2])].addElement((0x6B));
 
-        ports[getPortTypeFromHex(hexLayout[8])].addElement(new Integer(0x9C));
-        ports[getPortTypeFromHex(hexLayout[8])].addElement(new Integer(0xAD));
+        ports[getPortTypeFromHex(hexLayout[8])].addElement((0x9C));
+        ports[getPortTypeFromHex(hexLayout[8])].addElement((0xAD));
 
-        ports[getPortTypeFromHex(hexLayout[9])].addElement(new Integer(0x25));
-        ports[getPortTypeFromHex(hexLayout[9])].addElement(new Integer(0x34));
+        ports[getPortTypeFromHex(hexLayout[9])].addElement((0x25));
+        ports[getPortTypeFromHex(hexLayout[9])].addElement((0x34));
 
-        ports[getPortTypeFromHex(hexLayout[21])].addElement(new Integer(0xCD));
-        ports[getPortTypeFromHex(hexLayout[21])].addElement(new Integer(0xDC));
+        ports[getPortTypeFromHex(hexLayout[21])].addElement((0xCD));
+        ports[getPortTypeFromHex(hexLayout[21])].addElement((0xDC));
 
-        ports[getPortTypeFromHex(hexLayout[22])].addElement(new Integer(0x43));
-        ports[getPortTypeFromHex(hexLayout[22])].addElement(new Integer(0x52));
+        ports[getPortTypeFromHex(hexLayout[22])].addElement((0x43));
+        ports[getPortTypeFromHex(hexLayout[22])].addElement((0x52));
 
-        ports[getPortTypeFromHex(hexLayout[32])].addElement(new Integer(0xC9));
-        ports[getPortTypeFromHex(hexLayout[32])].addElement(new Integer(0xDA));
+        ports[getPortTypeFromHex(hexLayout[32])].addElement((0xC9));
+        ports[getPortTypeFromHex(hexLayout[32])].addElement((0xDA));
 
-        ports[getPortTypeFromHex(hexLayout[33])].addElement(new Integer(0x72));
-        ports[getPortTypeFromHex(hexLayout[33])].addElement(new Integer(0x83));
+        ports[getPortTypeFromHex(hexLayout[33])].addElement((0x72));
+        ports[getPortTypeFromHex(hexLayout[33])].addElement((0x83));
 
-        ports[getPortTypeFromHex(hexLayout[35])].addElement(new Integer(0xA5));
-        ports[getPortTypeFromHex(hexLayout[35])].addElement(new Integer(0xB6));
+        ports[getPortTypeFromHex(hexLayout[35])].addElement((0xA5));
+        ports[getPortTypeFromHex(hexLayout[35])].addElement((0xB6));
     }
 
     /**
@@ -620,7 +621,7 @@ public class SOCBoard implements Serializable, Cloneable
      */
     public void removePiece(SOCPlayingPiece piece)
     {
-        Enumeration pEnum = pieces.elements();
+        Enumeration<SOCPlayingPiece> pEnum = pieces.elements();
 
         while (pEnum.hasMoreElements())
         {
@@ -656,7 +657,7 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * get the list of pieces on the board
      */
-    public Vector getPieces()
+    public Vector<SOCPlayingPiece> getPieces()
     {
         return pieces;
     }
@@ -664,7 +665,7 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * get the list of roads
      */
-    public Vector getRoads()
+    public Vector<SOCPlayingPiece> getRoads()
     {
         return roads;
     }
@@ -672,7 +673,7 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * get the list of settlements
      */
-    public Vector getSettlements()
+    public Vector<SOCPlayingPiece> getSettlements()
     {
         return settlements;
     }
@@ -680,7 +681,7 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * get the list of cities
      */
-    public Vector getCities()
+    public Vector<SOCPlayingPiece> getCities()
     {
         return cities;
     }
@@ -688,9 +689,9 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * @return the nodes that touch this edge
      */
-    public static Vector getAdjacentNodesToEdge(int coord)
+    public static Vector<Integer> getAdjacentNodesToEdge(int coord)
     {
-        Vector nodes = new Vector(2);
+        Vector<Integer> nodes = new Vector<Integer>(2);
         int tmp;
 
         /**
@@ -703,14 +704,14 @@ public class SOCBoard implements Serializable, Cloneable
 
             if ((tmp >= MINNODE) && (tmp <= MAXNODE))
             {
-                nodes.addElement(new Integer(tmp));
+                nodes.addElement((tmp));
             }
 
             tmp = coord + 0x10;
 
             if ((tmp >= MINNODE) && (tmp <= MAXNODE))
             {
-                nodes.addElement(new Integer(tmp));
+                nodes.addElement((tmp));
             }
         }
         else
@@ -720,14 +721,14 @@ public class SOCBoard implements Serializable, Cloneable
 
             if ((tmp >= MINNODE) && (tmp <= MAXNODE))
             {
-                nodes.addElement(new Integer(tmp));
+                nodes.addElement((tmp));
             }
 
             tmp = coord + 0x11;
 
             if ((tmp >= MINNODE) && (tmp <= MAXNODE))
             {
-                nodes.addElement(new Integer(tmp));
+                nodes.addElement((tmp));
             }
         }
 
@@ -737,9 +738,9 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * @return the adjacent edges to this edge
      */
-    public static Vector getAdjacentEdgesToEdge(int coord)
+    public static Vector<Integer> getAdjacentEdgesToEdge(int coord)
     {
-        Vector edges = new Vector(4);
+        Vector<Integer> edges = new Vector<Integer>(4);
         int tmp;
 
         /**
@@ -752,28 +753,28 @@ public class SOCBoard implements Serializable, Cloneable
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord + 0x01;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord + 0x10;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord - 0x01;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
         }
 
@@ -787,28 +788,28 @@ public class SOCBoard implements Serializable, Cloneable
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord + 0x01;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord + 0x11;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord - 0x01;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
         }
         else
@@ -821,28 +822,28 @@ public class SOCBoard implements Serializable, Cloneable
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord + 0x11;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord + 0x10;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord - 0x11;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
         }
 
@@ -852,9 +853,9 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * @return the hexes touching this node
      */
-    public static Vector getAdjacentHexesToNode(int coord)
+    public static Vector<Integer> getAdjacentHexesToNode(int coord)
     {
-        Vector hexes = new Vector(3);
+        Vector<Integer> hexes = new Vector<Integer>(3);
         int tmp;
 
         /**
@@ -867,21 +868,21 @@ public class SOCBoard implements Serializable, Cloneable
 
             if ((tmp >= MINHEX) && (tmp <= MAXHEX))
             {
-                hexes.addElement(new Integer(tmp));
+                hexes.addElement((tmp));
             }
 
             tmp = coord + 0x10;
 
             if ((tmp >= MINHEX) && (tmp <= MAXHEX))
             {
-                hexes.addElement(new Integer(tmp));
+                hexes.addElement((tmp));
             }
 
             tmp = coord - 0x12;
 
             if ((tmp >= MINHEX) && (tmp <= MAXHEX))
             {
-                hexes.addElement(new Integer(tmp));
+                hexes.addElement((tmp));
             }
         }
         else
@@ -894,21 +895,21 @@ public class SOCBoard implements Serializable, Cloneable
 
             if ((tmp >= MINHEX) && (tmp <= MAXHEX))
             {
-                hexes.addElement(new Integer(tmp));
+                hexes.addElement((tmp));
             }
 
             tmp = coord + 0x01;
 
             if ((tmp >= MINHEX) && (tmp <= MAXHEX))
             {
-                hexes.addElement(new Integer(tmp));
+                hexes.addElement((tmp));
             }
 
             tmp = coord - 0x01;
 
             if ((tmp >= MINHEX) && (tmp <= MAXHEX))
             {
-                hexes.addElement(new Integer(coord - 0x01));
+                hexes.addElement((coord - 0x01));
             }
         }
 
@@ -918,9 +919,9 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * @return the edges touching this node
      */
-    public static Vector getAdjacentEdgesToNode(int coord)
+    public static Vector<Integer> getAdjacentEdgesToNode(int coord)
     {
-        Vector edges = new Vector(3);
+        Vector<Integer> edges = new Vector<Integer>(3);
         int tmp;
 
         /**
@@ -933,21 +934,21 @@ public class SOCBoard implements Serializable, Cloneable
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord - 0x01;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
         }
         else
@@ -960,21 +961,21 @@ public class SOCBoard implements Serializable, Cloneable
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
 
             tmp = coord - 0x11;
 
             if ((tmp >= MINEDGE) && (tmp <= MAXEDGE))
             {
-                edges.addElement(new Integer(tmp));
+                edges.addElement((tmp));
             }
         }
 
@@ -984,23 +985,23 @@ public class SOCBoard implements Serializable, Cloneable
     /**
      * @return the EDGEs adjacent to this node
      */
-    public static Vector getAdjacentNodesToNode(int coord)
+    public static Vector<Integer> getAdjacentNodesToNode(int coord)
     {
-        Vector nodes = new Vector(3);
+        Vector<Integer> nodes = new Vector<Integer>(3);
         int tmp;
 
         tmp = coord - 0x11;
 
         if ((tmp >= MINNODE) && (tmp <= MAXNODE))
         {
-            nodes.addElement(new Integer(tmp));
+            nodes.addElement((tmp));
         }
 
         tmp = coord + 0x11;
 
         if ((tmp >= MINNODE) && (tmp <= MAXNODE))
         {
-            nodes.addElement(new Integer(tmp));
+            nodes.addElement((tmp));
         }
 
         /**
@@ -1013,7 +1014,7 @@ public class SOCBoard implements Serializable, Cloneable
 
             if ((tmp >= MINNODE) && (tmp <= MAXNODE))
             {
-                nodes.addElement(new Integer((coord + 0x10) - 0x01));
+                nodes.addElement(((coord + 0x10) - 0x01));
             }
         }
         else
@@ -1026,7 +1027,7 @@ public class SOCBoard implements Serializable, Cloneable
 
             if ((tmp >= MINNODE) && (tmp <= MAXNODE))
             {
-                nodes.addElement(new Integer(coord - 0x10 + 0x01));
+                nodes.addElement((coord - 0x10 + 0x01));
             }
         }
 
@@ -1048,15 +1049,15 @@ public class SOCBoard implements Serializable, Cloneable
     public String nodeCoordToString(int node)
     {
         String str = "";
-	String sep = "";
-        Enumeration hexes = getAdjacentHexesToNode(node).elements();
+	      String sep = "";
+        Enumeration<Integer> hexes = getAdjacentHexesToNode(node).elements();
 
         while (hexes.hasMoreElements())
         {
-            int hex = ((Integer) hexes.nextElement()).intValue();
+            int hex = ( hexes.nextElement()).intValue();
             int number = getNumberOnHexFromCoord(hex);
-	    str += ((number == 0) ? (sep+"-") : (sep+number));
-	    sep = "/";
+            str += ((number == 0) ? (sep+"-") : (sep+number));
+            sep = "/";
 	}
         return str;
     }
