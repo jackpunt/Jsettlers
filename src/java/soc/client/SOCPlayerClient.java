@@ -41,6 +41,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -1977,15 +1978,16 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 	          int mv = mes.getCount();
             SOCResourceSet rsrcs = pl.getResources();
 
-	    // since getTotal() includes all the 'unknown' or 'potential' cards, this is likely:
-	    // eventually, need 'virtual cards' or 'quantum cards' to represent unknown cards.
-	    // quantum card is tracked from orig to dest, so playing it could resolve unknown in other hand.
             if (mv == 0) 
             {
-                System.out.format("player %s has ZERO resources: rsrcs=%s \n", pl.getName(), rsrcs);
+                System.out.format("%s has ZERO rsrcs=%s\n", new Date(), pl.getName(), rsrcs);
                 rsrcs.clear();
                 pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.NUMRESOURCES);
+                pi.getPlayerHandPanel(pn).updateResouces();
             }
+      // since getTotal() includes all the 'unknown' or 'potential' cards, this is likely:
+	    // eventually, need 'virtual cards' or 'quantum cards' to represent unknown cards.
+	    // quantum card is tracked from orig to dest, so playing it could resolve unknown in other hand.
             if (mv != rsrcs.getTotal())
             {
 

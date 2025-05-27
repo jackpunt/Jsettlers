@@ -139,11 +139,11 @@ public class SOCResourceSet implements Serializable, Cloneable, SOCResourceConst
          * to zero, and then take the difference away
          * from the UNKNOWN resources
          */
-	resources[rtype] -= amt;
-	if (resources[rtype] < 0) {
-	    resources[UNKNOWN] += resources[rtype];
-	    resources[rtype] = 0;
-	}
+        resources[rtype] -= amt;
+        if (resources[rtype] < 0) {
+            resources[UNKNOWN] += resources[rtype];
+            resources[rtype] = 0;
+        }
 
         if (resources[UNKNOWN] < 0)
         {
@@ -173,13 +173,13 @@ public class SOCResourceSet implements Serializable, Cloneable, SOCResourceConst
      * @param rs  the resource set
      */
     public void subtract(SOCResourceSet rs) {
-	for (int i = MIN; i<MAXPLUSONE; i++) {
-	    subtract(rs.getAmount(i),i); // TODO: !! may also remove from .UNKNOWN !!
-//  	    resources[SOCResourceConstants.CLAY] -= rs.getAmount(SOCResourceConstants.CLAY);
-//  	    if (resources[SOCResourceConstants.CLAY] < 0) {
-//  		resources[SOCResourceConstants.CLAY] = 0;
-//  	    }
-	}
+    for (int i = MIN; i<MAXPLUSONE; i++) {
+        subtract(rs.getAmount(i),i); // TODO: !! may also remove from .UNKNOWN !!
+        // resources[SOCResourceConstants.CLAY] -= rs.getAmount(SOCResourceConstants.CLAY);
+        // if (resources[SOCResourceConstants.CLAY] < 0) {
+        //     resources[SOCResourceConstants.CLAY] = 0;
+        // }
+    }
     }
 
 

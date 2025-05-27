@@ -4,6 +4,7 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
+
     {
       "type": "java",
       "name": "Launch Java Program",
@@ -50,6 +51,8 @@
       "name": "SOCServer",
       "request": "launch",
       "mainClass": "soc.server.SOCServer",
+      "args": ["8808", "10", "dbUser", "dbPass", 
+               "Able", "''", "Baker", "''", "Charlie", "''", "Dawn", "''",],
       "projectName": "JSettlers_1e765702"
     }
   ]

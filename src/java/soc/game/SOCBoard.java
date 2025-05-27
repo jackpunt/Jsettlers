@@ -302,6 +302,7 @@ public class SOCBoard implements Serializable, Cloneable
           ary[ndx] = tmp;
         }
     }
+    /** permute given array in place */
     void permuteInt (int[] ary) {
         int len = ary.length - 1;
         for (int i = len; i > 0; i--) {
@@ -340,6 +341,7 @@ public class SOCBoard implements Serializable, Cloneable
         // int tmp;
 
         permuteInt(landHex);
+        permuteInt(numPath);
 
         int cnt = 0;
 
