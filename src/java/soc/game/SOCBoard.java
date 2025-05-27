@@ -21,8 +21,10 @@
 package soc.game;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Random;
+import java.util.Stack;
 import java.util.Vector;
 
 
@@ -147,15 +149,18 @@ public class SOCBoard implements Serializable, Cloneable
         6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
     };
 
+    // the spiral path:    
+    //  int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
+
     /* For -one- placement of robber:
        private int numberLayout[] = {
-              0,  0,  0,  0,
-            0, 11, 12,  9,  0,
-          0,  4,  3,  6, 10,  0,
-        0,  8, 11,  0,  5,  8,  0,
-          0,  10,  9,  4,  3,  0,
-            0,  5,  2,  6,  0,
-              0,  0,  0,  0 };
+              0,  0,  0,  0,       // 0-3
+            0, 11, 12,  9,  0,     // 4-8
+          0,  4,  3,  6, 10,  0,   // 9-14
+        0,  8, 11,  0,  5,  8,  0, // 15-21
+          0,  10,  9,  4,  3,  0,  // 22-27
+            0,  5,  2,  6,  0,     // 28-32
+              0,  0,  0,  0 };     // 33-36 (19 + 18 = 37 hexes)
      */
     private int[] numberLayout = 
     {
@@ -163,20 +168,75 @@ public class SOCBoard implements Serializable, Cloneable
     };				// 37 elements
     private int[] numToHexID = 
     {
-              0x17, 0x39, 0x5B, 0x7D, 		// 0-4
+              0x17, 0x39, 0x5B, 0x7D, 		// 0-3
         
-	         0x15, 0x37, 0x59, 0x7B, 0x9D,	// 5-9
+	         0x15, 0x37, 0x59, 0x7B, 0x9D,	// 4-8
         
-        0x13, 0x35, 0x57, 0x79, 0x9B, 0xBD, 	// 10-15
+        0x13, 0x35, 0x57, 0x79, 0x9B, 0xBD, 	// 9-14
         
-     0x11, 0x33, 0x55, 0x77, 0x99, 0xBB, 0xDD, 	// 16-22
+     0x11, 0x33, 0x55, 0x77, 0x99, 0xBB, 0xDD, 	// 15-21
         
-        0x31, 0x53, 0x75, 0x97, 0xB9, 0xDB, 	// 23-28
+        0x31, 0x53, 0x75, 0x97, 0xB9, 0xDB, 	// 22-27
         
-           0x51, 0x73, 0x95, 0xB7, 0xD9, 	// 29-33
+           0x51, 0x73, 0x95, 0xB7, 0xD9, 	// 28-32
         
-              0x71, 0x93, 0xB5, 0xD7 		// 34-37
+              0x71, 0x93, 0xB5, 0xD7 		// 33-36
     };
+
+    /** Coordinates: [NW-SW index: 1,3,5,7,9,B,D][SW-NE index: 1,3,5,7,9,B,D]
+     * 
+     * is adjacent if both indexes are within 2
+     */
+    boolean isAdjacent(int num0, int num1) {
+      int hexID0 = numToHexID[num0];
+      int hexID1 = numToHexID[num1];
+      int h0 = hexID0 >> 4; int l0 = hexID0 & 0xF; 
+      int h1 = hexID1 >> 4; int l1 = hexID1 & 0xF; 
+      int dh = Math.abs(h1-h0); int dl = Math.abs(l1-l0);
+      return dh <= 2 && dl <= 2;
+    }
+
+    /** @return true if one isAdjacent to any of others */
+    boolean findAdjacent(Integer one, Stack<Integer> others) {
+      for (Integer other : others) {
+        if (isAdjacent(one, other)) return true;
+      }
+      return false;
+    }
+
+    /** @returns true if any one of coords isAdjacent to any of the others. */
+    boolean anyAdjacent(Stack<Integer> coords) {
+      if (coords.empty()) return false;
+      Integer one = coords.pop();
+      return (one != null) && findAdjacent(one, coords) ? true : anyAdjacent(coords);
+    }
+    void printCoords(String v, int[] coords) {
+      System.out.format("%s = [", v);
+      for (int coord : coords) {
+        System.out.format("%02x, ", numToHexID[coord]);
+      }
+      System.out.format("]\n");
+    }
+
+    int[] mapToIntArray(Integer[] intArray) {
+      return Arrays.stream(intArray).mapToInt(i -> i != null ? i : -1).toArray();
+    }
+
+    boolean six_eightAdjacent(int[] number, int[] numPath) {
+      printCoords("numPath", numPath);
+      Stack<Integer> six_eight = new Stack<Integer>();
+      for ( int ndx = 0; ndx < number.length; ndx++ ) {
+        if ((number[ndx] == 6) || (number[ndx] == 8)) {
+          six_eight.push(numPath[ndx]); // record locations of 6s and 8s
+        }
+      }
+      boolean rv = anyAdjacent(six_eight);
+      // six_eight is subset of numPath
+      System.out.format("adj = %b; ", rv);
+      printCoords("six_eight", mapToIntArray(six_eight.toArray(new Integer[0])));
+
+      return rv;
+    }
 
     /**
      * translate hex ID to an array index
@@ -331,8 +391,9 @@ public class SOCBoard implements Serializable, Cloneable
         // A,B,C,...Q; indicating which die roll activates this resource tile:
         // 0-9 -> [2-6,8-12]  (also -1 for the desert)
         // int[] number = { 3, 0, 4, 1, 5, 7, 6, 9, 8, 2, 5, 7, 6, 2, 3, 4, 1, 8 };
-        // use direct dice numbers:
-        int[] number = { 5, 2, 6, 3, 8,10, 9,12,11, 4, 8,10, 9, 4, 5, 6, 3,11 };
+        // use direct dice numbers: 6 & 8: [2, 4, 10, 15]
+        // int[] number = { 5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11 };
+        int[] number = { 6, 6, 8, 8, 5, 2, 3, 10, 9, 12, 11, 4, 10, 9, 4, 5, 3, 11 };
       	// place shuffled stack on hex map in this order: (these are the grid numbers)
         int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
         int i;
@@ -342,6 +403,12 @@ public class SOCBoard implements Serializable, Cloneable
 
         permuteInt(landHex);
         permuteInt(numPath);
+
+        while (six_eightAdjacent(number, numPath)) { 
+          permuteInt(numPath);
+        }
+        printCoords("final:", numPath);
+        printCoords("6/8=", new int[]{numPath[0], numPath[1], numPath[2], numPath[3]});
 
         int cnt = 0;
 
@@ -367,6 +434,7 @@ public class SOCBoard implements Serializable, Cloneable
         // shuffle the ports
         permuteInt(portHex);
 
+        int[] portLocs = {0, 2, 8, 9, 21, 22, 32,35};
         // set ports in place and orientation: the ports
         placePort(portHex[0],  0, 3);
         placePort(portHex[1],  2, 4);
