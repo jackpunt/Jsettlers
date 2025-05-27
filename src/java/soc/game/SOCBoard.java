@@ -100,6 +100,7 @@ public class SOCBoard implements Serializable, Cloneable
     public static final int MAXNODEPLUSONE = MAXNODE + 1;
 
     /***************************************
+     * Type of hex to place in each of 37 coords.
        Key to the hexes[] :
        0 : desert
        1 : clay
@@ -123,7 +124,7 @@ public class SOCBoard implements Serializable, Cloneable
         3 : sheep
         4 : wheat
         5 : wood
-        port facing:
+        port facing: { -, NE, E, SE, SW, W, NW }
         6___    ___1
             \/\/
             /  \
@@ -148,8 +149,18 @@ public class SOCBoard implements Serializable, Cloneable
         6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
         6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
     };
+    /** direction port tile is facing; index into portNodes */
+    private int[] portFaces = 
+    {    3, 3, 4, 4, 
+       3, 0, 0, 0, 4, 
+      2, 0, 0, 0, 0, 5,
+     2, 0, 0, 0, 0, 0, 5, 
+      2, 0, 0, 0, 0, 5, 
+        1, 0, 0, 0, 6,
+          1, 1, 6, 6,
+     };
 
-    // the spiral path:    
+    // the spiral path: (not used when permute)   
     //  int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
 
     /* For -one- placement of robber:
@@ -166,6 +177,28 @@ public class SOCBoard implements Serializable, Cloneable
     {
     	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     };				// 37 elements
+
+    // 0, 2, 8, 9, 21, 22, 32, 33, 35
+    // 17 -> 27, 38  S, ES
+    // 5B -> 5A, 6B
+    // 9D -> 9C, AD
+    // 13 -> 25, 34
+    // DD -> CD, DC
+    // 31 -> 43, 52
+    // D9 -> C9, DA
+    // 71 -> 72, 83  N, EN
+    // B5 -> A5, B6 WN,  N
+    //               N:0  EN:1  ES:2   S:3   WS:4   WN:5
+    // hexNodes = { 0x01, 0x12, 0x21, 0x10, -0x01, -0x10 }; // Add to coord
+    /** Two nodes on hex facing given face
+     * @param coord location of hex
+     * @param face direction port is facing [1..6]
+     */
+    int[] nodesOfHexFacing(int coord, int face) { 
+      return new int[] { coord + hexNodes[face-1], coord + hexNodes[face % 6] }; 
+    }
+    
+    /** the coords of each of 37 hex locations */
     private int[] numToHexID = 
     {
               0x17, 0x39, 0x5B, 0x7D, 		// 0-3
@@ -183,7 +216,7 @@ public class SOCBoard implements Serializable, Cloneable
               0x71, 0x93, 0xB5, 0xD7 		// 33-36
     };
 
-    /** Coordinates: [NW-SW index: 1,3,5,7,9,B,D][SW-NE index: 1,3,5,7,9,B,D]
+    /** Coordinates: [WN-WS index: 1,3,5,7,9,B,D][WS-EN index: 1,3,5,7,9,B,D]
      * 
      * is adjacent if both indexes are within 2
      */
@@ -244,14 +277,18 @@ public class SOCBoard implements Serializable, Cloneable
     private int[] hexIDtoNum;
 
     /**
-     * add to hex coord to get all node coords
+     * add to hex coord to get all node coords (node = 'vertex')
      */
     private int[] hexNodes = { 0x01, 0x12, 0x21, 0x10, -0x01, -0x10 };
+    //                          N:0  EN:1  ES:2   S:3   WS:4   WN:5
 
     /**
-     *  all hexes adjacent to a node
+     *  all hexes adjacent to a node (add to move up/down & over)
      */
     private int[] nodeToHex = { -0x21, 0x01, -0x01, -0x10, 0x10, -0x12 };
+
+    /** hex numbers of hexes holding 9 port tiles */
+    int[] portLocs = { 0, 2, 8, 9, 21, 22, 32, 33, 35 };
 
     /**
      * the hex that the robber is in
@@ -259,12 +296,12 @@ public class SOCBoard implements Serializable, Cloneable
     private int robberHex;
 
     /**
-     * where the ports are: elts={node1_ID, node2_ID}
+     * nodes where the ports are: elts={node1_ID, node2_ID}
      */
     private Vector<Integer>[] ports;
 
     /**
-     * pieces on the board
+     * pieces on the board (settlement, road, city) 
      */
     private Vector<SOCPlayingPiece> pieces;
 
@@ -315,6 +352,8 @@ public class SOCBoard implements Serializable, Cloneable
 
         /**plus
          * initialize the port Vectors; holds Vector of coords for each port tile
+         * 
+         * [misc:[8], clay:[2], ore:[2], sheep:[2], wheat:[2], wood:[2]]
          */
         ports = (Vector<Integer>[]) new Vector[6];
         ports[MISC_PORT] = new Vector<Integer>(8); // 8 elements (2 coords per 4 misc port-hex)
@@ -327,7 +366,7 @@ public class SOCBoard implements Serializable, Cloneable
         /**
          * initialize the hexIDtoNum array
          */
-        hexIDtoNum = new int[0xEE];
+        hexIDtoNum = new int[0xEE]; // 256 elements
         nodesOnBoard = new boolean[0xEE];
 
         for (i = 0; i < 0xEE; i++)
@@ -384,7 +423,7 @@ public class SOCBoard implements Serializable, Cloneable
 			  SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, 
 			  WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, 
 			  WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, };
-	      // 8 port tiles: { 0,0,0,0,1,2,3,4,5}
+	      // 9 port tiles: { 0,0,0,0,1,2,3,4,5} leaving 9 water tiles
         int[] portHex = { MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
 			  CLAY_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX };
 	
@@ -434,17 +473,10 @@ public class SOCBoard implements Serializable, Cloneable
         // shuffle the ports
         permuteInt(portHex);
 
-        int[] portLocs = {0, 2, 8, 9, 21, 22, 32,35};
         // set ports in place and orientation: the ports
-        placePort(portHex[0],  0, 3);
-        placePort(portHex[1],  2, 4);
-        placePort(portHex[2],  8, 4);
-        placePort(portHex[3],  9, 2);
-        placePort(portHex[4], 21, 5);
-        placePort(portHex[5], 22, 2);
-        placePort(portHex[6], 32, 6);
-        placePort(portHex[7], 33, 1);
-	      placePort(portHex[8], 35, 6);
+        for (int k = 0; k < portLocs.length; k++) {
+          placePort(portHex[k], portLocs[k]);
+        }
 
         // fill out the ports[] vectors (or call setHexLayout(hexLayout)!)
       	setHexLayout(hexLayout); // just to set the port-node vectors
@@ -472,13 +504,16 @@ public class SOCBoard implements Serializable, Cloneable
 
     /**
      * Auxillary method for placing the port hexes
+     * @param port one of the 9 port tiles [0..8]
+     * @param hex which of the (18 of 37) slots to put it in [0..36]
      */
-    private final void placePort(int port, int hex, int face)
+    private final void placePort(int port, int hex)
     {
+        int face = portFaces[hex];
         hexLayout[hex] = (port == 0) 
           ? MISC_PORT_HEX + face-1 // add face to MISC_PORT_HEX
           : (face << 4) + port;    // else code face in high bits!
-  	      // port value is: [0..8] (3, make it 4 bits)
+  	      // port value is: [1..6] (3 bit, but use 4 for %02x)
     }
 
     /**
@@ -525,36 +560,20 @@ public class SOCBoard implements Serializable, Cloneable
         /**
          * fill in the port node information
          */
-        ports[getPortTypeFromHex(hexLayout[0])].addElement((0x27));
-        ports[getPortTypeFromHex(hexLayout[0])].addElement((0x38));
-
-        ports[getPortTypeFromHex(hexLayout[2])].addElement((0x5A));
-        ports[getPortTypeFromHex(hexLayout[2])].addElement((0x6B));
-
-        ports[getPortTypeFromHex(hexLayout[8])].addElement((0x9C));
-        ports[getPortTypeFromHex(hexLayout[8])].addElement((0xAD));
-
-        ports[getPortTypeFromHex(hexLayout[9])].addElement((0x25));
-        ports[getPortTypeFromHex(hexLayout[9])].addElement((0x34));
-
-        ports[getPortTypeFromHex(hexLayout[21])].addElement((0xCD));
-        ports[getPortTypeFromHex(hexLayout[21])].addElement((0xDC));
-
-        ports[getPortTypeFromHex(hexLayout[22])].addElement((0x43));
-        ports[getPortTypeFromHex(hexLayout[22])].addElement((0x52));
-
-        ports[getPortTypeFromHex(hexLayout[32])].addElement((0xC9));
-        ports[getPortTypeFromHex(hexLayout[32])].addElement((0xDA));
-
-        ports[getPortTypeFromHex(hexLayout[33])].addElement((0x72));
-        ports[getPortTypeFromHex(hexLayout[33])].addElement((0x83));
-
-        ports[getPortTypeFromHex(hexLayout[35])].addElement((0xA5));
-        ports[getPortTypeFromHex(hexLayout[35])].addElement((0xB6));
+        for (int loc : portLocs) {
+          int hex = hexLayout[loc]; // type of tile at coord
+          int coord = numToHexID[loc];
+          int face = portFaces[loc];
+          int[] nodes = nodesOfHexFacing(coord, face);
+          for (int node : nodes) {
+            int portType = getPortTypeFromHex(hex);
+            ports[portType].addElement(node);
+          }
+        }
     }
 
     /**
-     * @return the type of port given a hex type
+     * @return the type of port given a hex type [MISC, ORE, WHEAT...]
      * @param hex  the hex type
      */
     public int getPortTypeFromHex(int hex) // private...?
