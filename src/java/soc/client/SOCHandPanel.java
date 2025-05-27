@@ -182,10 +182,11 @@ public class SOCHandPanel extends Panel implements ActionListener
         game = pi.getGame();
         player = pl;
         interactive = in;
+        setFont(font);   // Helvetica
+        FontMetrics fm = getFontMetrics(getFont());
 
         setBackground(playerInterface.getPlayerColor(player.getPlayerNumber()));
         setForeground(Color.black);
-        setFont(font);
 
         offer = new TradeOfferPanel(this, player.getPlayerNumber());
         offer.setVisible(false);
@@ -274,7 +275,9 @@ public class SOCHandPanel extends Panel implements ActionListener
         add(robotBut);
 
         playCardBut = new JButton(CARD);
-        playCardBut.setSize(new Dimension(90, 40));
+        int tw = fm.stringWidth(CARD);
+        int th = fm.getHeight();
+        playCardBut.setSize(new Dimension(tw+2, th+2));
         playCardBut.addActionListener(this);
         playCardBut.setEnabled(interactive);
         add(playCardBut);

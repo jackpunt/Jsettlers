@@ -124,8 +124,12 @@ public class SOCPlayerInterface extends Frame implements ActionListener
      */
     protected SOCMonopolyDialog monopolyDialog;
 
+    // also: SOCHandPanel.font "Helvetica"
+    public static Font monocoFont = new Font("Monoco", Font.PLAIN, SOCHandPanel.fontSize);
+    public static Font genevaFont = new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize);
+
     /**
-     * create a new player interface
+     * create a new player interface Frame
      *
      * @param title  title for this interface
      * @param cl     the player client that spawned us
@@ -135,6 +139,8 @@ public class SOCPlayerInterface extends Frame implements ActionListener
     {
         super("Settlers of Catan Game: " + title);
         setResizable(true);
+        setFont(genevaFont);
+        setFont(monocoFont);
 
         client = cl;
         game = ga;
@@ -153,7 +159,6 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          */
         setBackground(Color.black);
         setForeground(Color.black);
-        setFont(new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize));
 
         /**
          * setup interface elements
@@ -212,21 +217,21 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          */
         // textDisplay = new SnippingTextArea("", 40, 80, TextArea.SCROLLBARS_VERTICAL_ONLY, 80);
         textDisplay = new TextOut(40,80,80);
-        textDisplay.setFont(new Font("Monoco", Font.PLAIN, SOCHandPanel.fontSize));
+        textDisplay.setFont(monocoFont);
         textDisplay.setBackground(new Color(255, 230, 162));
         textDisplay.setForeground(Color.black);
         textDisplay.setEditable(false);
         add(textDisplay);
 
         chatDisplay = new SnippingTextArea("", 40, 80, TextArea.SCROLLBARS_VERTICAL_ONLY, 100);
-        chatDisplay.setFont(new Font("Monoco", Font.PLAIN, SOCHandPanel.fontSize));
+        chatDisplay.setFont(monocoFont);
         chatDisplay.setBackground(new Color(255, 230, 162));
         chatDisplay.setForeground(Color.black);
         chatDisplay.setEditable(false);
         add(chatDisplay);
 
         textInput = new TextField();
-        textInput.setFont(new Font("Monoco", Font.PLAIN, SOCHandPanel.fontSize));
+        textInput.setFont(monocoFont);
 
         FontMetrics fm = this.getFontMetrics(textInput.getFont());
         textInput.setSize(SOCBoardPanel.getPanelX(), fm.getHeight() + 4);

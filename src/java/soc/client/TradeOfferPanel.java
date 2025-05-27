@@ -347,13 +347,15 @@ public class TradeOfferPanel extends Panel
             int giveW = fm.stringWidth("I Give: ") + 2;
             int fontH = fm.getHeight() + 1;   // 10 -> 14
             int lineH = fontH + vspace;	// could derive from fm? (16)
-            int buttonW = fm.stringWidth("Counter")+1; // (48)
+            int buttonW = fm.stringWidth("Counter")+3; // (48)
             int buttonH = lineH + vspace;	// lineH + 2 (18)
             // inset:buttonW<ibs>buttonW<ibs>buttonW:inset
-            int w = Math.max(3*buttonW + 2*inset + 2, dim.width);
+            int use = (3 * buttonW + 2 * inset + 2);
+            int w = Math.min(use+2, dim.width);
             int h = Math.min(124, dim.height); // (top + 32 + squaresHeight + 2 + 5) or 92 if counterOfferMode
-            int ibs = (w - (3 * buttonW + inset+2)) / 3; // inter-button horiz space
+            int ibs = (w - use) / 2; // inter-button horiz space
 
+            System.out.println("TradeOffer: ibs = "+ibs);
 
             toWhom1.setBounds(inset, liney, w - 2*inset, fontH); liney += fontH;
             if (toWhom2.getText() != null) {
