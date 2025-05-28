@@ -1,3 +1,14 @@
 #!/bin/sh
-cd $(dirname $0)
-java -jar JSettlers.jar localhost 8808
+
+dir0=~/Data/Programs/java/JSettlers/bin/Jsettlers.app
+dir=${1:-$dir0} ; shift
+host=${1:-localhost} ; shift
+port=${1:-8808} ; shift
+out="${1:-/tmp/jsettlers.txt}"; shift
+echo $(date) > $out
+echo cd $dir\; java -jar host=$host port=$port >> $out
+
+(cd $dir ;\
+ echo $PWD $host $port >> $out ;\
+ java -jar JSettlers.jar $host $port \
+) 2>>$out
