@@ -355,7 +355,7 @@ public class TradeOfferPanel extends Panel
             int h = Math.min(124, dim.height); // (top + 32 + squaresHeight + 2 + 5) or 92 if counterOfferMode
             int ibs = (w - use) / 2; // inter-button horiz space
 
-            System.out.println("TradeOffer: ibs = "+ibs);
+            // System.out.println("TradeOffer: ibs = "+ibs);
 
             toWhom1.setBounds(inset, liney, w - 2*inset, fontH); liney += fontH;
             if (toWhom2.getText() != null) {

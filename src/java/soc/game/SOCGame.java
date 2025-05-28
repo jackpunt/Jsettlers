@@ -215,6 +215,15 @@ public class SOCGame implements Serializable, Cloneable
      */
     long expiration;
 
+    /**
+     * counter of turns taken; incremented in advanceTurn()
+     */
+    private int turnNumber = 0;
+
+    public int getTurnNumber() {
+      return turnNumber;
+    }
+
     /** set by name.contains SP */
     boolean standardPorts = false;
 
@@ -635,7 +644,7 @@ public class SOCGame implements Serializable, Cloneable
     }
 
     /**
-     * advance the turn to the next player
+     * advance the turn to the previous player (for initial placements)
      */
     protected void advanceTurnBackwards()
     {
@@ -654,12 +663,9 @@ public class SOCGame implements Serializable, Cloneable
     protected void advanceTurn()
     {
         //D.ebugPrintln("ADVANCE TURN FORWARDS");
-        currentPlayerNumber++;
+        currentPlayerNumber = (currentPlayerNumber+1) % MAXPLAYERS;
 
-        if (currentPlayerNumber == MAXPLAYERS)
-        {
-            currentPlayerNumber = 0;
-        }
+        this.turnNumber++;
     }
 
     /**
@@ -702,11 +708,11 @@ public class SOCGame implements Serializable, Cloneable
         if ((gameState == START2A) && (pp.getType() == SOCPlayingPiece.SETTLEMENT))
         {
             SOCResourceSet resources = new SOCResourceSet();
-            Enumeration hexes = SOCBoard.getAdjacentHexesToNode(pp.getCoordinates()).elements();
+            Enumeration<Integer> hexes = SOCBoard.getAdjacentHexesToNode(pp.getCoordinates()).elements();
 
             while (hexes.hasMoreElements())
             {
-                Integer hex = (Integer) hexes.nextElement();
+                Integer hex = hexes.nextElement();
 
                 switch (board.getHexTypeFromCoord(hex.intValue()))
                 {
@@ -859,16 +865,12 @@ public class SOCGame implements Serializable, Cloneable
 
             case START2B:
             {
-                int tmpCPN = currentPlayerNumber - 1;
-
-                if (tmpCPN < 0)
-                {
-                    tmpCPN = MAXPLAYERS - 1;
-                }
+                int tmpCPN = (currentPlayerNumber - 1 + MAXPLAYERS) % MAXPLAYERS;
 
                 if (tmpCPN == lastPlayerNumber)
                 {
                     gameState = PLAY;
+                    turnNumber = 1;
                 }
                 else
                 {
@@ -1123,12 +1125,7 @@ public class SOCGame implements Serializable, Cloneable
     public void setFirstPlayer(int pn)
     {
         firstPlayerNumber = pn;
-        lastPlayerNumber = pn - 1;
-
-        if (lastPlayerNumber < 0)
-        {
-            lastPlayerNumber = MAXPLAYERS - 1;
-        }
+        lastPlayerNumber = (pn - 1 + MAXPLAYERS) % MAXPLAYERS;
     }
 
     /**
@@ -1155,10 +1152,10 @@ public class SOCGame implements Serializable, Cloneable
     public void endTurn()
     {
         currentDice = 0;
-	if (gameOver) {
-	    gameState = OVER;
-	    return;
-	}
+        if (gameOver) {
+            gameState = OVER;
+            return;
+        }
         gameState = PLAY;
         advanceTurn();
         players[currentPlayerNumber].setPlayedDevCard(false);
@@ -2530,7 +2527,7 @@ public class SOCGame implements Serializable, Cloneable
         {
             if (players[i].getTotalVP() >= 10)
             {
-		gameOver = true;
+	            	gameOver = true;
                 //gameState = OVER;
 
                 break;

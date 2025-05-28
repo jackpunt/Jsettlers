@@ -174,7 +174,7 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
 
             if (sum == 2)
             {
-		int m1 = -SOCResourceConstants.MIN;
+		            int m1 = -SOCResourceConstants.MIN;
                 SOCResourceSet resources = new SOCResourceSet(rsrcCnt[m1+SOCResourceConstants.CLAY],
 							      rsrcCnt[m1+SOCResourceConstants.ORE],
 							      rsrcCnt[m1+SOCResourceConstants.SHEEP],

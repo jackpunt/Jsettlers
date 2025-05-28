@@ -2938,7 +2938,10 @@ public class SOCServer extends Server
                     {
                         IntPair dice = ga.rollDice();
 			                  int curdice = ga.getCurrentDice();
-                        messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, "----" + (String) c.data + " rolled "+curdice+"      [" + dice.getA() + " and " + dice.getB() + "]"));
+                        int turnNum = ga.getTurnNumber();
+                        String msgFormat = "%d: ----%s rolled %d       [%d + %d]";
+                        String msg = String.format(msgFormat, turnNum, c.data, curdice, dice.getA(), dice.getB());
+                        messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, msg));
                         messageToGame(gn, new SOCDiceResult(gn, curdice));
 
                         /**
@@ -4299,6 +4302,12 @@ public class SOCServer extends Server
         }
     }
 
+    String itsPlayersTurnTo(SOCGame ga, String toWhat) {
+        SOCPlayer player = ga.getPlayer(ga.getCurrentPlayerNumber());
+        String msgFormat = "\nIt's %s's turn to %s.";
+        return String.format(msgFormat, player.getName(), toWhat);
+    }
+
     /**
      * send the current state of the game with a message
      *
@@ -4311,6 +4320,7 @@ public class SOCServer extends Server
             messageToGame(ga.getName(), new SOCGameState(ga.getName(), ga.getGameState()));
 
             SOCPlayer player = null;
+            String msg;
 
             if (ga.getCurrentPlayerNumber() != -1)
             {
@@ -4321,18 +4331,21 @@ public class SOCServer extends Server
             {
             case SOCGame.START1A:
             case SOCGame.START2A:
-                messageToGame(ga.getName(), new SOCGameTextMsg(ga.getName(), SERVERNAME, "It's " + player.getName() + "'s turn to build a settlement."));
+                msg = itsPlayersTurnTo(ga, "build a settlement");
+                messageToGame(ga.getName(), new SOCGameTextMsg(ga.getName(), SERVERNAME, msg));
 
                 break;
 
             case SOCGame.START1B:
             case SOCGame.START2B:
-                messageToGame(ga.getName(), new SOCGameTextMsg(ga.getName(), SERVERNAME, "It's " + player.getName() + "'s turn to build a road."));
+                msg = itsPlayersTurnTo(ga, "build a road");
+                messageToGame(ga.getName(), new SOCGameTextMsg(ga.getName(), SERVERNAME, msg));
 
                 break;
 
             case SOCGame.PLAY:
-                messageToGame(ga.getName(), new SOCGameTextMsg(ga.getName(), SERVERNAME, "\nIt's " + player.getName() + "'s turn to roll the dice."));
+                msg = itsPlayersTurnTo(ga, "roll the dice");
+                messageToGame(ga.getName(), new SOCGameTextMsg(ga.getName(), SERVERNAME, msg));
 
                 break;
 
@@ -4404,8 +4417,8 @@ public class SOCServer extends Server
                  * ask the current player to choose a player to steal from
                  */
                 String n = ga.getPlayer(ga.getCurrentPlayerNumber()).getName();
-		Connection con = connectionForPlayer(n);
-		if (con != null) con.put(SOCChoosePlayerRequest.toCmd(ga.getName(), choices));
+                Connection con = connectionForPlayer(n);
+                if (con != null) con.put(SOCChoosePlayerRequest.toCmd(ga.getName(), choices));
 
                 break;
 
@@ -4419,10 +4432,10 @@ public class SOCServer extends Server
 
                     if (pl.getTotalVP() >= 10)
                     {
-                        String msg;
                         msg = pl.getName() + " has won the game with " + pl.getTotalVP() + " points.";
                         messageToGame(ga.getName(), new SOCGameTextMsg(ga.getName(), SERVERNAME, msg));
-
+                        // TODO: try update playerPanel to show final score
+                       
                         ///
                         /// send a message saying what VP cards the player has
                         ///
