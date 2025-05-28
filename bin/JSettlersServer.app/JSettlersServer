@@ -1,12 +1,14 @@
 #!/bin/sh
-dir="${1:-.}"   ; shift
+dir0=~/Data/Programs/java/JSettlers/bin/JsettlersServer.app
+dir=${1:-$dir0} ; shift
 port=${1:-8808} ; shift
 n=${1:-5}       ; shift
 out="${1:-/tmp/jserver.txt}"; shift
 bots=${@:-Able "''" Baker "''" Charlie "''" Dawn "''"}
-echo jar dir=$dir port=$port n=$n  bots=$bots > $out
+echo $(date) > $out
+echo jar dir=$dir port=$port n=$n  bots=$bots >> $out 2>>$out
 
 (cd $dir ;\
  echo $PWD $port $n >> $out ;\
  java -cp JSettlers.jar -jar JSettlersServer.jar $port $n dbUser dbPwd  ${bots} \
-)
+) 2>>$out
