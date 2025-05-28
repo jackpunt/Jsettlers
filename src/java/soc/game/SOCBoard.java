@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.Random;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.stream.IntStream;
 
 
 /**
@@ -158,10 +159,15 @@ public class SOCBoard implements Serializable, Cloneable
       2, 0, 0, 0, 0, 5, 
         1, 0, 0, 0, 6,
           1, 1, 6, 6,
-     };
+    };
+    /** edgeLocs are suitable for placing ports */
+    private int[] edgeLocs = IntStream.range(0, portFaces.length)
+            .filter(i -> portFaces[i] != 0).toArray(); 
 
     // the spiral path: (not used when permute)   
     //  int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
+    /** standard hex numbers of hexes holding 9 port tiles */
+    int[] portLocs = { 0, 2, 8, 9, 21, 22, 32, 33, 35 };
 
     /* For -one- placement of robber:
        private int numberLayout[] = {
@@ -243,6 +249,7 @@ public class SOCBoard implements Serializable, Cloneable
       Integer one = coords.pop();
       return (one != null) && findAdjacent(one, coords) ? true : anyAdjacent(coords);
     }
+    // print array in hex
     void printCoords(String v, int[] coords) {
       System.out.format("%s = [", v);
       for (int coord : coords) {
@@ -256,17 +263,18 @@ public class SOCBoard implements Serializable, Cloneable
     }
 
     boolean six_eightAdjacent(int[] number, int[] numPath) {
-      printCoords("numPath", numPath);
+      // printCoords("numPath", numPath);
       Stack<Integer> six_eight = new Stack<Integer>();
       for ( int ndx = 0; ndx < number.length; ndx++ ) {
         if ((number[ndx] == 6) || (number[ndx] == 8)) {
           six_eight.push(numPath[ndx]); // record locations of 6s and 8s
         }
       }
-      boolean rv = anyAdjacent(six_eight);
+      // int[] given = mapToIntArray(six_eight.toArray(new Integer[0]));
+      boolean rv = anyAdjacent(six_eight); // pops from six_eight
       // six_eight is subset of numPath
-      System.out.format("adj = %b; ", rv);
-      printCoords("six_eight", mapToIntArray(six_eight.toArray(new Integer[0])));
+      // System.out.format("adj = %b; ", rv);
+      // printCoords("six_eight", given);
 
       return rv;
     }
@@ -286,9 +294,6 @@ public class SOCBoard implements Serializable, Cloneable
      *  all hexes adjacent to a node (add to move up/down & over)
      */
     private int[] nodeToHex = { -0x21, 0x01, -0x01, -0x10, 0x10, -0x12 };
-
-    /** hex numbers of hexes holding 9 port tiles */
-    int[] portLocs = { 0, 2, 8, 9, 21, 22, 32, 33, 35 };
 
     /**
      * the hex that the robber is in
@@ -418,65 +423,64 @@ public class SOCBoard implements Serializable, Cloneable
     public void makeNewBoard()
     {
       	// there are 8 water, 8 port, 19 land tiles: 37 total
-        // 19 land tiles:
-      	int[] landHex = { DESERT_HEX, CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
+        // 19 land tiles: (withholding: DESERT_HEX )
+      	int[] landHex = { CLAY_HEX, CLAY_HEX, CLAY_HEX, ORE_HEX, ORE_HEX, ORE_HEX,
 			  SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, SHEEP_HEX, 
 			  WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, WHEAT_HEX, 
 			  WOOD_HEX, WOOD_HEX, WOOD_HEX, WOOD_HEX, };
-	      // 9 port tiles: { 0,0,0,0,1,2,3,4,5} leaving 9 water tiles
-        int[] portHex = { MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
-			  CLAY_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX };
-	
+
         // A,B,C,...Q; indicating which die roll activates this resource tile:
         // 0-9 -> [2-6,8-12]  (also -1 for the desert)
         // int[] number = { 3, 0, 4, 1, 5, 7, 6, 9, 8, 2, 5, 7, 6, 2, 3, 4, 1, 8 };
-        // use direct dice numbers: 6 & 8: [2, 4, 10, 15]
+        // use direct dice numbers:
         // int[] number = { 5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11 };
-        int[] number = { 6, 6, 8, 8, 5, 2, 3, 10, 9, 12, 11, 4, 10, 9, 4, 5, 3, 11 };
+        /** 19 dieNumbers to place at coord indicated by numPath */
+        int[] dieNumbers = { 6, 6, 8, 8, 2, 3, 3, 4, 4, 5, 5, 7, 9, 9, 10, 10, 11, 11, 12 }; //
       	// place shuffled stack on hex map in this order: (these are the grid numbers)
-        int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
-        int i;
-        // int j;
-        // int idx;
-        // int tmp;
+        // int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
 
-        permuteInt(landHex);
-        permuteInt(numPath);
+        /* 19 grid numbers, place dieNumber on each  */
+        int[] numPath = { 5, 6, 7, 
+                      10, 11, 12, 13, 
+                    16, 17, 18, 19, 20, 
+                      23, 24, 25, 26,
+                         29, 30, 31,
+                    };
+        permuteInt(landHex); // randomize the resource tiles
+        permuteInt(numPath); // randomize placement of dieNumber
 
-        while (six_eightAdjacent(number, numPath)) { 
+        while (six_eightAdjacent(dieNumbers, numPath)) { 
           permuteInt(numPath);
         }
-        printCoords("final:", numPath);
-        printCoords("6/8=", new int[]{numPath[0], numPath[1], numPath[2], numPath[3]});
+        // printCoords("final:", numPath);
+        // printCoords("6/8=", new int[]{numPath[0], numPath[1], numPath[2], numPath[3]});
 
-        int cnt = 0;
+        // landHex: 36 non-desert tile
+        // numPath: 37 hex coords for number OR robber&desert
+        // dieNumbers: 37 die numbers
+        int cnt = 0; // ndx into landHex
 
-        for (i = 0; i < landHex.length; i++)
+        for (int i = 0; i < numPath.length; i++)
         {
-            // place the land hexes
-            hexLayout[numPath[i]] = landHex[i];
+            int gridNumber = numPath[i];
+            int dieNumber = dieNumbers[i];
+            // DESERT_HEX set aside; 36 shuffled are interchangeable 
+            int tile = (dieNumber == 7) ? DESERT_HEX : landHex[cnt++];
+            // set hexLayout at coords with indicated type of hex tile
+            hexLayout[gridNumber] = tile;
 
             // place the robber on desert
-            if (landHex[i] == 0)
-            {
-                robberHex = numToHexID[numPath[i]];
-                numberLayout[numPath[i]] = 0; // no number[] for robber
+            if (tile == DESERT_HEX) {
+                robberHex = numToHexID[gridNumber];
+                numberLayout[gridNumber] = 0; // no number[] for robber
             }
             else
             {
                 // place the numbers
-                numberLayout[numPath[i]] = number[cnt];
-                cnt++;
+                numberLayout[gridNumber] = dieNumber;
             }
         }
-
-        // shuffle the ports
-        permuteInt(portHex);
-
-        // set ports in place and orientation: the ports
-        for (int k = 0; k < portLocs.length; k++) {
-          placePort(portHex[k], portLocs[k]);
-        }
+        setPortLayout();
 
         // fill out the ports[] vectors (or call setHexLayout(hexLayout)!)
       	setHexLayout(hexLayout); // just to set the port-node vectors
@@ -555,6 +559,27 @@ public class SOCBoard implements Serializable, Cloneable
              * this is a blank board
              */
             return;
+        }
+
+    }
+
+    void setPortLayout() 
+    {
+        System.out.println("edgelocs=" +Arrays.toString(edgeLocs));
+        // 9 port tiles: { 0,0,0,0,1,2,3,4,5} leaving 9 water tiles
+        int[] portHex = { MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
+			                    CLAY_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX };
+	
+        // shuffle the ports
+        permuteInt(portHex);
+
+        permuteInt(edgeLocs);   // put ports in ANY edgeLoc
+
+        portLocs = Arrays.copyOf(edgeLocs, 9);
+        
+        // set ports in place and orientation: the ports
+        for (int k = 0; k < portLocs.length; k++) {
+          placePort(portHex[k], portLocs[k]);
         }
 
         /**
@@ -1128,7 +1153,7 @@ public class SOCBoard implements Serializable, Cloneable
      */
     public boolean isNodeOnBoard(int node)
     {
-	return nodesOnBoard[node];
+      	return nodesOnBoard[node];
     }
 
     /**
