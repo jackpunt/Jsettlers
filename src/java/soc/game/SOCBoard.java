@@ -64,6 +64,8 @@ public class SOCBoard implements Serializable, Cloneable
 //      public static final int WHEAT_PORT = 4;
 //      public static final int WOOD_PORT = 5;
     public static final int MAX_PORT = 5;
+    public static final int[] RES_PORTS = { 1,2,3,4,5};
+    public static final int[] ANY_PORTS = { 0,1,2,3,4,5};
 
     /**
      * largest value for a hex
@@ -340,11 +342,6 @@ public class SOCBoard implements Serializable, Cloneable
         robberHex = -1;
 
         /**
-         * generic counter
-         */
-        int i;
-
-        /**
          * initialize the pieces vectors
          */
         pieces = new Vector<SOCPlayingPiece>(96);
@@ -360,7 +357,7 @@ public class SOCBoard implements Serializable, Cloneable
         ports = (Vector<Integer>[]) new Vector[6];
         ports[MISC_PORT] = new Vector<Integer>(8); // 8 elements (2 coords per 4 misc port-hex)
 
-        for (i = MIN_PORT; i <= MAX_PORT; i++)
+        for (int i : RES_PORTS)
         {
             ports[i] = new Vector<Integer>(2); // 2 elements (2 coords per resource port-hex)
         }
@@ -371,26 +368,26 @@ public class SOCBoard implements Serializable, Cloneable
         hexIDtoNum = new int[0xEE]; // 256 elements
         nodesOnBoard = new boolean[0xEE];
 
-        for (i = 0; i < 0xEE; i++)
+        for (int i = 0; i < 0xEE; i++)
         {
             hexIDtoNum[i] = 0;
             nodesOnBoard[i] = false;
         }
 
         // insert index to Hex within numToHexID:
-        for (i = 0; i < numToHexID.length; i++) {
+        for (int i = 0; i < numToHexID.length; i++) {
             hexIDtoNum[numToHexID[i]] = i;
         }
 
         /**
          * initialize the list of nodes on the board
          */
-        for (i = 0x27; i <= 0x8D; i += 0x11) {nodesOnBoard[i]=true;}
-        for (i = 0x25; i <= 0xAD; i += 0x11) {nodesOnBoard[i]=true;}
-        for (i = 0x23; i <= 0xCD; i += 0x11) {nodesOnBoard[i]=true;}
-        for (i = 0x32; i <= 0xDC; i += 0x11) {nodesOnBoard[i]=true;}
-        for (i = 0x52; i <= 0xDA; i += 0x11) {nodesOnBoard[i]=true;}
-        for (i = 0x72; i <= 0xD8; i += 0x11) {nodesOnBoard[i]=true;}
+        for (int i = 0x27; i <= 0x8D; i += 0x11) {nodesOnBoard[i]=true;}
+        for (int i = 0x25; i <= 0xAD; i += 0x11) {nodesOnBoard[i]=true;}
+        for (int i = 0x23; i <= 0xCD; i += 0x11) {nodesOnBoard[i]=true;}
+        for (int i = 0x32; i <= 0xDC; i += 0x11) {nodesOnBoard[i]=true;}
+        for (int i = 0x52; i <= 0xDA; i += 0x11) {nodesOnBoard[i]=true;}
+        for (int i = 0x72; i <= 0xD8; i += 0x11) {nodesOnBoard[i]=true;}
     }
 
     /** permute given array in place. */

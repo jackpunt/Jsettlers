@@ -177,7 +177,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     private boolean[] potentialCities;
 
     /**
-     * a boolean array stating wheather this player is touching a
+     * a boolean array stating whether this player is touching a
      * particular kind of port
      */
     private boolean[] ports;
@@ -220,8 +220,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
      */
     public SOCPlayer(SOCPlayer player)
     {
-        int i;
-        int j;
+
         game = player.game;
         playerNumber = player.playerNumber;
         numPieces = new int[SOCPlayingPiece.MAXPLUSONE];
@@ -247,7 +246,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         ourNumbers = new SOCPlayerNumbers(player.ourNumbers);
         ports = new boolean[SOCBoard.MAX_PORT + 1];
 
-        for (i = SOCBoard.MISC_PORT; i <= SOCBoard.MAX_PORT; i++)
+        for (int i : SOCBoard.ANY_PORTS)
         {
             ports[i] = player.ports[i];
         }
@@ -255,9 +254,9 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         roadNodes = (Vector) player.roadNodes.clone();
         roadNodeGraph = new boolean[SOCBoard.MAXNODEPLUSONE][SOCBoard.MAXNODEPLUSONE];
 
-        for (i = SOCBoard.MINNODE; i < SOCBoard.MAXNODEPLUSONE; i++)
+        for (int i = SOCBoard.MINNODE; i < SOCBoard.MAXNODEPLUSONE; i++)
         {
-            for (j = SOCBoard.MINNODE; j < SOCBoard.MAXNODEPLUSONE; j++)
+            for (int j = SOCBoard.MINNODE; j < SOCBoard.MAXNODEPLUSONE; j++)
             {
                 roadNodeGraph[i][j] = player.roadNodeGraph[i][j];
             }
@@ -272,13 +271,13 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         potentialSettlements = new boolean[0xFF];
         potentialCities = new boolean[0xFF];
 
-        for (i = 0; i < 0xEF; i++)
+        for (int i = 0; i < 0xEF; i++)
         {
             legalRoads[i] = player.legalRoads[i];
             potentialRoads[i] = player.potentialRoads[i];
         }
 
-        for (i = 0; i < 0xFF; i++)
+        for (int i = 0; i < 0xFF; i++)
         {
             legalSettlements[i] = player.legalSettlements[i];
             potentialSettlements[i] = player.potentialSettlements[i];
@@ -303,8 +302,6 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
      */
     public SOCPlayer(int pn, SOCGame ga)
     {
-        int i;
-        int j;
 
         game = ga;
         playerNumber = pn;
@@ -312,12 +309,12 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         numPieces[SOCPlayingPiece.ROAD] = 15;
         numPieces[SOCPlayingPiece.SETTLEMENT] = 5;
         numPieces[SOCPlayingPiece.CITY] = 4;
-        pieces = new Vector(24);
-        roads = new Vector(15);
-        settlements = new Vector(5);
-        cities = new Vector(4);
+        pieces = new Vector<SOCPlayingPiece>(24);
+        roads = new Vector<SOCPlayingPiece>(15);
+        settlements = new Vector<SOCPlayingPiece>(5);
+        cities = new Vector<SOCPlayingPiece>(4);
         longestRoadLength = 0;
-        lrPaths = new Vector();
+        lrPaths = new Vector<SOCLRPathData>();
         resources = new SOCResourceSet();
         uresources = new SOCResourceSet();
         devCards = new SOCDevCardSet();
@@ -331,19 +328,19 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         ourNumbers = new SOCPlayerNumbers();
 
         // buildingSpeed = new SOCBuildingSpeedEstimate(this);
-        ports = new boolean[SOCBoard.MAX_PORT + 1];
+        ports = new boolean[SOCBoard.MAX_PORT + 1]; // 5 x 2:1 Res + Misc_Port
 
-        for (i = SOCBoard.MISC_PORT; i <= SOCBoard.MAX_PORT; i++)
+        for (int i = SOCBoard.MISC_PORT; i <= SOCBoard.MAX_PORT; i++)
         {
             ports[i] = false;
         }
 
-        roadNodes = new Vector(20);
+        roadNodes = new Vector<Integer>(20);
         roadNodeGraph = new boolean[SOCBoard.MAXNODEPLUSONE][SOCBoard.MAXNODEPLUSONE];
 
-        for (i = SOCBoard.MINNODE; i < SOCBoard.MAXNODEPLUSONE; i++)
+        for (int i = SOCBoard.MINNODE; i < SOCBoard.MAXNODEPLUSONE; i++)
         {
-            for (j = SOCBoard.MINNODE; j < SOCBoard.MAXNODEPLUSONE; j++)
+            for (int j = SOCBoard.MINNODE; j < SOCBoard.MAXNODEPLUSONE; j++)
             {
                 roadNodeGraph[i][j] = false;
             }
@@ -358,13 +355,13 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
         potentialSettlements = new boolean[0xFF];
         potentialCities = new boolean[0xFF];
 
-        for (i = 0; i < 0xEF; i++)
+        for (int i = 0; i < 0xEF; i++)
         {
             legalRoads[i] = false;
             potentialRoads[i] = false;
         }
 
-        for (i = 0; i < 0xFF; i++)
+        for (int i = 0; i < 0xFF; i++)
         {
             legalSettlements[i] = false;
             potentialSettlements[i] = false;
@@ -381,59 +378,58 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
      */
     private final void initLegalRoads()
     {
-        int i;
 
-        for (i = 0x27; i <= 0x7C; i += 0x11)
+        for (int i = 0x27; i <= 0x7C; i += 0x11)
         {
             legalRoads[i] = true;
         }
 
-        for (i = 0x26; i <= 0x8C; i += 0x22)
+        for (int i = 0x26; i <= 0x8C; i += 0x22)
         {
             legalRoads[i] = true;
         }
 
-        for (i = 0x25; i <= 0x9C; i += 0x11)
+        for (int i = 0x25; i <= 0x9C; i += 0x11)
         {
             legalRoads[i] = true;
         }
 
-        for (i = 0x24; i <= 0xAC; i += 0x22)
+        for (int i = 0x24; i <= 0xAC; i += 0x22)
         {
             legalRoads[i] = true;
         }
 
-        for (i = 0x23; i <= 0xBC; i += 0x11)
+        for (int i = 0x23; i <= 0xBC; i += 0x11)
         {
             legalRoads[i] = true;
         }
 
-        for (i = 0x22; i <= 0xCC; i += 0x22)
+        for (int i = 0x22; i <= 0xCC; i += 0x22)
         {
             legalRoads[i] = true;
         }
 
-        for (i = 0x32; i <= 0xCB; i += 0x11)
+        for (int i = 0x32; i <= 0xCB; i += 0x11)
         {
             legalRoads[i] = true;
         }
 
-        for (i = 0x42; i <= 0xCA; i += 0x22)
+        for (int i = 0x42; i <= 0xCA; i += 0x22)
         {
             legalRoads[i] = true;
         }
 
-        for (i = 0x52; i <= 0xC9; i += 0x11)
+        for (int i = 0x52; i <= 0xC9; i += 0x11)
         {
             legalRoads[i] = true;
         }
 
-        for (i = 0x62; i <= 0xC8; i += 0x22)
+        for (int i = 0x62; i <= 0xC8; i += 0x22)
         {
             legalRoads[i] = true;
         }
 
-        for (i = 0x72; i <= 0xC7; i += 0x11)
+        for (int i = 0x72; i <= 0xC7; i += 0x11)
         {
             legalRoads[i] = true;
         }
@@ -444,39 +440,38 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
      */
     private final void initLegalAndPotentialSettlements()
     {
-        int i;
 
-        for (i = 0x27; i <= 0x8D; i += 0x11)
+        for (int i = 0x27; i <= 0x8D; i += 0x11)
         {
             potentialSettlements[i] = true;
             legalSettlements[i] = true;
         }
 
-        for (i = 0x25; i <= 0xAD; i += 0x11)
+        for (int i = 0x25; i <= 0xAD; i += 0x11)
         {
             potentialSettlements[i] = true;
             legalSettlements[i] = true;
         }
 
-        for (i = 0x23; i <= 0xCD; i += 0x11)
+        for (int i = 0x23; i <= 0xCD; i += 0x11)
         {
             potentialSettlements[i] = true;
             legalSettlements[i] = true;
         }
 
-        for (i = 0x32; i <= 0xDC; i += 0x11)
+        for (int i = 0x32; i <= 0xDC; i += 0x11)
         {
             potentialSettlements[i] = true;
             legalSettlements[i] = true;
         }
 
-        for (i = 0x52; i <= 0xDA; i += 0x11)
+        for (int i = 0x52; i <= 0xDA; i += 0x11)
         {
             potentialSettlements[i] = true;
             legalSettlements[i] = true;
         }
 
-        for (i = 0x72; i <= 0xD8; i += 0x11)
+        for (int i = 0x72; i <= 0xD8; i += 0x11)
         {
             potentialSettlements[i] = true;
             legalSettlements[i] = true;
@@ -488,9 +483,8 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
      */
     public void clearPotentialSettlements()
     {
-        int i;
 
-        for (i = 0; i < 0xFF; i++)
+        for (int i = 0; i < 0xFF; i++)
         {
             potentialSettlements[i] = false;
         }
@@ -659,7 +653,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     /**
      * @return the list of cities in play
      */
-    public Vector getCities()
+    public Vector<SOCPlayingPiece> getCities()
     {
         return cities;
     }
@@ -846,7 +840,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
     /**
      * @return the list of nodes that touch the roads in play
      */
-    public Vector getRoadNodes()
+    public Vector<Integer> getRoadNodes()
     {
         return roadNodes;
     }
@@ -910,7 +904,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
                 /**
                  * add the nodes this road touches to the roadNodes list
                  */
-                Enumeration nodes = SOCBoard.getAdjacentNodesToEdge(piece.getCoordinates()).elements();
+                Enumeration<Integer> nodes = SOCBoard.getAdjacentNodesToEdge(piece.getCoordinates()).elements();
                 int[] nodeCoords = new int[2];
                 int i = 0;
 
@@ -962,14 +956,13 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
                  */
                 Integer coordInteger = piece.getCoordinates();
 
-                for (int portType = SOCBoard.MISC_PORT;
-                        portType <= SOCBoard.MAX_PORT; portType++)
+                for (int portType : SOCBoard.ANY_PORTS)
                 {
                     if (game.getBoard().getPortCoordinates(portType).contains(coordInteger))
                     {
                         setPortFlag(portType, true);
 
-                        break;
+                        // break;
                     }
                 }
 
@@ -1074,8 +1067,7 @@ public class SOCPlayer implements SOCResourceConstants, SOCDevCardConstants, Ser
                 //
                 Integer coordInteger = piece.getCoordinates();
 
-                for (int portType = SOCBoard.MISC_PORT;
-                        portType <= SOCBoard.MAX_PORT; portType++)
+                for (int portType : SOCBoard.ANY_PORTS)
                 {
                     if (game.getBoard().getPortCoordinates(portType).contains(coordInteger))
                     {

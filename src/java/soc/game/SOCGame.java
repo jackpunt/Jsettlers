@@ -1924,7 +1924,7 @@ public class SOCGame implements Serializable, Cloneable
             /**
              * check for groups of 4
              */
-            for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
+            for (int i : SOCResourceConstants.EACH)
             {
                 if ((give.getAmount(i) % 4) == 0)
                 {
@@ -1946,7 +1946,7 @@ public class SOCGame implements Serializable, Cloneable
             /**
              * check for groups of 3
              */
-            for (int i = SOCResourceConstants.MIN; i < SOCResourceConstants.MAX; i++)
+            for (int i : SOCResourceConstants.EACH)
             {
                 if ((give.getAmount(i) % 3) == 0)
                 {

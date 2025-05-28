@@ -2298,8 +2298,7 @@ public class SOCPlayerTracker
             SOCPlayerNumbers tempPlayerNumbers = new SOCPlayerNumbers(player.getNumbers());
             boolean[] tempPortFlags = new boolean[SOCBoard.MAX_PORT + 1];
 
-            for (int portType = SOCBoard.MISC_PORT;
-                    portType <= SOCBoard.MAX_PORT; portType++)
+            for (int portType : SOCBoard.ANY_PORTS)
             {
                 tempPortFlags[portType] = player.getPortFlag(portType);
             }
@@ -2391,8 +2390,7 @@ public class SOCPlayerTracker
                 {
                     D.ebugPrint("WWW tempPortFlags: ");
 
-                    for (int portType = SOCBoard.MISC_PORT;
-                            portType <= SOCBoard.MAX_PORT; portType++)
+                    for (int portType : SOCBoard.ANY_PORTS)
                     {
                         D.ebugPrint(tempPortFlags[portType] + " ");
                     }
@@ -2642,9 +2640,7 @@ public class SOCPlayerTracker
 
                                         Integer posSetCoords = new Integer(posSet.getCoordinates());
 
-                                        for (int portType = SOCBoard.MISC_PORT;
-                                                portType <= SOCBoard.MAX_PORT;
-                                                portType++)
+                                        for (int portType : SOCBoard.ANY_PORTS)
                                         {
                                             tempPortFlagsSet[i][portType] = tempPortFlags[portType];
 
@@ -2677,9 +2673,7 @@ public class SOCPlayerTracker
 
                                         Integer posSetCoords = new Integer(posSet.getCoordinates());
 
-                                        for (int portType = SOCBoard.MISC_PORT;
-                                                portType <= SOCBoard.MAX_PORT;
-                                                portType++)
+                                        for (int portType : SOCBoard.ANY_PORTS)
                                         {
                                             veryTempPortFlags[portType] = tempPortFlags[portType];
 
@@ -2737,9 +2731,7 @@ public class SOCPlayerTracker
                                                 chosenSetBuildingSpeed[i][buildingType] = tempBuildingSpeed[buildingType];
                                             }
 
-                                            for (int portType = SOCBoard.MISC_PORT;
-                                                    portType <= SOCBoard.MAX_PORT;
-                                                    portType++)
+                                            for (int portType : SOCBoard.ANY_PORTS)
                                             {
                                                 tempPortFlagsSet[i][portType] = veryTempPortFlags[portType];
                                             }
@@ -2932,9 +2924,7 @@ public class SOCPlayerTracker
 
                                     Integer posSetCoords = new Integer(posSet.getCoordinates());
 
-                                    for (int portType = SOCBoard.MISC_PORT;
-                                            portType <= SOCBoard.MAX_PORT;
-                                            portType++)
+                                    for (int portType : SOCBoard.ANY_PORTS)
                                     {
                                         tempPortFlagsSet[0][portType] = tempPortFlags[portType];
 
@@ -2967,9 +2957,7 @@ public class SOCPlayerTracker
 
                                     Integer posSetCoords = new Integer(posSet.getCoordinates());
 
-                                    for (int portType = SOCBoard.MISC_PORT;
-                                            portType <= SOCBoard.MAX_PORT;
-                                            portType++)
+                                    for (int portType : SOCBoard.ANY_PORTS)
                                     {
                                         veryTempPortFlags[portType] = tempPortFlags[portType];
 
@@ -3027,9 +3015,7 @@ public class SOCPlayerTracker
                                             chosenSetBuildingSpeed[0][buildingType] = tempBuildingSpeed[buildingType];
                                         }
 
-                                        for (int portType = SOCBoard.MISC_PORT;
-                                                portType <= SOCBoard.MAX_PORT;
-                                                portType++)
+                                        for (int portType : SOCBoard.ANY_PORTS)
                                         {
                                             tempPortFlagsSet[0][portType] = veryTempPortFlags[portType];
                                         }
@@ -3245,8 +3231,7 @@ public class SOCPlayerTracker
                         Integer chosenSet0Coords = new Integer(chosenSet[0].getCoordinates());
                         Integer chosenSet1Coords = new Integer(chosenSet[1].getCoordinates());
 
-                        for (int portType = SOCBoard.MISC_PORT;
-                                portType <= SOCBoard.MAX_PORT; portType++)
+                        for (int portType : SOCBoard.ANY_PORTS)
                         {
                             if (player.getGame().getBoard().getPortCoordinates(portType).contains(chosenSet0Coords))
                             {
@@ -3306,8 +3291,7 @@ public class SOCPlayerTracker
 
                         Integer chosenSet0Coords = new Integer(chosenSet[0].getCoordinates());
 
-                        for (int portType = SOCBoard.MISC_PORT;
-                                portType <= SOCBoard.MAX_PORT; portType++)
+                        for (int portType : SOCBoard.ANY_PORTS)
                         {
                             if (player.getGame().getBoard().getPortCoordinates(portType).contains(chosenSet0Coords))
                             {

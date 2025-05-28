@@ -47,5 +47,5 @@ public interface SOCResourceConstants
     /** index list in original/canonnical order.
      * this order is used by arglist, and toString/parsers
      */
-    public static final int[] order = {CLAY,ORE,SHEEP,WHEAT,WOOD};
+    public static final int[] EACH = {ORE, WHEAT, SHEEP, CLAY, WOOD};
 }
