@@ -215,10 +215,23 @@ public class SOCGame implements Serializable, Cloneable
      */
     long expiration;
 
+    /** set by name.contains SP */
+    boolean standardPorts = false;
+
+    /** set by name.contains SD */
+    boolean standardDice = false;
+
+    /**
+     * Common code for both constructor forms.
+     * @param n name of game
+     * @param a true if game is active
+     */
     void initCommonValues(String n, boolean a) {
         name = n;
         active = a;
         inUse = false;
+        standardPorts = name.contains("SP");
+        standardDice = name.contains("SD");
         board = new SOCBoard();
         players = new SOCPlayer[MAXPLAYERS];
         seats = new int[MAXPLAYERS];
@@ -237,7 +250,7 @@ public class SOCGame implements Serializable, Cloneable
         playerWithLargestArmy = -1;
         playerWithLongestRoad = -1;
         numDevCards = initialNumOfDevCards();
-        System.out.format("%s numDevCards = %d\n", new Date(), numDevCards);
+        // System.out.format("%s numDevCards = %d\n", new Date(), numDevCards);
       	gameOver = false;
         gameState = NEW;
         oldPlayerWithLongestRoad = new Stack<SOCOldLRStats>();
@@ -1088,7 +1101,7 @@ public class SOCGame implements Serializable, Cloneable
      */
     public void startGame()
     {
-        board.makeNewBoard();
+        board.makeNewBoard(this);
 
         makeDevDeck();
 
@@ -1206,13 +1219,13 @@ public class SOCGame implements Serializable, Cloneable
              */
             if (gameState != WAITING_FOR_DISCARDS)
             {
-		if (name.startsWith("NR") || name.startsWith("NTNR")) {
-		    gameState = PLAY1;
-		} else {
-		    oldGameState = PLAY1;
-		    gameState = PLACING_ROBBER;
-		}
-	    }
+                if (name.startsWith("NR") || name.startsWith("NTNR")) {
+                    gameState = PLAY1;
+                } else {
+                    oldGameState = PLAY1;
+                    gameState = PLACING_ROBBER;
+                }
+	          }
         }
         else
         {
@@ -1403,12 +1416,12 @@ public class SOCGame implements Serializable, Cloneable
          * if no one needs to discard, then wait for the robber to move
          */
         if (gameState != WAITING_FOR_DISCARDS)
-	    if (name.startsWith("NR") || name.startsWith("NTNR")) {
-		gameState = PLAY1;
-	    } else {
-		oldGameState = PLAY1;
-		gameState = PLACING_ROBBER;
-	    }
+            if (name.startsWith("NR") || name.startsWith("NTNR")) {
+                gameState = PLAY1;
+            } else {
+                oldGameState = PLAY1;
+                gameState = PLACING_ROBBER;
+	          }
     }
 
     /**
@@ -2287,9 +2300,9 @@ public class SOCGame implements Serializable, Cloneable
         players[currentPlayerNumber].incrementNumKnights();
         updateLargestArmy();
         checkForWinner();
-	if (name.startsWith("NR") || name.startsWith("NTNR")) {
-	    return;
-	}
+        if (name.startsWith("NR") || name.startsWith("NTNR")) {
+            return;
+        }
         oldGameState = gameState;
         gameState = PLACING_ROBBER;
     }

@@ -387,7 +387,7 @@ public class SOCRobotBrain extends Thread
         client = rc;
         robotParameters = params;
         game = ga;
-	noRobber = game.getName().startsWith("NR") || game.getName().startsWith("NTNR");
+      	noRobber = game.getName().startsWith("NR") || game.getName().startsWith("NTNR");
         gameEventQ = mq;
         alive = true;
         counter = 0;
@@ -1224,10 +1224,10 @@ public class SOCRobotBrain extends Thread
                                  */
                                 if ((ourPlayerData.getDevCards().getAmount(SOCDevCardSet.OLD, SOCDevCardConstants.KNIGHT) > 0) && (!(ourPlayerData.getNumbers().getNumberResourcePairsForHex(game.getBoard().getRobberHex())).isEmpty()))
                                 {
-				    if (!noRobber) {
-					expectPLACING_ROBBER = true;
-					waitingForGameState = true;
-				    }
+                                    if (!noRobber) {
+                                        expectPLACING_ROBBER = true;
+                                        waitingForGameState = true;
+                                    }
                                     counter = 0;
                                     client.playDevCard(game, SOCDevCardConstants.KNIGHT);
                                     pause(1500);
@@ -1402,9 +1402,9 @@ public class SOCRobotBrain extends Thread
                                              * play a knight card
                                              */
                                             if (!noRobber) {
-						expectPLACING_ROBBER = true;
-						waitingForGameState = true;
-					    } 
+                                                expectPLACING_ROBBER = true;
+                                                waitingForGameState = true;
+                                            } 
                                             counter = 0;
                                             client.playDevCard(game, SOCDevCardConstants.KNIGHT);
                                             pause(500);
@@ -2174,16 +2174,16 @@ public class SOCRobotBrain extends Thread
                                 expectDISCARD = true;
                             }
                             else if (ourTurn)
-			    {
-				if (noRobber) {
-				    expectPLAY1 = true;
-				} else {
-				    expectPLACING_ROBBER = true;
-				}
-			    }
+                            {
+                                if (noRobber) {
+                                    expectPLAY1 = true;
+                                } else {
+                                    expectPLACING_ROBBER = true;
+                                }
+			                      }
                         } else {
-			    expectPLAY1 = true;
-			}
+                            expectPLAY1 = true;
+                        }
                     }
 
                     if (mesType == SOCMessage.DISCARDREQUEST)
@@ -2198,7 +2198,7 @@ public class SOCRobotBrain extends Thread
                         //	      (counter < 4000))) {
                         if ((game.getCurrentDice() == 7) && (ourTurn) && !noRobber)
                         {
-			    expectPLACING_ROBBER = true;
+	                  		    expectPLACING_ROBBER = true;
                         }
                         else
                         {
@@ -2275,38 +2275,38 @@ public class SOCRobotBrain extends Thread
     SOCResourceSet rs = pl.getResources();
     SOCResourceSet ur = pl.getUResources();
 
-	int mv = mes.getValue();
+        int mv = mes.getValue();
 
-	switch (mes.getAction()) {
-	    case SOCPlayerElement.SET:
-		
-		if (D.ebugOn) {
-		    if (mv != rs.getAmount(rsc)) {
-			client.sendText(game, ">>> RSRC ERROR FOR " + SOCResourceConstants.names[rsc] + ": " + mv + " != " + rs.getAmount(rsc));
-		    }
-		}
-		rs.setAmount(mv, rsc);
-		
-		break;
-		
-	    case SOCPlayerElement.GAIN:
-		rs.add(mv, rsc);
-		
-		break;
-		
-	    case SOCPlayerElement.LOSE:
-		if (rsc == SOCResourceConstants.UNKNOWN) {
-		    // convert known resources to unknown resources:
-		    for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
-			int ra = Math.min(rs.getAmount(rt), mv);
-			rs.subtract(ra, rt); 
-			rs.add(ra, SOCResourceConstants.UNKNOWN);
-		    }
-		}
+        switch (mes.getAction()) {
+            case SOCPlayerElement.SET:
+          
+          if (D.ebugOn) {
+              if (mv != rs.getAmount(rsc)) {
+                 client.sendText(game, ">>> RSRC ERROR FOR " + SOCResourceConstants.names[rsc] + ": " + mv + " != " + rs.getAmount(rsc));
+              }
+          }
+          rs.setAmount(mv, rsc);
+          
+          break;
+          
+            case SOCPlayerElement.GAIN:
+          rs.add(mv, rsc);
+          
+          break;
+          
+            case SOCPlayerElement.LOSE:
+          if (rsc == SOCResourceConstants.UNKNOWN) {
+              // convert known resources to unknown resources:
+              for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
+                  int ra = Math.min(rs.getAmount(rt), mv);
+                  rs.subtract(ra, rt); 
+                  rs.add(ra, SOCResourceConstants.UNKNOWN);
+              }
+          }
 
-		rs.subtract(mv, rsc); // and reduce UNKNOWN if necessary
+          rs.subtract(mv, rsc); // and reduce UNKNOWN if necessary
 
-		break;
+          break;
 	    }
 	
     }
@@ -2341,34 +2341,34 @@ public class SOCRobotBrain extends Thread
     }
 
     protected int addNumbersForHex(SOCBoard board, SOCPlayerNumbers playerNumbers , int node) {
-	Enumeration<Integer> hexes = SOCBoard.getAdjacentHexesToNode(node).elements();
-	int probTotal = 0;
+        Enumeration<Integer> hexes = SOCBoard.getAdjacentHexesToNode(node).elements();
+        int probTotal = 0;
 
-	while (hexes.hasMoreElements()) {
-	    int hex = hexes.nextElement().intValue();
-	    int number = board.getNumberOnHexFromCoord(hex);
-	    int resource = board.getHexTypeFromCoord(hex);
-	    playerNumbers.addNumberForResource(number, resource, hex);
-	    probTotal += SOCNumberProbabilities.INT_VALUES[number]; // integer percents
-	    D.ebugPrint(number + " ");
-	}
-	return probTotal;
+        while (hexes.hasMoreElements()) {
+            int hex = hexes.nextElement().intValue();
+            int number = board.getNumberOnHexFromCoord(hex);
+            int resource = board.getHexTypeFromCoord(hex);
+            playerNumbers.addNumberForResource(number, resource, hex);
+            probTotal += SOCNumberProbabilities.INT_VALUES[number]; // integer percents
+            D.ebugPrint(number + " ");
+        }
+        return probTotal;
     }
 
     protected void markPortType(SOCBoard board, boolean[] ports, int node1, int node2) {
-	markPortType(board, ports, node1);
-	markPortType(board, ports, node2);
+        markPortType(board, ports, node1);
+        markPortType(board, ports, node2);
     }
 
     protected void markPortType(SOCBoard board, boolean[] ports, int node) {
-	D.ebugPrint(" ports:");
-	Integer nodeInt = node;
-	for (int portType = SOCBoard.MISC_PORT; portType <= SOCBoard.MAX_PORT; portType++) {
-	    ports[portType] = (board.getPortCoordinates(portType).contains(nodeInt));
-	    D.ebugPrint(" " + ports[portType]);
-	    // each node is of most one port type:
-	    // if (ports[portType]) break;
-	}
+        D.ebugPrint(" ports:");
+        Integer nodeInt = node;
+        for (int portType = SOCBoard.MISC_PORT; portType <= SOCBoard.MAX_PORT; portType++) {
+            ports[portType] = (board.getPortCoordinates(portType).contains(nodeInt));
+            D.ebugPrint(" " + ports[portType]);
+            // each node is of most one port type:
+            // if (ports[portType]) break;
+        }
     }
 
     /**
@@ -2411,43 +2411,43 @@ public class SOCRobotBrain extends Thread
                 playerNumbers.clear();
                 probTotal = 0;
                 D.ebugPrint("numbers:[");
-		probTotal += addNumbersForHex(board, playerNumbers, firstNode);
+		            probTotal += addNumbersForHex(board, playerNumbers, firstNode);
                 D.ebugPrintln("]");
-		markPortType(board, ports, firstNode);
+		            markPortType(board, ports, firstNode);
                 D.ebugPrintln();
                 D.ebugPrintln(" probTotal = " + probTotal);
                 estimate.recalculateEstimates(playerNumbers);
 
-		int testSpeed = 300;
+		            int testSpeed = 300;
                 speed = 0;
-		allTheWay = true;
+		            allTheWay = true;
 		
-		for (int rst = SOCBuildingSpeedEstimate.MIN; rst < SOCBuildingSpeedEstimate.MAXPLUSONE; rst++) {
-		    if (speed > testSpeed) { allTheWay = false; break; }
-		    speed += estimate.calculateRollsFast(emptySet, SOCBuildingSpeedEstimate.buildTargets[rst], testSpeed, ports);
-		}
-		
-		// Debug print estimate as of first settlement:
-		{
-		    int[] rolls = estimate.getEstimatesFromNothingFast(ports, testSpeed);
-		    D.ebugPrint(" speed = " + speed + " -- ( ");
+                for (int rst = SOCBuildingSpeedEstimate.MIN; rst < SOCBuildingSpeedEstimate.MAXPLUSONE; rst++) {
+                    if (speed > testSpeed) { allTheWay = false; break; }
+                    speed += estimate.calculateRollsFast(emptySet, SOCBuildingSpeedEstimate.buildTargets[rst], testSpeed, ports);
+                }
+                
+                // Debug print estimate as of first settlement:
+                {
+                    int[] rolls = estimate.getEstimatesFromNothingFast(ports, testSpeed);
+                    D.ebugPrint(" speed = " + speed + " -- ( ");
 
-		    D.ebugPrint(" road: " + rolls[SOCBuildingSpeedEstimate.ROAD]);
-		    D.ebugPrint(" stlmt: " + rolls[SOCBuildingSpeedEstimate.SETTLEMENT]);
-		    D.ebugPrint(" city: " + rolls[SOCBuildingSpeedEstimate.CITY]);
-		    D.ebugPrint(" card: " + rolls[SOCBuildingSpeedEstimate.CARD]);
-		    D.ebugPrintln(" )");
-		}
+                    D.ebugPrint(" road: " + rolls[SOCBuildingSpeedEstimate.ROAD]);
+                    D.ebugPrint(" stlmt: " + rolls[SOCBuildingSpeedEstimate.SETTLEMENT]);
+                    D.ebugPrint(" city: " + rolls[SOCBuildingSpeedEstimate.CITY]);
+                    D.ebugPrint(" card: " + rolls[SOCBuildingSpeedEstimate.CARD]);
+                    D.ebugPrintln(" )");
+                }
                 //
                 // end test
                 //
 
-		// looking at each combination of 2 playable nodes:
-		// order is not a factor at this point.
+                // looking at each combination of 2 playable nodes:
+                // order is not a factor at this point.
                 for (int secondNode = firstNode + 1; secondNode < 0xDC; secondNode++)
                 {
                     if ((ourPlayerData.isPotentialSettlement(secondNode)) &&
-			(!SOCBoard.getAdjacentNodesToNode(secondNode).contains(firstNodeInt)))
+		                  	(!SOCBoard.getAdjacentNodesToNode(secondNode).contains(firstNodeInt)))
                     {
                         //D.ebugPrintln("firstNode = " + board.nodeCoordToString(firstNode));
                         //D.ebugPrintln("secondNode = " + board.nodeCoordToString(secondNode));
@@ -2458,11 +2458,11 @@ public class SOCRobotBrain extends Thread
                         D.ebugPrint("numbers:[");
                         playerNumbers.clear();
                         probTotal = 0;
-			probTotal += addNumbersForHex(board, playerNumbers, firstNode);
+			                  probTotal += addNumbersForHex(board, playerNumbers, firstNode);
                         D.ebugPrint("] [");
-			probTotal += addNumbersForHex(board, playerNumbers, secondNode);
+		                  	probTotal += addNumbersForHex(board, playerNumbers, secondNode);
                         D.ebugPrintln("]");
-			markPortType(board, ports, firstNode, secondNode);
+		                  	markPortType(board, ports, firstNode, secondNode);
                         D.ebugPrintln();
 
                         D.ebugPrintln(" probTotal = " + probTotal);
@@ -2474,23 +2474,23 @@ public class SOCRobotBrain extends Thread
                         speed = 0;
                         allTheWay = true;
 
-			// see if this rolls-to-resources is low for this pair:
-			for (int rst = SOCBuildingSpeedEstimate.MIN; rst < SOCBuildingSpeedEstimate.MAXPLUSONE; rst++) {
-			    if (speed > bestSpeed) { allTheWay = false; break; }
-			    speed += estimate.calculateRollsFast(emptySet, SOCBuildingSpeedEstimate.buildTargets[rst], bestSpeed, ports);
-			}
+                        // see if this rolls-to-resources is low for this pair:
+                        for (int rst = SOCBuildingSpeedEstimate.MIN; rst < SOCBuildingSpeedEstimate.MAXPLUSONE; rst++) {
+                            if (speed > bestSpeed) { allTheWay = false; break; }
+                            speed += estimate.calculateRollsFast(emptySet, SOCBuildingSpeedEstimate.buildTargets[rst], bestSpeed, ports);
+                        }
 
-			{
-			    int[] rolls = estimate.getEstimatesFromNothingFast(ports, bestSpeed);
-			    D.ebugPrintln(" allTheWay = " + allTheWay);
-			    D.ebugPrint(" speed = " + speed + " -- ( ");
-			    
-			    D.ebugPrint(" road: " + rolls[SOCBuildingSpeedEstimate.ROAD]);
-			    D.ebugPrint(" stlmt: " + rolls[SOCBuildingSpeedEstimate.SETTLEMENT]);
-			    D.ebugPrint(" city: " + rolls[SOCBuildingSpeedEstimate.CITY]);
-			    D.ebugPrint(" card: " + rolls[SOCBuildingSpeedEstimate.CARD]);
-			    D.ebugPrintln(" )");
-			}
+                        {
+                            int[] rolls = estimate.getEstimatesFromNothingFast(ports, bestSpeed);
+                            D.ebugPrintln(" allTheWay = " + allTheWay);
+                            D.ebugPrint(" speed = " + speed + " -- ( ");
+                            
+                            D.ebugPrint(" road: " + rolls[SOCBuildingSpeedEstimate.ROAD]);
+                            D.ebugPrint(" stlmt: " + rolls[SOCBuildingSpeedEstimate.SETTLEMENT]);
+                            D.ebugPrint(" city: " + rolls[SOCBuildingSpeedEstimate.CITY]);
+                            D.ebugPrint(" card: " + rolls[SOCBuildingSpeedEstimate.CARD]);
+                            D.ebugPrintln(" )");
+                        }
                         /**
                          * keep the settlements with the best speed
                          */
@@ -2505,15 +2505,15 @@ public class SOCRobotBrain extends Thread
                         }
                         else if ((speed == bestSpeed) && allTheWay && (probTotal > bestProbTotal))
                         {
-			    D.ebugPrintln("Equal speed, better prob");
-			    firstSettlement = firstNode;
-			    secondSettlement = secondNode;
-			    bestSpeed = speed;
-			    bestProbTotal = probTotal;
-			    D.ebugPrintln("firstSettlement = " + Integer.toHexString(firstSettlement));
-			    D.ebugPrintln("secondSettlement = " + Integer.toHexString(secondSettlement));
-			    D.ebugPrintln("bestSpeed = " + bestSpeed);
-			    D.ebugPrintln("bestProbTotal = " + bestProbTotal);
+                            D.ebugPrintln("Equal speed, better prob");
+                            firstSettlement = firstNode;
+                            secondSettlement = secondNode;
+                            bestSpeed = speed;
+                            bestProbTotal = probTotal;
+                            D.ebugPrintln("firstSettlement = " + Integer.toHexString(firstSettlement));
+                            D.ebugPrintln("secondSettlement = " + Integer.toHexString(secondSettlement));
+                            D.ebugPrintln("bestSpeed = " + bestSpeed);
+                            D.ebugPrintln("bestProbTotal = " + bestProbTotal);
                         }
                     }
                 }
@@ -2524,22 +2524,22 @@ public class SOCRobotBrain extends Thread
          * choose which settlement to place first
          */
         playerNumbers.clear();
-	addNumbersForHex(board, playerNumbers, firstSettlement); // ignore probTotal
-	markPortType(board, ports, firstSettlement);
+        addNumbersForHex(board, playerNumbers, firstSettlement); // ignore probTotal
+        markPortType(board, ports, firstSettlement);
         estimate.recalculateEstimates(playerNumbers);
 
         int cutoff = 100;
         int firstSpeed = 0;	// roll to complete canonical ResourceSet
-	firstSpeed = estimate.getEstimatesFast(null, emptySet, ports, cutoff);
+        firstSpeed = estimate.getEstimatesFast(null, emptySet, ports, cutoff);
 
-	// now do it for secondSettlement:
+        // now do it for secondSettlement:
         playerNumbers.clear();
-	addNumbersForHex(board, playerNumbers, secondSettlement); // ignore probTotal
-	markPortType(board, ports, secondSettlement);
+        addNumbersForHex(board, playerNumbers, secondSettlement); // ignore probTotal
+        markPortType(board, ports, secondSettlement);
         estimate.recalculateEstimates(playerNumbers);
 
         int secondSpeed = 0;	// get comparable secondSpeed
-	secondSpeed = estimate.getEstimatesFast(null, emptySet, ports, cutoff); 
+      	secondSpeed = estimate.getEstimatesFast(null, emptySet, ports, cutoff); 
 
         if (secondSpeed < firstSpeed)
         {
@@ -2615,18 +2615,18 @@ public class SOCRobotBrain extends Thread
                  * keep the settlements with the best speed
                  */
                 if ((speed < bestSpeed) || (secondSettlement < 0) ||
-		    ((speed == bestSpeed) && (probTotal > bestProbTotal)))
+		               ((speed == bestSpeed) && (probTotal > bestProbTotal)))
                 {
                     // firstSettlement = firstNode;
                     secondSettlement = secondNode;
                     bestSpeed = speed;
                     bestProbTotal = probTotal;
-		    int number = board.getNumberOnHexFromCoord(secondNode);
-		    int resource = board.getHexTypeFromCoord(secondNode);
+                    int number = board.getNumberOnHexFromCoord(secondNode);
+                    int resource = board.getHexTypeFromCoord(secondNode);
 
                     D.ebugPrintln("secondSettlement = " + Integer.toHexString(secondSettlement)
-				  + "=" + board.nodeCoordToString(secondSettlement)
-				  + " speed=" + bestSpeed);
+                        + "=" + board.nodeCoordToString(secondSettlement)
+                        + " speed=" + bestSpeed);
 
                     int[] rolls = estimate.getEstimatesFromNothingFast(ports);
                     D.ebugPrint("road: " + rolls[SOCBuildingSpeedEstimate.ROAD]);
@@ -3176,8 +3176,6 @@ public class SOCRobotBrain extends Thread
     }
 
     /**
-     *
-       /**
      * move the robber
      */
     protected void moveRobber()
@@ -3370,7 +3368,7 @@ public class SOCRobotBrain extends Thread
             //D.ebugPrintln("our numbers="+ourPlayerData.getNumbers());
             SOCBuildingSpeedEstimate estimate = new SOCBuildingSpeedEstimate(ourPlayerData.getNumbers());
             int[] rollsPerResource = estimate.getRollsPerResource();
-	    // initialize resourceOrder is any order, then sort it:
+	           // initialize resourceOrder is any order, then sort it:
             int[] resourceOrder = 
             {
                 SOCResourceConstants.CLAY, SOCResourceConstants.ORE,
@@ -3378,7 +3376,7 @@ public class SOCRobotBrain extends Thread
                 SOCResourceConstants.WOOD
             };
 
-	    // sort resourceOrder by rollsPerResource:
+	          // sort resourceOrder by rollsPerResource:
             for (int j = 4; j >= 0; j--)
             {
                 for (int i = 0; i < j; i++)

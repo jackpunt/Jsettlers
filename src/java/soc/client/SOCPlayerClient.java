@@ -316,7 +316,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         gbl.setConstraints(l, c);
         mainPane.add(l);
 
-        l = new Label("New Game:");
+        l = new Label("New Game: [NTNR..SDSP]");
         c.gridwidth = 1;
         gbl.setConstraints(l, c);
         mainPane.add(l);

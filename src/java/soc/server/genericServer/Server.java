@@ -20,18 +20,16 @@
  **/
 package soc.server.genericServer;
 
-import soc.disableDebug.D;
-
-import java.io.PrintStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Serializable;
-
 import java.net.ServerSocket;
-
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
+
+import soc.disableDebug.D;
 
 
 /** a general purpose server
@@ -102,16 +100,16 @@ public abstract class Server extends Thread implements Serializable, Cloneable
         {
             return;
         }
-	String outlog = System.getProperty("LOG");
-	if (outlog != null) {
-	    try {
-		out = new PrintStream(new FileOutputStream(outlog));
-	    } catch (IOException ex) {
-		out = null;
-		System.out.println("no log file");
-		System.out.println(ex);
-	    }
-	}
+        String outlog = System.getProperty("LOG");
+        if (outlog != null) {
+            try {
+                out = new PrintStream(new FileOutputStream(outlog));
+            } catch (IOException ex) {
+                out = null;
+                System.out.println("no log file");
+                System.out.println(ex);
+            }
+        }
 
         up = true;
 
@@ -260,11 +258,11 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                 Command c = null;
 
                 synchronized (inQueue) {
-//  		    while (inQueue.size() <= 0) {
-//  			try {
-//  			    inQueue.wait(1000);
-//  			} catch (InterruptedException ex) {}
-//  		    }
+                    // while (inQueue.size() <= 0) {
+                    //     try {
+                    //         inQueue.wait(1000);
+                    //     } catch (InterruptedException ex) {}
+                    // }
                     if (inQueue.size() > 0) {
                         //D.ebugPrintln("treater getting command");
                         c = (Command) inQueue.elementAt(0);
@@ -282,10 +280,10 @@ public abstract class Server extends Thread implements Serializable, Cloneable
 
                 yield();
 
-		// hokey NO-OP!
+	          	// hokey NO-OP!
                 synchronized (inQueue) {
                     if (inQueue.size() == 0) {
-			try {
+		                  	try {
                             //D.ebugPrintln("treater waiting");
                             inQueue.wait(1000);
                         } catch (Exception ex) {}

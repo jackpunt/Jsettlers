@@ -160,9 +160,6 @@ public class SOCBoard implements Serializable, Cloneable
         1, 0, 0, 0, 6,
           1, 1, 6, 6,
     };
-    /** edgeLocs are suitable for placing ports */
-    private int[] edgeLocs = IntStream.range(0, portFaces.length)
-            .filter(i -> portFaces[i] != 0).toArray(); 
 
     // the spiral path: (not used when permute)   
     //  int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
@@ -416,11 +413,23 @@ public class SOCBoard implements Serializable, Cloneable
           ary[ndx] = tmp;
         }
     }
+    /** 
+     * Insert a '7' somewhere in dieNumbers
+     * @returns new array with the extra element
+     */
+    int[] insertDesert(int[] dieNumbers) {
+        int dLoc = rand.nextInt(dieNumbers.length);
+        int[] numPath2 = new int[dieNumbers.length + 1];
+        System.arraycopy(dieNumbers, 0, numPath2, 0, dLoc);
+        numPath2[dLoc] = 7;  // the desert & robber goes here
+        System.arraycopy(dieNumbers, dLoc, numPath2, dLoc + 1, dieNumbers.length-dLoc);
+        return numPath2;
+    }
 
     /**
      * Shuffle the hex tiles and layout a board
      */
-    public void makeNewBoard()
+    public void makeNewBoard(SOCGame game)
     {
       	// there are 8 water, 8 port, 19 land tiles: 37 total
         // 19 land tiles: (withholding: DESERT_HEX )
@@ -433,23 +442,33 @@ public class SOCBoard implements Serializable, Cloneable
         // 0-9 -> [2-6,8-12]  (also -1 for the desert)
         // int[] number = { 3, 0, 4, 1, 5, 7, 6, 9, 8, 2, 5, 7, 6, 2, 3, 4, 1, 8 };
         // use direct dice numbers:
-        // int[] number = { 5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11 };
-        /** 19 dieNumbers to place at coord indicated by numPath */
-        int[] dieNumbers = { 6, 6, 8, 8, 2, 3, 3, 4, 4, 5, 5, 7, 9, 9, 10, 10, 11, 11, 12 }; //
+        /** 18 dieNumbers to place at coord indicated by numPath, '7' is added later. */
+        int[] dieNumbers = { 5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11 };
       	// place shuffled stack on hex map in this order: (these are the grid numbers)
-        // int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
+        int[] numPath = { 29, 30, 31, 26, 20, 13, 7, 6, 5, 10, 16, 23, 24, 25, 19, 12, 11, 17, 18 };
 
-        /* 19 grid numbers, place dieNumber on each  */
-        int[] numPath = { 5, 6, 7, 
+        /* 19 grid numbers, place dieNumber (or robber) on each  */
+        int[] numPath0 = { 5, 6, 7, 
                       10, 11, 12, 13, 
                     16, 17, 18, 19, 20, 
                       23, 24, 25, 26,
                          29, 30, 31,
                     };
         permuteInt(landHex); // randomize the resource tiles
-        permuteInt(numPath); // randomize placement of dieNumber
 
-        while (six_eightAdjacent(dieNumbers, numPath)) { 
+        System.out.format("name: %s SD=%b SP=%b\n", game.getName(), game.standardDice, game.standardPorts);
+        if (!game.standardDice) {
+          permuteInt(numPath); // randomize placement of dieNumber
+        }
+
+        // must specify location of DESERT_HEX before permuting numPath
+        dieNumbers = insertDesert(dieNumbers);
+
+        // assert: !(standardDice && six_eightAdjacent())
+        if (game.standardDice && six_eightAdjacent(dieNumbers, numPath)) {
+          System.err.println("WTF? inserting robber made 6/8 adjacent!");
+        }
+        while (!game.standardDice && six_eightAdjacent(dieNumbers, numPath)) { 
           permuteInt(numPath);
         }
         // printCoords("final:", numPath);
@@ -460,6 +479,7 @@ public class SOCBoard implements Serializable, Cloneable
         // dieNumbers: 37 die numbers
         int cnt = 0; // ndx into landHex
 
+        // put dieNumber & landHex or Robber & DESERT_HEX on each coord:
         for (int i = 0; i < numPath.length; i++)
         {
             int gridNumber = numPath[i];
@@ -480,7 +500,8 @@ public class SOCBoard implements Serializable, Cloneable
                 numberLayout[gridNumber] = dieNumber;
             }
         }
-        setPortLayout();
+        // put ports on outer ring (portLocs)
+        setPortLayout(game.standardPorts);
 
         // fill out the ports[] vectors (or call setHexLayout(hexLayout)!)
       	setHexLayout(hexLayout); // just to set the port-node vectors
@@ -563,21 +584,28 @@ public class SOCBoard implements Serializable, Cloneable
 
     }
 
-    void setPortLayout() 
+    void setPortLayout(boolean standardPorts) 
     {
-        System.out.println("edgelocs=" +Arrays.toString(edgeLocs));
+        /** edgeLocs are suitable for placing ports */
+        int[] edgeLocs = IntStream.range(0, portFaces.length)
+            .filter(i -> portFaces[i] != 0).toArray(); 
+
+        // System.out.println("edgelocs=" +Arrays.toString(edgeLocs));
         // 9 port tiles: { 0,0,0,0,1,2,3,4,5} leaving 9 water tiles
         int[] portHex = { MISC_PORT, MISC_PORT, MISC_PORT, MISC_PORT,
 			                    CLAY_HEX, ORE_HEX, SHEEP_HEX, WHEAT_HEX, WOOD_HEX };
 	
-        // shuffle the ports
+        // shuffle the ports resources/types
         permuteInt(portHex);
 
-        permuteInt(edgeLocs);   // put ports in ANY edgeLoc
-
-        portLocs = Arrays.copyOf(edgeLocs, 9);
+        // pick 9 edgeLocs for placing ports:
+        if (!standardPorts) {
+            permuteInt(edgeLocs);   // put ports in ANY edgeLoc
+            portLocs = Arrays.stream(edgeLocs).limit(9).toArray(); 
+            // System.out.println("portLocs=" +Arrays.toString(portLocs));
+        }
         
-        // set ports in place and orientation: the ports
+        // set ports in place and orientation:
         for (int k = 0; k < portLocs.length; k++) {
           placePort(portHex[k], portLocs[k]);
         }

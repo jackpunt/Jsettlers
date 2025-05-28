@@ -229,8 +229,7 @@ public class SOCServer extends Server
 
         System.err.println("Java Settlers Server TL=\"" + (System.getProperty("TL")) +"\"");
 
-        System.err.println("Java Settlers Server " + Version.version() +
-                           ", " + Version.copyright());
+        System.err.format("Java Settlers Server %s, %s", Version.version(), Version.copyright());
         System.err.println("Network layer based on code by Cristian Bogdan.");
 
         try
@@ -255,7 +254,7 @@ public class SOCServer extends Server
         System.err.println("TL=" + System.getProperty("TL"));
         if (!"none".equals(System.getProperty("TL"))) {
             System.err.println("Starting TimeoutChecker");
-            gameTimeoutChecker.start();
+            gameTimeoutChecker.start(); // setTimeout(() => server.checkForExpiredGames(), 5 SECS)
         } else {
             System.err.println("Not starting TimeoutChecker");
         }
@@ -5252,11 +5251,11 @@ public class SOCServer extends Server
         SOCServer server = new SOCServer(port, mc, args[2], args[3]);
         server.setPriority(5);
         server.start();
-	try {Thread.sleep(3000);} 
-	catch (InterruptedException ex) {}
-	for (int i = 5; i < args.length; i+=2) {
-	    SOCRobotClient ex1 = new SOCRobotClient("localhost", port, args[i-1], args[i]);
-	    ex1.init();
-	}
+        try {Thread.sleep(3000);} 
+        catch (InterruptedException ex) {}
+        for (int i = 5; i < args.length; i+=2) {
+            SOCRobotClient ex1 = new SOCRobotClient("localhost", port, args[i-1], args[i]);
+            ex1.init();
+        }
     }
 }
