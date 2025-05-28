@@ -1875,15 +1875,12 @@ public class SOCServer extends Server
           int evi = nr*ev[i];
           int rsi = rollStats[i];
           double rdif = (rsi*36.0 - evi)/evi;
-          int px = rdif > +1 ? 2 : rdif > +.5 ? 1 : 0;
-          int mx = rdif < -1 ? 2 : rdif < -.5 ? 1 : 0;
-          String pxx = "+++".substring(0, px);
-          String mxx = "---".substring(0, mx);
-          String ex = rdif > 0 ? pxx : mxx;
+          int ex = (int) Math.min(3, Math.floor(Math.abs(rdif)/.5));
+          String exs = (rdif < 0 ? "----" : "++++").substring(0, ex);
           String iss = i < 10 ? "  "+i : ""+i;
           String rsis = rsi < 10 ? "  "+rsi : ""+rsi; // pad-left, variable font
           String fmt = ">  %s: %s = % 5.2f %s";
-          dmsg = String.format(fmt, iss, rsis, rdif, ex);
+          dmsg = String.format(fmt, iss, rsis, rdif, exs);
           messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, dmsg));
       }
     }
