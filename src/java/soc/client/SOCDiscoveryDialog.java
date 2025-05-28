@@ -49,6 +49,15 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
         super(pi, "Discovery", true);
 
         this.pi = pi;
+
+        // set rsrc *before* doing anything that might provoke doLayout()
+        rsrc = new ColorSquare[5];
+        for (int i = 0; i < 5; i++)
+        {
+	          rsrc[i] = new ColorSquare(ColorSquare.BOUNDED_INC, true, ColorSquare.RES_COLORS[i], 2, 0);
+            add(rsrc[i]);
+        }
+
         setBackground(new Color(255, 230, 162));
         setForeground(Color.black);
         setFont(new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize + 2));
@@ -69,12 +78,6 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
         add(clearBut);
         clearBut.addActionListener(this);
 
-        rsrc = new ColorSquare[5];
-        for (int i = 0; i < 5; i++)
-        {
-	          rsrc[i] = new ColorSquare(ColorSquare.BOUNDED_INC, true, ColorSquare.RES_COLORS[i], 2, 0);
-            add(rsrc[i]);
-        }
     }
 
     /**

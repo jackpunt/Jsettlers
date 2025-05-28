@@ -1863,7 +1863,7 @@ public class SOCServer extends Server
 
       int[] diceRolls = ga.getDieStats();
       int[] rollStats = ga.getRollStats();
-      int nr = diceRolls[0];
+      int nr = diceRolls[0];     // should be same as game.turnNumber!
       String dmsg = "> N = "+nr+":";
       for (int i = 1; i<=6; i++) {
           dmsg += "   "+diceRolls[i];
@@ -1873,10 +1873,17 @@ public class SOCServer extends Server
       int[] ev = {0,0,1,2,3,4,5,6,5,4,3,2,1};
       for (int i = 2; i<=12; i++) {
           int evi = nr*ev[i];
-          double rdif = (rollStats[i]*36.0 - evi)/evi;
-          String nm = ""+rollStats[i];
-          nm = "   ".substring(nm.length()) + nm;
-          dmsg = (i<10?">   ":"> ")+i+": "+nm+(" = "+rdif+"    ").substring(0,8);
+          int rsi = rollStats[i];
+          double rdif = (rsi*36.0 - evi)/evi;
+          int px = rdif > +1 ? 2 : rdif > +.5 ? 1 : 0;
+          int mx = rdif < -1 ? 2 : rdif < -.5 ? 1 : 0;
+          String pxx = "+++".substring(0, px);
+          String mxx = "---".substring(0, mx);
+          String ex = rdif > 0 ? pxx : mxx;
+          String iss = i < 10 ? "  "+i : ""+i;
+          String rsis = rsi < 10 ? "  "+rsi : ""+rsi; // pad-left, variable font
+          String fmt = ">  %s: %s = % 5.2f %s";
+          dmsg = String.format(fmt, iss, rsis, rdif, ex);
           messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, dmsg));
       }
     }
