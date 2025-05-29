@@ -227,14 +227,14 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         setFont(new Font("Monaco", Font.PLAIN, SOCHandPanel.fontSize - 2));
         
         nick = new TextField(20);
-	nick.setText("MyName");
+	      nick.setText("MyName");
         pass = new TextField(20);
         pass.setEchoChar('*');
         status = new TextField(20);
         status.setEditable(false);
         channel = new TextField(20);
         game = new TextField(20);
-	game.setText(defaultGame);
+      	game.setText(defaultGame);
         chlist = new java.awt.List(10, false);
         chlist.add(" ");
         gmlist = new java.awt.List(10, false);
@@ -711,6 +711,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
                     gm = gm.substring(0, endOfName);
                 }
 
+                defaultGame = gm; // save name for next play
                 status.setText("Talking to server...");
                 put(SOCJoinGame.toCmd(nickname, password, host, gm));
             }
