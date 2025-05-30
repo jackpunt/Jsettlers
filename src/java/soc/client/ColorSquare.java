@@ -50,7 +50,7 @@ public class ColorSquare extends Canvas implements MouseListener
     public final static Color PORT = new Color(0xFFFFFF); // 3:1 -- port color
     public final static Color DESERT = new Color(0xFEF000); // desert yellow
     /** colors in order of SOCResourceConstants: */
-    public final static Color[] RES_COLORS = {ORE,WHEAT,SHEEP,CLAY,WOOD,GREY};
+    public final static Color[] RES_COLORS = { ORE, WHEAT, SHEEP, CLAY, WOOD, GREY };
 
     public final static int NUMBER = 0;
     public final static int YES_NO = 1;

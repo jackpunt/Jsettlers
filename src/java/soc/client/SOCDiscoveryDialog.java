@@ -22,10 +22,14 @@ package soc.client;
 
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
 
 import soc.game.SOCResourceConstants;
 import soc.game.SOCResourceSet;
@@ -33,10 +37,19 @@ import soc.game.SOCResourceSet;
 
 class SOCDiscoveryDialog extends SOCDialog implements ActionListener
 {
-    Button doneBut;
-    Button clearBut;
-    ColorSquare[] rsrc;
+    int space = 5;       // margins (insets are (20, 0, 0, 0): the OS supplied framing)
+    int buttonW = 50;    // set from fm.stringWidth("Clear")
+    int buttonH = 25;    // height of buttons (fontHeight + 3) geneva-16
+
+    String msgText = "Please pick two resources.";
+    int msgWidth = 180;  // tweaked below by fontMetrics
+    int msgHeight = 20;
+
     Label msg;
+    ColorSquare[] rsrc;
+    JButton clearBut;
+    JButton doneBut;
+
     SOCPlayerInterface pi;
 
     /**
@@ -60,16 +73,28 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
 
         setBackground(new Color(255, 230, 162));
         setForeground(Color.black);
-        setFont(new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize + 2));
+        Font font = SOCPlayerInterface.genevaFont2;
+        Font font2 = SOCPlayerInterface.genevaFont2;
+        setFont(font);
 
-        doneBut = new Button("Done");
-        clearBut = new Button("Clear");
+        FontMetrics fm = getFontMetrics(font);
+        buttonW = fm.stringWidth("Clear") + 15;  // 80;
+        buttonH = fm.stringWidth("Clear") + 0; // ~25
 
-        setLayout(null);
-        addNotify();
-        setSize(280, 190);
+        clearBut = new JButton("Clear");
+        clearBut.setFont(font2);
+        clearBut.setSize(new Dimension(buttonW, buttonH));
+        // clearBut.setOpaque(true);
 
-        msg = new Label("Please pick two resources.", Label.CENTER);
+        doneBut = new JButton("Done");
+        doneBut.setFont(font2);
+        doneBut.setSize(new Dimension(buttonW, buttonH));
+        // doneBut.setOpaque(true);
+
+        msgWidth = fm.stringWidth(msgText);
+        msgHeight = fm.getHeight();
+        msg = new Label(msgText, Label.CENTER);
+        msg.setSize(new Dimension(msgWidth, msgHeight));
         add(msg);
 
         add(doneBut);
@@ -77,6 +102,10 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
 
         add(clearBut);
         clearBut.addActionListener(this);
+
+        setLayout(null);
+        addNotify();
+        setSize(Math.max(280, msgWidth + 2 * space), 190);
 
     }
 
@@ -101,50 +130,47 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
     public void doLayout()
     {
         // int x = getInsets().left;
-        int y = getInsets().top;
+        int top = 0; //getInsets().top;
         int width = getSize().width - getInsets().left - getInsets().right;
-        int height = getSize().height - getInsets().top - getInsets().bottom;
-        int space = 5;
-
-        // int pix = pi.getInsets().left;
-        // int piy = pi.getInsets().top;
-        // int piwidth = pi.getSize().width - pi.getInsets().left - pi.getInsets().right;
-        // int piheight = pi.getSize().height - pi.getInsets().top - pi.getInsets().bottom;
+        int height = getSize().height;
 
         int sqwidth = ColorSquare.WIDTH;
-        int sqspace = (width - (5 * sqwidth)) / 5;
+        int sqspace = (int) Math.min((width - (5 * sqwidth)) / 5, sqwidth * 1.5);
 
-        int buttonW = 80;
+        int msgY = space + buttonH;
+
         int buttonX = (width - ((2 * buttonW) + space)) / 2;
+        int buttonY = top + height - buttonH - 2 * space;
         int rsrcY;
 
         /* put the dialog in the center of the game window */
-        //setLocation(pix + ((piwidth - width) / 2), piy + ((piheight - height) / 2));
         centerInBounds();
 
         if (msg != null)
         {
-            msg.setBounds((width - 188) / 2, getInsets().top, 180, 20);
+            msg.setLocation((width - msgWidth) / 2, msgY);
         }
 
         if (clearBut != null)
         {
-            clearBut.setBounds(buttonX, (getInsets().bottom + height) - 25, buttonW, 25);
+            clearBut.setLocation(buttonX, buttonY);
         }
 
         if (doneBut != null)
         {
-            doneBut.setBounds(buttonX + buttonW + space, (getInsets().bottom + height) - 25, buttonW, 25);
+            doneBut.setLocation(buttonX + buttonW + space, buttonY);
         }
 
         try
         {
-            rsrcY = y + 20 + space + 20 + space;
+            rsrcY = top + (height) / 2 ;
+            int rsrcW = (4 * sqspace) + (5 * sqwidth);
+            int rsrcLeft = space + (width - rsrcW) / 2;
 
             for (int i = 0; i < 5; i++)
             {
                 rsrc[i].setSize(sqwidth, sqwidth);
-                rsrc[i].setLocation((i * sqspace) + ((width - ((3 * sqspace) + (4 * sqwidth))) / 2), rsrcY);
+                rsrc[i].setLocation((i * (sqspace + sqwidth) + rsrcLeft), rsrcY);
             }
         }
         catch (NullPointerException e) {

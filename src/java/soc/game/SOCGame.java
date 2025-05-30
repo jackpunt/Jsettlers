@@ -28,6 +28,7 @@ import java.util.Stack;
 import java.util.Vector;
 
 import soc.disableDebug.D;
+import soc.server.SOCServer.TradeRecord;
 import soc.util.IntPair;
 
 
@@ -138,6 +139,10 @@ public class SOCGame implements Serializable, Cloneable
      * the number of the current player
      */
     private int currentPlayerNumber;
+
+    public SOCPlayer currentPlayer() {
+      return players[currentPlayerNumber];
+    }
 
     /**
      * the first player to place a settlement
@@ -1526,16 +1531,16 @@ public class SOCGame implements Serializable, Cloneable
      *
      * @param hex  the coordinates of the hex
      */
-    public Vector getPlayersOnHex(int hex)
+    public Vector<SOCPlayer> getPlayersOnHex(int hex)
     {
-        Vector playerList = new Vector(MAXPLAYERS);
+        Vector<SOCPlayer> playerList = new Vector<SOCPlayer>(MAXPLAYERS);
 
         for (int i = 0; i < MAXPLAYERS; i++)
         {
-            Vector settlements = players[i].getSettlements();
-            Vector cities = players[i].getCities();
-            Enumeration seEnum;
-            Enumeration ciEnum;
+            Vector<SOCPlayingPiece> settlements = players[i].getSettlements();
+            Vector<SOCPlayingPiece> cities = players[i].getCities();
+            Enumeration<SOCPlayingPiece> seEnum;
+            Enumeration<SOCPlayingPiece> ciEnum;
             int node;
             boolean touching = false;
 
@@ -1749,14 +1754,14 @@ public class SOCGame implements Serializable, Cloneable
     /**
      * @return a list of possible players to rob
      */
-    public Vector getPossibleVictims()
+    public Vector<SOCPlayer> getPossibleVictims()
     {
-        Vector victims = new Vector();
-        Enumeration plEnum = getPlayersOnHex(getBoard().getRobberHex()).elements();
+        Vector<SOCPlayer> victims = new Vector<SOCPlayer>();
+        Enumeration<SOCPlayer> plEnum = getPlayersOnHex(getBoard().getRobberHex()).elements();
 
         while (plEnum.hasMoreElements())
         {
-            SOCPlayer pl = (SOCPlayer) plEnum.nextElement();
+            SOCPlayer pl = plEnum.nextElement();
 
             if ((pl.getPlayerNumber() != currentPlayerNumber) && (pl.getResources().getTotal() > 0))
             {
@@ -2015,6 +2020,9 @@ public class SOCGame implements Serializable, Cloneable
         playerResources.subtract(give);
         playerResources.add(get);
     }
+
+    /** latest undoable trade. nullable */
+    public TradeRecord lastTrade;
 
     /**
      * @return true if the player has the resources, pieces, and

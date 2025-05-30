@@ -22,18 +22,29 @@ package soc.client;
 
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 import soc.game.SOCResourceConstants;
 
 
 class SOCMonopolyDialog extends SOCDialog implements ActionListener
 {
-    Button[] rsrcBut;
+    JButton[] rsrcBut;
     Label msg;
+    int msgWidth;
+    int msgHeight;
+    int buttonW;
+    int buttonH;
+
     SOCPlayerInterface pi;
 
     /**
@@ -46,25 +57,45 @@ class SOCMonopolyDialog extends SOCDialog implements ActionListener
         super(pi, "Monopoly", true);
 
         this.pi = pi;
+        Font font = SOCPlayerInterface.genevaFont2;
         setBackground(new Color(255, 230, 162));
         setForeground(Color.black);
-        setFont(new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize + 2));
+        setFont(font);
         setLayout(null);
         addNotify();
-        setSize(280, 160);
 
-        msg = new Label("Please pick a resource to monopolize.", Label.CENTER);
+        FontMetrics fm = getFontMetrics(font);
+        String msgText = "Pick a resource to monopolize.";
+        msg = new Label(msgText, Label.CENTER);
+        msgWidth = fm.stringWidth(msgText);
+        msgHeight = fm.getHeight() + 1;
         add(msg);
 
-        rsrcBut = new Button[5];
+        setSize(msgWidth + 20, 170);        // setSize(280, 160);
 
-	// five buttons for five resource names:
+        Border padding = new EmptyBorder(2, 4, 2, 4);
+        JButton max = new JButton(SOCResourceConstants.names[SOCResourceConstants.WHEAT]);
+        max.setFont(font);
+        max.setBorder(padding);
+        Dimension buttonD = max.getPreferredSize();
+        buttonW = buttonD.width;
+        buttonH = buttonD.height;
+
+        rsrcBut = new JButton[5];
+
+      	// five buttons for five resource names:
         for (int i = 0; i < 5; i++)
         {
-	    rsrcBut[i] = new Button(SOCResourceConstants.names[SOCResourceConstants.MIN + i]);
-	    rsrcBut[i].setBackground(ColorSquare.RES_COLORS[i]);
-            add(rsrcBut[i]);
-            rsrcBut[i].addActionListener(this);
+            JButton button = new JButton(SOCResourceConstants.names[SOCResourceConstants.MIN + i]);
+            button.setBorder(padding);
+            button.setFont(font);
+            button.setSize(buttonD);
+            // color button to match resource
+            button.setBackground(ColorSquare.RES_COLORS[i]);
+            button.setOpaque(true); // per StackOverflow - MacOS needs this
+            add(button);
+            button.addActionListener(this);
+            rsrcBut[i] = button;
         }
     }
 
@@ -88,33 +119,27 @@ class SOCMonopolyDialog extends SOCDialog implements ActionListener
      */
     public void doLayout()
     {
-        int x = getInsets().left;
-        int y = getInsets().top;
         int width = getSize().width - getInsets().left - getInsets().right;
         int height = getSize().height - getInsets().top - getInsets().bottom;
-        int space = 5;
+        int space = 5; // horizontal gap between buttons
 
-        int pix = pi.getInsets().left;
-        int piy = pi.getInsets().top;
-        int piwidth = pi.getSize().width - pi.getInsets().left - pi.getInsets().right;
-        int piheight = pi.getSize().height - pi.getInsets().top - pi.getInsets().bottom;
-
-        int buttonW = 60;
-        int button2X = (width - ((2 * buttonW) + space)) / 2;
-        int button3X = (width - ((3 * buttonW) + (2 * space))) / 2;
+        int button2X = (width - ((2 * buttonW) + space)) / 2;       // 2 in top row
+        int button3X = (width - ((3 * buttonW) + (2 * space))) / 2; // 3 in bottom row
 
         /* put the dialog in the center of the game window */
-        //setLocation(pix + ((piwidth - width) / 2), piy + ((piheight - height) / 2));
         centerInBounds();
 
         try
         {
-            msg.setBounds((width - 188) / 2, getInsets().top, 210, 20);
-            rsrcBut[0].setBounds(button2X, (getInsets().bottom + height) - (50 + (2 * space)), buttonW, 25);
-            rsrcBut[1].setBounds(button2X + buttonW + space, (getInsets().bottom + height) - (50 + (2 * space)), buttonW, 25);
-            rsrcBut[2].setBounds(button3X, (getInsets().bottom + height) - (25 + space), buttonW, 25);
-            rsrcBut[3].setBounds(button3X + space + buttonW, (getInsets().bottom + height) - (25 + space), buttonW, 25);
-            rsrcBut[4].setBounds(button3X + (2 * (space + buttonW)), (getInsets().bottom + height) - (25 + space), buttonW, 25);
+            msg.setBounds((width - msgWidth) / 2, getInsets().top + space, msgWidth, msgHeight);
+            int DX = (space + buttonW);
+            int Y1 = (height) - 2 * (buttonH + space); // was height + gi().bottom
+            int Y2 = (height) - 1 * (buttonH + space);
+            rsrcBut[0].setLocation(button2X + 0 * DX, Y1);
+            rsrcBut[1].setLocation(button2X + 1 * DX, Y1);
+            rsrcBut[2].setLocation(button3X + 0 * DX, Y2);
+            rsrcBut[3].setLocation(button3X + 1 * DX, Y2);
+            rsrcBut[4].setLocation(button3X + 2 * DX, Y2);
         }
         catch (NullPointerException e) {}
     }

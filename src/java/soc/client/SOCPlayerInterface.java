@@ -21,12 +21,15 @@
 package soc.client;
 
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.TextArea;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
@@ -127,6 +130,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
     // also: SOCHandPanel.font "Helvetica"
     public static Font monocoFont = new Font("Monoco", Font.PLAIN, SOCHandPanel.fontSize);
     public static Font genevaFont = new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize);
+    public static Font genevaFont2 = new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize + 2);
 
     /**
      * create a new player interface Frame
@@ -324,8 +328,21 @@ public class SOCPlayerInterface extends Frame implements ActionListener
             }
 
             textInput.setText("");
-            client.sendText(game, s + "\n");
+            processText(s);
         }
+    }
+
+    void processText(String s) {
+        if (s.startsWith(".disc.")) {
+            showDiscoveryDialog();
+        } else
+        if (s.startsWith(".mono")) {
+            showMonopolyDialog();
+        } else
+        if (s.startsWith(".dcard.")) {
+            showDiscardDialog(0);
+        } else
+        client.sendText(game, s + "\n");
     }
 
     /**
@@ -501,6 +518,15 @@ public class SOCPlayerInterface extends Frame implements ActionListener
         {
             hands[i].removeStartBut();
         }
+    }
+
+    /**
+     * Place given Dialog where user can interact with it.
+     * @param dialog one of the discard, choose, discovery, monopoly Dialog boxes.
+     */
+    public void centerInBounds(Dialog dialog) {
+        Rectangle pb = this.textDisplay.getBounds();
+        dialog.setLocation(pb.x + pb.width / 2 - (dialog.getWidth() / 2), pb.y + pb.height);
     }
 
     /**

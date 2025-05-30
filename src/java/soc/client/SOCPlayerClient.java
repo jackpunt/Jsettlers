@@ -26,6 +26,7 @@ import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -45,6 +46,12 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import soc.disableDebug.D;		// debug.D
 import soc.game.SOCBoard;
@@ -1596,7 +1603,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         if (ga != null)
         {
             SOCPlayerInterface pi = (SOCPlayerInterface) playerInterfaces.get(mes.getGame());
-            if (ga.getGameState() == ga.NEW && mes.getState() != ga.NEW)
+            if (ga.getGameState() == SOCGame.NEW && mes.getState() != SOCGame.NEW)
             {
                 pi.startGame();
             }
@@ -1816,80 +1823,79 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 
                 break;
 
-
-		// some resource was lost/gained, but we don't know what flavor:
-            case SOCPlayerElement.UNKNOWN:
-		int mv = mes.getValue();
-		SOCResourceSet rs = pl.getResources();
-		SOCResourceSet ur = pl.getUResources();
+                // some resource was lost/gained, but we don't know what flavor:
+                        case SOCPlayerElement.UNKNOWN:
+                int mv = mes.getValue();
+                SOCResourceSet rs = pl.getResources();
+                SOCResourceSet ur = pl.getUResources();
 		
                 switch (mes.getAction())
                 {
                 case SOCPlayerElement.SET:
-		    // set the ammount of unknown resources, is this ever used?
+		                // set the ammount of unknown resources, is this ever used?
                     rs.setAmount(mv, SOCResourceConstants.UNKNOWN);
 
-		    for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
-			ur.setAmount(Math.min(ur.getAmount(rt), mv), rt);
-		    }
+                    for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
+                        ur.setAmount(Math.min(ur.getAmount(rt), mv), rt);
+                    }
 
                     break;
 
-		    // the perp of a robbery:
+		             // the perp of a robbery:
                 case SOCPlayerElement.GAIN:
-		    SOCResourceSet rg = (SOCResourceSet)resourcesToGain.get(ga); // look at possibly robbed cards
+		                SOCResourceSet rg = (SOCResourceSet)resourcesToGain.get(ga); // look at possibly robbed cards
 
-		    // if 1 card was robbed, and we know what it might be:
-		    if ((mv == 1) && (rg != null)) {
-          pi.print(">>> Perp: "+pl.getName()+": "+ rg );
-          if (rg.getTotal() == 1) {
-              rs.add(rg); // add that card
-          } else {
-              ur.add(rg);	// one of these unknowns
-              rs.add(mv, SOCResourceConstants.UNKNOWN);
-          } 
-		    } else {
-        // should never get here; unless older server:
-        // no idea what the card was:
-        rs.add(mv, SOCResourceConstants.UNKNOWN);
-		    }
+                    // if 1 card was robbed, and we know what it might be:
+                    if ((mv == 1) && (rg != null)) {
+                      // pi.print(">>> Perp: "+pl.getName()+": gained")+ rg );
+                      if (rg.getTotal() == 1) {
+                          rs.add(rg); // add that card
+                      } else {
+                          ur.add(rg);	// one of these unknowns
+                          rs.add(mv, SOCResourceConstants.UNKNOWN);
+                      } 
+                    } else {
+                          // should never get here; unless older server:
+                          // no idea what the card was:
+                          rs.add(mv, SOCResourceConstants.UNKNOWN);
+                    }
 
                     break;
 
-		    // victim of robbery or discard:
+		            // victim of robbery or discard:
                 case SOCPlayerElement.LOSE:
-		    SOCResourceSet rl = new SOCResourceSet(); // store cards possibly robbed
-		    int tot = rs.getTotal();
-		    int nt = tot - mv; // new total
-		    String vrname = "";
+                    SOCResourceSet rl = new SOCResourceSet(); // store cards possibly robbed
+                    int tot = rs.getTotal();
+                    int nt = tot - mv; // new total
+                    String vrname = "";
 
                     // first convert known resources to unknown resources
-		    // **** this was wrong! at most mv of the known become unknown...
-		    // **** code also appears in SOCRobotBrain ~1043
-		    for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
-			int ra = Math.min(rs.getAmount(rt), mv); // how many could be lost:
-			rs.subtract(ra, rt); 
-			rs.add(ra, SOCResourceConstants.UNKNOWN);
-			rl.add(ra, rt); // resources [possibly] lost
-			// now remember that these may not be gone:
-			ur.add(ra, rt); 
-		    }
-		    // then remove the unknown resource(s)
+                    // **** this was wrong? at most mv of the known become unknown...
+                    // **** code also appears in SOCRobotBrain ~1043
+                    for (int rt : SOCResourceConstants.EACH) {
+                        int ra = Math.min(rs.getAmount(rt), mv); // how many could be lost:
+                        rs.subtract(ra, rt); 
+                        rs.add(ra, SOCResourceConstants.UNKNOWN);
+                        rl.add(ra, rt); // resources [possibly] lost
+                        // now remember that these may not be gone:
+                        ur.add(ra, rt); 
+                    }
+                    // then remove the unknown resource(s)
                     rs.subtract(mv, SOCResourceConstants.UNKNOWN);
 
-		    int ut = rs.getAmount(SOCResourceConstants.UNKNOWN);
-		    for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
-			ur.setAmount(Math.min(ur.getAmount(rt), ut), rt);
-		    }
+                    int ut = rs.getAmount(SOCResourceConstants.UNKNOWN);
+                    for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
+                        ur.setAmount(Math.min(ur.getAmount(rt), ut), rt);
+                    }
 
-		    // if (mv == 1) then it must have been robbery!
-		    // resourcesToGain.put(ga, (mv == 1) ? rl : null);
-		    if (mv == 1) {
-          resourcesToGain.put(ga, rl);
-          pi.print(">>> Vict: "+pl.getName()+": "+ rl );
-		    } else {
-	    		resourcesToGain.remove(ga);
-		    }
+                    // if (mv == 1) then it must have been robbery!
+                    // resourcesToGain.put(ga, (mv == 1) ? rl : null);
+                    if (mv == 1) {
+                        resourcesToGain.put(ga, rl);
+                        // pi.print(">>> Vict: "+pl.getName()+": lost"+ rl );
+                    } else {
+                       resourcesToGain.remove(ga);
+                    }
                     break;
                 }
 
@@ -3261,10 +3267,16 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
             System.err.println("Invalid port: " + args[1]);
             System.exit(1);
         }
+        client.startGUI();
+    }
 
-        Frame frame = new Frame("SOCPlayerClient");
-        frame.setBackground(new Color(Integer.parseInt("61AF71",16)));
-        frame.setForeground(Color.black);
+    void startGUI() {
+      SOCPlayerClient client = this;
+      SwingUtilities.invokeLater(() -> {
+        // setLookAndFeel("Metal"); // or "Nimbus"
+        JFrame frame = new JFrame("SOCPlayerClient");
+        frame.getContentPane().setBackground(new Color(0x61AF71));
+        frame.getContentPane().setForeground(Color.black);
         // Add a listener for the close event
         frame.addWindowListener(client.createWindowAdapter());
         
@@ -3275,6 +3287,32 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         frame.setVisible(true);
 
         client.connect();
+      });
+    }
+
+    void setLookAndFeel(String laf) {
+        // --- The Incantation to use Nimbus L&F ---
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if (laf.equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break; // Found Nimbus, set it, and exit loop
+                }
+            }
+        } catch (UnsupportedLookAndFeelException e) {
+            // handle exception
+            System.err.println("Nimbus L&F is not supported on this platform: " + e.getMessage());
+        } catch (ClassNotFoundException e) {
+            // handle exception
+            System.err.println("Nimbus L&F class not found: " + e.getMessage());
+        } catch (InstantiationException e) {
+            // handle exception
+            System.err.println("Nimbus L&F instantiation error: " + e.getMessage());
+        } catch (IllegalAccessException e) {
+            // handle exception
+            System.err.println("Nimbus L&F access error: " + e.getMessage());
+        }
+        System.out.println("Current L&F: " + UIManager.getLookAndFeel().getName());
     }
 
     private WindowAdapter createWindowAdapter()

@@ -30,7 +30,7 @@ import java.util.Vector;
  */
 public class SOCMoveRobberResult
 {
-    Vector victims;
+    Vector<SOCPlayer> victims;
     int loot;
 
     /**
@@ -47,7 +47,7 @@ public class SOCMoveRobberResult
      *
      * @param v DOCUMENT ME!
      */
-    public void setVictims(Vector v)
+    public void setVictims(Vector<SOCPlayer> v)
     {
         victims = v;
     }
@@ -57,7 +57,7 @@ public class SOCMoveRobberResult
      *
      * @return DOCUMENT ME!
      */
-    public Vector getVictims()
+    public Vector<SOCPlayer> getVictims()
     {
         return victims;
     }

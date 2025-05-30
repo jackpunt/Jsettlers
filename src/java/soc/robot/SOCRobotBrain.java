@@ -594,6 +594,7 @@ public class SOCRobotBrain extends Thread
 
                     //if (!gameEventQ.empty()) {
                     mes = (SOCMessage) gameEventQ.get();
+                    SOCPlayerElement elt = (mes instanceof SOCPlayerElement) ? (SOCPlayerElement) mes : null;
 
                     //} else {
                     //mes = null;
@@ -603,7 +604,7 @@ public class SOCRobotBrain extends Thread
                     if (mes != null)
                     {
                         mesType = mes.getType();
-			if ((mesType == SOCMessage.GAMETEXTMSG) && (((SOCGameTextMsg) mes).getText().equals("*PING*"))) {} else 
+		                  	if ((mesType == SOCMessage.GAMETEXTMSG) && (((SOCGameTextMsg) mes).getText().equals("*PING*"))) {} else 
                         D.ebugPrintln("mes - " + mes);
                     }
                     else
@@ -752,26 +753,26 @@ public class SOCRobotBrain extends Thread
 
                     if (mesType == SOCMessage.PLAYERELEMENT)
                     {
-                        SOCPlayer pl = game.getPlayer(((SOCPlayerElement) mes).getPlayerNumber());
+                        SOCPlayer pl = game.getPlayer(elt.getPlayerNumber());
 
-                        switch (((SOCPlayerElement) mes).getElementType())
+                        switch (elt.getElementType())
                         {
                         case SOCPlayerElement.ROADS:
 
-                            switch (((SOCPlayerElement) mes).getAction())
+                            switch (elt.getAction())
                             {
                             case SOCPlayerElement.SET:
-                                pl.setNumPieces(SOCPlayingPiece.ROAD, ((SOCPlayerElement) mes).getValue());
+                                pl.setNumPieces(SOCPlayingPiece.ROAD, elt.getValue());
 
                                 break;
 
                             case SOCPlayerElement.GAIN:
-                                pl.setNumPieces(SOCPlayingPiece.ROAD, pl.getNumPieces(SOCPlayingPiece.ROAD) + ((SOCPlayerElement) mes).getValue());
+                                pl.setNumPieces(SOCPlayingPiece.ROAD, pl.getNumPieces(SOCPlayingPiece.ROAD) + elt.getValue());
 
                                 break;
 
                             case SOCPlayerElement.LOSE:
-                                pl.setNumPieces(SOCPlayingPiece.ROAD, pl.getNumPieces(SOCPlayingPiece.ROAD) - ((SOCPlayerElement) mes).getValue());
+                                pl.setNumPieces(SOCPlayingPiece.ROAD, pl.getNumPieces(SOCPlayingPiece.ROAD) - elt.getValue());
 
                                 break;
                             }
@@ -780,20 +781,20 @@ public class SOCRobotBrain extends Thread
 
                         case SOCPlayerElement.SETTLEMENTS:
 
-                            switch (((SOCPlayerElement) mes).getAction())
+                            switch (elt.getAction())
                             {
                             case SOCPlayerElement.SET:
-                                pl.setNumPieces(SOCPlayingPiece.SETTLEMENT, ((SOCPlayerElement) mes).getValue());
+                                pl.setNumPieces(SOCPlayingPiece.SETTLEMENT, elt.getValue());
 
                                 break;
 
                             case SOCPlayerElement.GAIN:
-                                pl.setNumPieces(SOCPlayingPiece.SETTLEMENT, pl.getNumPieces(SOCPlayingPiece.SETTLEMENT) + ((SOCPlayerElement) mes).getValue());
+                                pl.setNumPieces(SOCPlayingPiece.SETTLEMENT, pl.getNumPieces(SOCPlayingPiece.SETTLEMENT) + elt.getValue());
 
                                 break;
 
                             case SOCPlayerElement.LOSE:
-                                pl.setNumPieces(SOCPlayingPiece.SETTLEMENT, pl.getNumPieces(SOCPlayingPiece.SETTLEMENT) - ((SOCPlayerElement) mes).getValue());
+                                pl.setNumPieces(SOCPlayingPiece.SETTLEMENT, pl.getNumPieces(SOCPlayingPiece.SETTLEMENT) - elt.getValue());
 
                                 break;
                             }
@@ -802,20 +803,20 @@ public class SOCRobotBrain extends Thread
 
                         case SOCPlayerElement.CITIES:
 
-                            switch (((SOCPlayerElement) mes).getAction())
+                            switch (elt.getAction())
                             {
                             case SOCPlayerElement.SET:
-                                pl.setNumPieces(SOCPlayingPiece.CITY, ((SOCPlayerElement) mes).getValue());
+                                pl.setNumPieces(SOCPlayingPiece.CITY, elt.getValue());
 
                                 break;
 
                             case SOCPlayerElement.GAIN:
-                                pl.setNumPieces(SOCPlayingPiece.CITY, pl.getNumPieces(SOCPlayingPiece.CITY) + ((SOCPlayerElement) mes).getValue());
+                                pl.setNumPieces(SOCPlayingPiece.CITY, pl.getNumPieces(SOCPlayingPiece.CITY) + elt.getValue());
 
                                 break;
 
                             case SOCPlayerElement.LOSE:
-                                pl.setNumPieces(SOCPlayingPiece.CITY, pl.getNumPieces(SOCPlayingPiece.CITY) - ((SOCPlayerElement) mes).getValue());
+                                pl.setNumPieces(SOCPlayingPiece.CITY, pl.getNumPieces(SOCPlayingPiece.CITY) - elt.getValue());
 
                                 break;
                             }
@@ -824,20 +825,20 @@ public class SOCRobotBrain extends Thread
 
                         case SOCPlayerElement.NUMKNIGHTS:
 
-                            switch (((SOCPlayerElement) mes).getAction())
+                            switch (elt.getAction())
                             {
                             case SOCPlayerElement.SET:
-                                pl.setNumKnights(((SOCPlayerElement) mes).getValue());
+                                pl.setNumKnights(elt.getValue());
 
                                 break;
 
                             case SOCPlayerElement.GAIN:
-                                pl.setNumKnights(pl.getNumKnights() + ((SOCPlayerElement) mes).getValue());
+                                pl.setNumKnights(pl.getNumKnights() + elt.getValue());
 
                                 break;
 
                             case SOCPlayerElement.LOSE:
-                                pl.setNumKnights(pl.getNumKnights() - ((SOCPlayerElement) mes).getValue());
+                                pl.setNumKnights(pl.getNumKnights() - elt.getValue());
 
                                 break;
                             }
@@ -852,7 +853,7 @@ public class SOCRobotBrain extends Thread
                         case SOCPlayerElement.WHEAT:
                         case SOCPlayerElement.WOOD:
                         case SOCPlayerElement.UNKNOWN:
-			    handleResourceElement(pl, ((SOCPlayerElement) mes), ((SOCPlayerElement) mes).getElementType());
+	                  		    handleResourceElement(pl, elt, elt.getElementType());
 
                             break;
                         }

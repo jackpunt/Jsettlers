@@ -22,13 +22,18 @@ package soc.client;
 
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Insets;
 import java.awt.Label;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
+import javax.swing.JButton;
 
 import soc.game.SOCPlayer;
 import soc.game.SOCResourceConstants;
@@ -43,7 +48,7 @@ import soc.game.SOCResourceSet;
  */
 class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListener
 {
-    Button discardBut;
+    JButton discardBut;
     ColorSquare[] keep;
     ColorSquare[] disc;
     Label msg;
@@ -51,10 +56,11 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
     Label discThese;
     SOCPlayerInterface playerInterface;
     int numDiscards;
+    String msgFmt = "Please discard %s resources.";
 
-    void centerInBounds(Rectangle pb) {
-        setLocation(pb.x + pb.width / 2 - (getWidth() / 2), pb.y + pb.height / 2 - (getHeight() / 2));
-    }
+    // void centerInBounds(Rectangle pb) {
+    //     setLocation(pb.x + pb.width / 2 - (getWidth() / 2), pb.y + pb.height / 2 - (getHeight() / 2));
+    // }
 
     /**
      * Creates a new SOCDiscardDialog object.
@@ -70,15 +76,20 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
         numDiscards = rnum;
         setBackground(new Color(255, 230, 162));
         setForeground(Color.black);
-        setFont(new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize + 2));
+        Font font = SOCPlayerInterface.genevaFont2;
+        setFont(font);
 
-        discardBut = new Button("Discard");
+        discardBut = new JButton("Discard");
 
         setLayout(null);
         
-        setSize(280, 190+getInsets().top+getInsets().bottom);
+        // 280 X 190+insets @ fontSize=12; ~9 * squareWidth
+        FontMetrics fm = getFontMetrics(getFont());
+        int innerWidth = fm.stringWidth(msgFmt) + 5 * ColorSquare.WIDTH;
+        Insets insets = getInsets();
+        setSize(innerWidth + insets.left + insets.right, 220 + insets.top + insets.bottom);
 
-        msg = new Label("Please discard " + Integer.toString(numDiscards) + " resources.", Label.CENTER);
+        msg = new Label(String.format(msgFmt, numDiscards), Label.CENTER);
         add(msg);
         youHave = new Label("You have:", Label.LEFT);
         add(youHave);
@@ -88,20 +99,16 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
         add(discardBut);
         discardBut.addActionListener(this);
 
-	int m1 = -SOCResourceConstants.MIN;
+	      int m1 = -SOCResourceConstants.MIN;
         keep = new ColorSquare[5];
-        keep[m1+SOCResourceConstants.CLAY] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.CLAY);
-        keep[m1+SOCResourceConstants.ORE] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.ORE);
-        keep[m1+SOCResourceConstants.SHEEP] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.SHEEP);
-        keep[m1+SOCResourceConstants.WHEAT] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.WHEAT);
-        keep[m1+SOCResourceConstants.WOOD] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.WOOD);
+        for (int rs : SOCResourceConstants.EACH) {
+            keep[rs + m1] = new ColorSquare(ColorSquare.BOUNDED_DEC, false, ColorSquare.RES_COLORS[rs-1]);
+        }
 
         disc = new ColorSquare[5];
-        disc[m1+SOCResourceConstants.CLAY] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.CLAY);
-        disc[m1+SOCResourceConstants.ORE] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.ORE);
-        disc[m1+SOCResourceConstants.SHEEP] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.SHEEP);
-        disc[m1+SOCResourceConstants.WHEAT] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.WHEAT);
-        disc[m1+SOCResourceConstants.WOOD] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.WOOD);
+        for (int rs : SOCResourceConstants.EACH) {
+            disc[rs + m1] = new ColorSquare(ColorSquare.BOUNDED_INC, false, ColorSquare.RES_COLORS[rs-1]);
+        }
 
         for (int i = 0; i < 5; i++)
         {
@@ -126,12 +133,10 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
              */
             SOCPlayer player = playerInterface.getGame().getPlayer(playerInterface.getClient().getNickname());
             SOCResourceSet resources = player.getResources();
-	    int m1 = -SOCResourceConstants.MIN;
-            keep[m1+SOCResourceConstants.CLAY].setIntValue(resources.getAmount(SOCResourceConstants.CLAY));
-            keep[m1+SOCResourceConstants.ORE].setIntValue(resources.getAmount(SOCResourceConstants.ORE));
-            keep[m1+SOCResourceConstants.SHEEP].setIntValue(resources.getAmount(SOCResourceConstants.SHEEP));
-            keep[m1+SOCResourceConstants.WHEAT].setIntValue(resources.getAmount(SOCResourceConstants.WHEAT));
-            keep[m1+SOCResourceConstants.WOOD].setIntValue(resources.getAmount(SOCResourceConstants.WOOD));
+	          int m1 = -SOCResourceConstants.MIN;
+            for (int rs : SOCResourceConstants.EACH) {
+                keep[rs+m1].setIntValue(resources.getAmount(rs));
+            }
 
             discardBut.requestFocus();
         }
@@ -146,46 +151,53 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
     {
         // int x = getInsets().left;
         // int y = getInsets().top;
+        FontMetrics fm = getFontMetrics(getFont());
+        int msgWidth = fm.stringWidth(msgFmt);
+        int yhWidth = fm.stringWidth(youHave.getText()) + 2;
+        int dtWidth = fm.stringWidth(discThese.getText()) + 2;
+        Insets insets = getInsets();
+        int top = 5 + insets.top;
+        int left = 10 + insets.left;
+
+        Dimension dcDim = discardBut.getPreferredSize();
+        int dcWidth = dcDim.width;
+        int dcHeight = dcDim.height;
+
         int width = getSize().width - getInsets().left - getInsets().right;
         int height = getSize().height - getInsets().top - getInsets().bottom;
         int space = 5;			// leading between rows
-        int vhite = 20; // height of text
-
-        // int cfx = playerInterface.getInsets().left;
-        // int cfy = playerInterface.getInsets().top;
-        // int cfwidth = playerInterface.getSize().width - playerInterface.getInsets().left - playerInterface.getInsets().right;
-        // int cfheight = playerInterface.getSize().height - playerInterface.getInsets().top - playerInterface.getInsets().bottom;
+        int vhite = fm.getHeight() + 4;
 
         int sqwidth = ColorSquare.WIDTH;
-        int sqspace = (width - (5 * sqwidth)) / 5;
+        int sqspace = (int) Math.min((width - (5 * sqwidth)) / 5, sqwidth * 1.5);
 
         int keepY;
         int discY;
 
         /* put the dialog in the center of the game window */
-        //setLocation(cfx + ((cfwidth - width) / 2), cfy + ((cfheight - height) / 2));
         centerInBounds();
 
         try
-        {
-            msg.setBounds((width - 188) / 2, getInsets().top, 180, vhite);
-            discardBut.setBounds((width - 88) / 2, (getInsets().top + height) - (vhite+5+space), 80, vhite+5);
-            youHave.setBounds(getInsets().left, getInsets().top + vhite + space, 70, vhite);
-            discThese.setBounds(getInsets().left, getInsets().top + vhite + space + vhite + space + sqwidth + space, 100, vhite);
+        { // WTF? insets={0, 0, 0, 20} bot, left, right, top; width = 320
+            msg.setBounds((width - msgWidth) / 2, top, msgWidth, vhite); // 280 X 190
+            discardBut.setBounds((width - dcWidth) / 2, (top + height) - (vhite+5+space), dcWidth, dcHeight);
+            youHave.setBounds(left, top + vhite + space, yhWidth, vhite);
+            discThese.setBounds(left, top + vhite + space + vhite + space + sqwidth + space, dtWidth, vhite);
         }
         catch (NullPointerException e) {}
 
-        keepY = getInsets().top + vhite + space + vhite + space;
+        keepY = top + vhite + space + vhite + space; // below 2 lines of text
         discY = keepY + sqwidth + space + vhite + space;
 
         try
         {
-            for (int i = 0; i < 5; i++)
+            int centerX = ((width - ((3 * sqspace) + (4 * sqwidth))) / 2);
+            for (int i : SOCResourceConstants.EACH)
             {
-                keep[i].setSize(sqwidth, sqwidth);
-                keep[i].setLocation((i * sqspace) + ((width - ((3 * sqspace) + (4 * sqwidth))) / 2), keepY);
-                disc[i].setSize(sqwidth, sqwidth);
-                disc[i].setLocation((i * sqspace) + ((width - ((3 * sqspace) + (4 * sqwidth))) / 2), discY);
+                keep[i-1].setSize(sqwidth, sqwidth);
+                keep[i-1].setLocation((i * sqspace) + centerX, keepY);
+                disc[i-1].setSize(sqwidth, sqwidth);
+                disc[i-1].setLocation((i * sqspace) + centerX, discY);
             }
         }
         catch (NullPointerException e) {}
