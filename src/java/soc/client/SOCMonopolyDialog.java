@@ -20,7 +20,6 @@
  **/
 package soc.client;
 
-import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -29,16 +28,12 @@ import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-
 import soc.game.SOCResourceConstants;
 
 
 class SOCMonopolyDialog extends SOCDialog implements ActionListener
 {
-    JButton[] rsrcBut;
+    Button[] rsrcBut;
     Label msg;
     int msgWidth;
     int msgHeight;
@@ -73,26 +68,23 @@ class SOCMonopolyDialog extends SOCDialog implements ActionListener
 
         setSize(msgWidth + 20, 170);        // setSize(280, 160);
 
-        Border padding = new EmptyBorder(2, 4, 2, 4);
-        JButton max = new JButton(SOCResourceConstants.names[SOCResourceConstants.WHEAT]);
+        // make button to determine preferred size:
+        Button max = new Button(SOCResourceConstants.names[SOCResourceConstants.WHEAT], ColorSquare.WHEAT);
         max.setFont(font);
-        max.setBorder(padding);
         Dimension buttonD = max.getPreferredSize();
         buttonW = buttonD.width;
         buttonH = buttonD.height;
 
-        rsrcBut = new JButton[5];
+        rsrcBut = new Button[5];
 
       	// five buttons for five resource names:
         for (int i = 0; i < 5; i++)
         {
-            JButton button = new JButton(SOCResourceConstants.names[SOCResourceConstants.MIN + i]);
-            button.setBorder(padding);
+            // color button to match resource
+            Color color = ColorSquare.RES_COLORS[i];
+            Button button = new Button(SOCResourceConstants.names[SOCResourceConstants.MIN + i], color);
             button.setFont(font);
             button.setSize(buttonD);
-            // color button to match resource
-            button.setBackground(ColorSquare.RES_COLORS[i]);
-            button.setOpaque(true); // per StackOverflow - MacOS needs this
             add(button);
             button.addActionListener(this);
             rsrcBut[i] = button;

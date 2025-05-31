@@ -20,7 +20,7 @@
  **/
 package soc.client;
 
-import java.awt.Button;
+// import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -28,8 +28,6 @@ import java.awt.FontMetrics;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
 
 import soc.game.SOCResourceConstants;
 import soc.game.SOCResourceSet;
@@ -47,8 +45,8 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
 
     Label msg;
     ColorSquare[] rsrc;
-    JButton clearBut;
-    JButton doneBut;
+    Button clearBut;
+    Button doneBut;
 
     SOCPlayerInterface pi;
 
@@ -81,12 +79,12 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
         buttonW = fm.stringWidth("Clear") + 15;  // 80;
         buttonH = fm.stringWidth("Clear") + 0; // ~25
 
-        clearBut = new JButton("Clear");
+        clearBut = new Button("Clear");
         clearBut.setFont(font2);
         clearBut.setSize(new Dimension(buttonW, buttonH));
         // clearBut.setOpaque(true);
 
-        doneBut = new JButton("Done");
+        doneBut = new Button("Done");
         doneBut.setFont(font2);
         doneBut.setSize(new Dimension(buttonW, buttonH));
         // doneBut.setOpaque(true);

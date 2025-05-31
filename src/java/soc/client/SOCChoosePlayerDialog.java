@@ -26,8 +26,6 @@ import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-
 import soc.game.SOCGame;
 
 
@@ -38,7 +36,7 @@ import soc.game.SOCGame;
  */
 class SOCChoosePlayerDialog extends SOCDialog implements ActionListener
 {
-    JButton[] buttons;
+    Button[] buttons;
     int[] players;
     int number;
     Label msg;
@@ -67,17 +65,15 @@ class SOCChoosePlayerDialog extends SOCDialog implements ActionListener
         msg = new Label("Please choose a player to steal from:", Label.CENTER);
         add(msg);
 
-        buttons = new JButton[number];
+        buttons = new Button[number];
 
         SOCGame ga = pi.getGame();
 
         for (int i = 0; i < number; i++)
         {
             Color playerColor = pi.getPlayerColor(players[i]);
-            JButton button = new JButton(ga.getPlayer(players[i]).getName());
-            button.setOpaque(true);          // MacOS paints the background of panel?
-            button.setBorderPainted(false);  // Stack Overflow says: use JButton & do this.
-            button.setBackground(playerColor);
+            Button button = new Button(ga.getPlayer(players[i]).getName(), playerColor);
+            button.setSize(button.getPreferredSize());
             button.addActionListener(this);
             buttons[i] = button;
             add(button);

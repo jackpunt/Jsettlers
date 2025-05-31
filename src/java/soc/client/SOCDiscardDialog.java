@@ -20,7 +20,6 @@
  **/
 package soc.client;
 
-import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -32,8 +31,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
-import javax.swing.JButton;
 
 import soc.game.SOCPlayer;
 import soc.game.SOCResourceConstants;
@@ -48,7 +45,7 @@ import soc.game.SOCResourceSet;
  */
 class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListener
 {
-    JButton discardBut;
+    Button discardBut;
     ColorSquare[] keep;
     ColorSquare[] disc;
     Label msg;
@@ -79,7 +76,7 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
         Font font = SOCPlayerInterface.genevaFont2;
         setFont(font);
 
-        discardBut = new JButton("Discard");
+        discardBut = new Button("Discard");
 
         setLayout(null);
         

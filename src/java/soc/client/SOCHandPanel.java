@@ -20,7 +20,7 @@
  **/
 package soc.client;
 
-import java.awt.Button;
+// import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -30,8 +30,6 @@ import java.awt.List;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
 
 import soc.disableDebug.D;
 import soc.game.SOCDevCardConstants;
@@ -83,7 +81,7 @@ public class SOCHandPanel extends Panel implements ActionListener
     protected static final String GIVE = "I Give: ";
     protected static final String GET = "I Get: ";
     protected static final Color LCOLOR = new Color(142, 45, 10);
-    protected JButton sitBut;
+    protected Button sitBut;
     protected Button robotBut;
     protected Button startBut;
     protected Button takeOverBut;
@@ -118,7 +116,7 @@ public class SOCHandPanel extends Panel implements ActionListener
     protected Label knightsLab;
     //protected Label cardLab; // no longer used?
     protected List cardList;
-    protected JButton playCardBut;
+    protected Button playCardBut;
     protected SquaresPanel sqPanel;
     protected Label giveLab;
     protected Label getLab;
@@ -263,7 +261,7 @@ public class SOCHandPanel extends Panel implements ActionListener
         takeOverBut.setEnabled(interactive);
         add(takeOverBut);
 
-        sitBut = new JButton(SIT);
+        sitBut = new Button(SIT);
         sitBut.setSize(new Dimension(sitWidth, sitHeight));
         sitBut.addActionListener(this);
         sitBut.setEnabled(interactive);
@@ -274,10 +272,11 @@ public class SOCHandPanel extends Panel implements ActionListener
         robotBut.setEnabled(interactive);
         add(robotBut);
 
-        playCardBut = new JButton(CARD);
-        int tw = fm.stringWidth(CARD);
-        int th = fm.getHeight();
-        playCardBut.setSize(new Dimension(tw+2, th+2));
+        playCardBut = new Button(CARD);
+        // int tw = fm.stringWidth(CARD);
+        // int th = fm.getHeight();
+        // playCardBut.setSize(new Dimension(tw+2, th+2));
+        playCardBut.setSize(playCardBut.getPreferredSize());
         playCardBut.addActionListener(this);
         playCardBut.setEnabled(interactive);
         add(playCardBut);
@@ -1348,7 +1347,7 @@ public class SOCHandPanel extends Panel implements ActionListener
         int clX = lx + ColorSquare.WIDTH + (4 * space);
         int clW = dim.width - (clX + inset);
         cardList.setBounds(clX, cardsY, clW, (ly - cardsY) - 2);
-        playCardBut.setBounds(((clW - pcW) / 2) + clX, ly, pcW, lineH);
+        playCardBut.setLocation(((clW - pcW) / 2) + clX, ly);
             
         int bbW = 50; // bottom buttons width?
         quitBut.setBounds(inset, dim.height - lineH - inset, bbW, lineH);

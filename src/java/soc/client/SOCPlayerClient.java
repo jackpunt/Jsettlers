@@ -23,7 +23,7 @@ package soc.client;
 import java.applet.Applet;
 import java.applet.AppletContext;
 import java.awt.BorderLayout;
-import java.awt.Button;
+// import java.awt.Button;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -141,7 +141,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
     private static final String MAIN_PANEL = "main";
     private static final String MESSAGE_PANEL = "message";
     public static boolean SHOWALL = true; // monitor & show resources for all players
-    protected Hashtable resourcesToGain = new Hashtable(5); // HashMap<SOCGame,SOCResourceSet>()
+    protected Hashtable<SOCGame,SOCResourceSet> resourcesToGain = new Hashtable<SOCGame,SOCResourceSet>(5);
     protected static String defaultGame = "My Game";
 
     protected static String STATSPREFEX = "  [";
@@ -323,7 +323,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         gbl.setConstraints(l, c);
         mainPane.add(l);
 
-        l = new Label("New Game: [NTNR..SDSP]");
+        l = new Label("New Game: [NTNR..ADAP]");
         c.gridwidth = 1;
         gbl.setConstraints(l, c);
         mainPane.add(l);
@@ -3273,7 +3273,12 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
     void startGUI() {
       SOCPlayerClient client = this;
       SwingUtilities.invokeLater(() -> {
-        // setLookAndFeel("Metal"); // or "Nimbus"
+        System.out.println("Available Look and Feels on this system:");
+        for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+            System.out.println("  Name: '" + info.getName() + "' | Class: " + info.getClassName());
+        }
+        String laf = setLookAndFeel("Aqua"); // or "Metal", "Motif", "Synth", "Nimbus"
+        System.out.println("L&F = " + laf);
         JFrame frame = new JFrame("SOCPlayerClient");
         frame.getContentPane().setBackground(new Color(0x61AF71));
         frame.getContentPane().setForeground(Color.black);
@@ -3290,7 +3295,12 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
       });
     }
 
-    void setLookAndFeel(String laf) {
+    /** 
+     * Attempt to set, and then return the UIManager LookAndFeel 
+     * @param laf the requested L&F
+     * @returns the resulting L&F.
+    */
+    String setLookAndFeel(String laf) {
         // --- The Incantation to use Nimbus L&F ---
         try {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -3301,18 +3311,18 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
             }
         } catch (UnsupportedLookAndFeelException e) {
             // handle exception
-            System.err.println("Nimbus L&F is not supported on this platform: " + e.getMessage());
+            System.err.format("%s L&F is not supported on this platform: %s\n", laf, e.getMessage());
         } catch (ClassNotFoundException e) {
             // handle exception
-            System.err.println("Nimbus L&F class not found: " + e.getMessage());
+            System.err.format("%s L&F class not found: %s\n", laf, e.getMessage());
         } catch (InstantiationException e) {
             // handle exception
-            System.err.println("Nimbus L&F instantiation error: " + e.getMessage());
+            System.err.format("%s L&F instantiation error: %s\n", laf, e.getMessage());
         } catch (IllegalAccessException e) {
             // handle exception
-            System.err.println("Nimbus L&F access error: " + e.getMessage());
+            System.err.format("%s L&F access error: %s\n", laf, e.getMessage());
         }
-        System.out.println("Current L&F: " + UIManager.getLookAndFeel().getName());
+        return UIManager.getLookAndFeel().getName();
     }
 
     private WindowAdapter createWindowAdapter()

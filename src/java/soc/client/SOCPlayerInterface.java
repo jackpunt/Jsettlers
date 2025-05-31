@@ -333,10 +333,13 @@ public class SOCPlayerInterface extends Frame implements ActionListener
     }
 
     void processText(String s) {
+        if (s.startsWith(".cp.")) {
+            choosePlayer(4, new int[]{ 0, 1, 2, 3 });
+        } else
         if (s.startsWith(".disc.")) {
             showDiscoveryDialog();
         } else
-        if (s.startsWith(".mono")) {
+        if (s.startsWith(".mono.")) {
             showMonopolyDialog();
         } else
         if (s.startsWith(".dcard.")) {

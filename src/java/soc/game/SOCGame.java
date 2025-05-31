@@ -244,8 +244,8 @@ public class SOCGame implements Serializable, Cloneable
         name = n;
         active = a;
         inUse = false;
-        standardPorts = name.contains("SP");
-        standardDice = name.contains("SD");
+        standardPorts = !name.contains("AP");
+        standardDice = !name.contains("AD");
         board = new SOCBoard();
         players = new SOCPlayer[MAXPLAYERS];
         seats = new int[MAXPLAYERS];
