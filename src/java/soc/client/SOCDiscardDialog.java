@@ -54,6 +54,8 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
     SOCPlayerInterface playerInterface;
     int numDiscards;
     String msgFmt = "Please discard %s resources.";
+    int space = 5;
+    int vhite = 10;
 
     // void centerInBounds(Rectangle pb) {
     //     setLocation(pb.x + pb.width / 2 - (getWidth() / 2), pb.y + pb.height / 2 - (getHeight() / 2));
@@ -76,7 +78,7 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
         Font font = SOCPlayerInterface.genevaFont2;
         setFont(font);
 
-        discardBut = new AButton("Discard");
+        discardBut = new AButton("Discard", null, getFont());
 
         setLayout(null);
         
@@ -84,7 +86,11 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
         FontMetrics fm = getFontMetrics(getFont());
         int innerWidth = fm.stringWidth(msgFmt) + 5 * ColorSquare.WIDTH;
         Insets insets = getInsets();
-        setSize(innerWidth + insets.left + insets.right, 220 + insets.top + insets.bottom);
+        int top = insets.top + 30; // 30 for the top banner that is not in our insets...
+        vhite = fm.getHeight() + 4;
+        int sqwidth = ColorSquare.HEIGHT + space;
+        int innerHeight = 3 * (vhite + space) + 2 * sqwidth + discardBut.getHeight() + 4 * space;
+        setSize(innerWidth + insets.left + insets.right, innerHeight + top + insets.bottom);
 
         msg = new Label(String.format(msgFmt, numDiscards), Label.CENTER);
         add(msg);
@@ -156,14 +162,12 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
         int top = 5 + insets.top;
         int left = 10 + insets.left;
 
-        Dimension dcDim = discardBut.getPreferredSize();
-        int dcWidth = dcDim.width;
-        int dcHeight = dcDim.height;
+        int dcWidth = discardBut.getWidth();
 
         int width = getSize().width - getInsets().left - getInsets().right;
         int height = getSize().height - getInsets().top - getInsets().bottom;
-        int space = 5;			// leading between rows
-        int vhite = fm.getHeight() + 4;
+        space = 5;			// leading between rows
+        vhite = fm.getHeight() + 4;
 
         int sqwidth = ColorSquare.WIDTH;
         int sqspace = (int) Math.min((width - (5 * sqwidth)) / 5, sqwidth * 1.5);
@@ -177,12 +181,11 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
         try
         { // WTF? insets={0, 0, 0, 20} bot, left, right, top; width = 320
             msg.setBounds((width - msgWidth) / 2, top, msgWidth, vhite); // 280 X 190
-            discardBut.setBounds((width - dcWidth) / 2, (top + height) - (vhite+5+space), dcWidth, dcHeight);
+            discardBut.setLocation((width - dcWidth) / 2, (top + height) - (discardBut.getHeight()+3*space));
             youHave.setBounds(left, top + vhite + space, yhWidth, vhite);
             discThese.setBounds(left, top + vhite + space + vhite + space + sqwidth + space, dtWidth, vhite);
         }
         catch (NullPointerException e) {}
-
         keepY = top + vhite + space + vhite + space; // below 2 lines of text
         discY = keepY + sqwidth + space + vhite + space;
 

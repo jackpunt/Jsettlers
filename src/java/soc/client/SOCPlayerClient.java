@@ -3290,7 +3290,9 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
             System.out.println("  Name: '" + info.getName() + "' | Class: " + info.getClassName());
         }
-        String laf = setLookAndFeel("Mac OS X"); // or "Metal", "Motif", "Synth", "Nimbus"
+        String laf = System.getProperty("laf");
+        if (laf == null) laf = "CDE/Motif";
+        laf = setLookAndFeel(laf); // "Mac OS X", "Metal", "CDE/Motif", "Synth", "Nimbus"
         System.out.println("L&F = " + laf);
         Frame frame = new Frame("SOCPlayerClient");
 

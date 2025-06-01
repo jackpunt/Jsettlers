@@ -175,13 +175,11 @@ public class TradeOfferPanel extends Panel
 
         AButton addButton(String name, boolean visible) 
         {
-          FontMetrics fm = getFontMetrics(getFont());
+          Color color = new Color(0xEEEEEE);
           String cname = name.substring(0,1).toUpperCase() + name.substring(1).toLowerCase();
-          AButton button = new AButton(cname); 
-          // button.setSize(new Dimension(fm.stringWidth(name)+2, fm.getHeight()));
-          // button.setOpaque(true);          // MacOS paints the background of panel? (Stack Overflow)
+          AButton button = new AButton(cname, color);  // initial caps on button label
           button.setVisible(visible);
-          button.setActionCommand(name);
+          button.setActionCommand(name); // lowercase comnand name
           button.addActionListener(this);
           add(button);
           return button;
@@ -348,8 +346,8 @@ public class TradeOfferPanel extends Panel
             int giveW = fm.stringWidth("I Give: ") + 2;
             int fontH = fm.getHeight() + 1;   // 10 -> 14
             int lineH = fontH + vspace;	// could derive from fm? (16)
-            int buttonW = fm.stringWidth("Counter")+3; // (48)
-            int buttonH = lineH + vspace;	// lineH + 2 (18)
+            int buttonW = offeredButtons[2].getWidth();// fm.stringWidth("Counter")+3; // (48)
+            int buttonH = offeredButtons[2].getHeight();// lineH + vspace;	// lineH + 2 (18)
             // inset:buttonW<ibs>buttonW<ibs>buttonW:inset
             int use = (3 * buttonW + 2 * inset + 2);
             int w = Math.min(use+2, dim.width);
@@ -385,7 +383,7 @@ public class TradeOfferPanel extends Panel
                 liney += vspace;
                 int buttonX = inset;
                 for (AButton button : counterButtons) {
-                    button.setBounds(buttonX, liney, buttonW, buttonH); 
+                    button.setLocation(buttonX, liney); 
                     buttonX += buttonW + ibs;
                 }
                 liney += lineH + 2*vspace;
@@ -394,7 +392,7 @@ public class TradeOfferPanel extends Panel
                 if (offered) {
                   int buttonX = inset;
                   for (AButton button : offeredButtons) {
-                      button.setBounds(buttonX, liney, buttonW, buttonH); 
+                      button.setLocation(buttonX, liney); 
                       buttonX += buttonW + ibs;
                   }
                 }
@@ -439,13 +437,13 @@ public class TradeOfferPanel extends Panel
                         getSum += get[i];
                     }
 
-                int m1 = - SOCResourceConstants.MIN;
-                SOCResourceSet giveSet = new SOCResourceSet(give[m1+SOCResourceConstants.CLAY],
+                    int m1 = - SOCResourceConstants.MIN;
+                    SOCResourceSet giveSet = new SOCResourceSet(give[m1+SOCResourceConstants.CLAY],
                     give[m1+SOCResourceConstants.ORE],
                     give[m1+SOCResourceConstants.SHEEP],
                     give[m1+SOCResourceConstants.WHEAT],
                     give[m1+SOCResourceConstants.WOOD], 0);
-		            SOCResourceSet getSet = new SOCResourceSet(get[m1+SOCResourceConstants.CLAY],
+		                SOCResourceSet getSet = new SOCResourceSet(get[m1+SOCResourceConstants.CLAY],
 							       get[m1+SOCResourceConstants.ORE],
 							       get[m1+SOCResourceConstants.SHEEP],
 							       get[m1+SOCResourceConstants.WHEAT],
@@ -486,7 +484,7 @@ public class TradeOfferPanel extends Panel
             {
                 hp.getClient().rejectOffer(hp.getGame());
 
-                counterButtons[1].setVisible(false);
+                offeredButtons[1].setVisible(false);
             }
 
             if (target == ACCEPT)

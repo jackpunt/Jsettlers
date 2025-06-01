@@ -36,6 +36,11 @@
       "name": "SOCPlayerClient",
       "request": "launch",
       "mainClass": "soc.client.SOCPlayerClient",
+      "vmArgs": [
+          // "-Dlaf=Aqua",
+          // "-Dlogging.level=DEBUG",
+          // "-Xmx512m"              
+      ],
       "args": [ "localhost", "8808"],
       "projectName": "JSettlers_1e765702"
     },

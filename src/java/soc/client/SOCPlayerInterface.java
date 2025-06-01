@@ -227,7 +227,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          * initialize the text input and display and add them to the interface
          */
         // textDisplay = new SnippingTextArea("", 40, 80, TextArea.SCROLLBARS_VERTICAL_ONLY, 80);
-        textDisplay = new TextOut(40,80,80);
+        textDisplay = new TextOut(40, 80, 180);
         textDisplay.setFont(monocoFont);
         textDisplay.setBackground(new Color(255, 230, 162));
         textDisplay.setForeground(Color.black);
@@ -558,8 +558,9 @@ public class SOCPlayerInterface extends Frame implements ActionListener
      * @param dialog one of the discard, choose, discovery, monopoly Dialog boxes.
      */
     public void centerInBounds(Dialog dialog) {
-        Rectangle pb = this.textDisplay.getBounds();
-        dialog.setLocation(pb.x + pb.width / 2 - (dialog.getWidth() / 2), pb.y + pb.height);
+        Rectangle p0 = getBounds();
+        Rectangle pb = this.chatDisplay.getBounds();
+        dialog.setLocation(p0.x + pb.x + (pb.width - dialog.getWidth()) / 2, p0.y + pb.y);
     }
 
     /**

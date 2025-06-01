@@ -270,7 +270,7 @@ public class SOCHandPanel extends Panel implements ActionListener
         robotBut = new AButton(ROBOT);
         robotBut.addActionListener(this);
         robotBut.setEnabled(interactive);
-        add(robotBut);
+        // add(robotBut);
 
         playCardBut = new AButton(CARD);
         // int tw = fm.stringWidth(CARD);
@@ -1214,8 +1214,8 @@ public class SOCHandPanel extends Panel implements ActionListener
 
         if (!ourHand) {
             labelW = fm.stringWidth(SEATLOCKED);
-            takeOverBut.setBounds(dim.width - (inset + labelW), inset, labelW, lineH);
-            seatLockBut.setBounds(dim.width - (inset + labelW), inset, labelW, lineH);
+            takeOverBut.setLocation(dim.width - (inset + labelW), inset);
+            seatLockBut.setLocation(dim.width - (inset + labelW), inset);
             // takeOver/seatLock only apply to robot players:
             if (player.isRobot()) pnameW -= labelW; // robot names are short anyway!
         }
@@ -1229,10 +1229,7 @@ public class SOCHandPanel extends Panel implements ActionListener
             
         Dimension sqpDim = sqPanel.getSize();
         int sheepW = fm.stringWidth("Sheep: "); // longest label
-        int pcW = fm.stringWidth(CARD);
         int giveW = fm.stringWidth(GIVE);
-        int clearW = fm.stringWidth(CLEAR);
-        int bankW = fm.stringWidth(BANK);
         int topH = inset + faceW; // (faceW == faceH)
         int cardsH = (ourHand ? 5 : 5) * (lineH + space) - space;
         int tradeH = 4 * (lineH + space);
@@ -1243,7 +1240,9 @@ public class SOCHandPanel extends Panel implements ActionListener
         int listY = (dim.height - (inset + cardsH)); // where other player card/status list starts
             
         // Always reposition everything
-        startBut.setBounds(inset + faceW + inset, inset + lineH + space, dim.width - (inset + faceW + inset + inset), lineH);
+        // startBut.setBounds(inset + faceW + inset, inset + lineH + space, dim.width - (inset + faceW + inset + inset), lineH + 20);
+        // startBut.setSize(startBut.getPreferredSize());
+        startBut.setLocation(inset + faceW + inset, inset + lineH + space);
             
         int vpW = fm.stringWidth(vpLab.getText());
         vpLab.setBounds(inset + faceW + inset, topH - lineH, vpW, lineH);
@@ -1263,9 +1262,9 @@ public class SOCHandPanel extends Panel implements ActionListener
         int tbW = ((giveW + sqpDim.width) / 2);
         int tbX = inset;
         int tbY = tradeY + sqpDim.height + space;
-        clearBut.setBounds(tbX             , tbY                , tbW, lineH);
-        bankBut.setBounds(tbX              , tbY + lineH + space, tbW, lineH);
-        sendBut.setBounds(tbX + tbW + space, tbY + lineH + space, tbW, lineH);
+        clearBut.setLocation(tbX             , tbY                );
+        bankBut.setLocation(tbX              , tbY + lineH + space);
+        sendBut.setLocation(tbX + tbW + space, tbY + lineH + space);
             
         playerSend[0].setBounds(tbX + tbW + space                                  , tbY, ColorSquare.WIDTH, ColorSquare.HEIGHT);
         playerSend[1].setBounds(tbX + tbW + space + ((tbW - ColorSquare.WIDTH) / 2), tbY, ColorSquare.WIDTH, ColorSquare.HEIGHT);
@@ -1347,11 +1346,12 @@ public class SOCHandPanel extends Panel implements ActionListener
         int clX = lx + ColorSquare.WIDTH + (4 * space);
         int clW = dim.width - (clX + inset);
         cardList.setBounds(clX, cardsY, clW, (ly - cardsY) - 2);
-        playCardBut.setLocation(((clW - pcW) / 2) + clX, ly);
+        playCardBut.setLocation(((clW - playCardBut.getWidth()) / 2) + clX, ly);
             
-        int bbW = 50; // bottom buttons width?
-        quitBut.setBounds(inset, dim.height - lineH - inset, bbW, lineH);
-        rollBut.setBounds(dim.width - (bbW + space + bbW + inset), dim.height - lineH - inset, bbW, lineH);
-        doneBut.setBounds(dim.width - inset - bbW, dim.height - lineH - inset, bbW, lineH);
+        int bby = dim.height - lineH - 2 * inset;
+        int bbW = quitBut.getWidth(); // bottom buttons width?
+        quitBut.setLocation(inset, bby);
+        rollBut.setLocation(dim.width - (bbW + space + bbW + inset), bby);
+        doneBut.setLocation(dim.width - inset - bbW, bby);
     }
 }

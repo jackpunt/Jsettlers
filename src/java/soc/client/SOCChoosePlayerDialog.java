@@ -21,7 +21,7 @@
 package soc.client;
 
 import java.awt.Color;
-import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -60,24 +60,39 @@ class SOCChoosePlayerDialog extends SOCDialog implements ActionListener
         setForeground(Color.black);
         setFont(SOCPlayerInterface.genevaFont2);
         setLayout(null);
-        setSize(350, 100+getInsets().top+getInsets().bottom);
 
+        FontMetrics fm = getFontMetrics(getFont());
         msg = new Label("Please choose a player to steal from:", Label.CENTER);
+        msg.setSize(fm.stringWidth(msg.getText()) + 2, fm.getHeight() + 2);
         add(msg);
 
         buttons = new AButton[number];
 
         SOCGame ga = pi.getGame();
+        int bwidth = 0;
+        int bheight = 0;
 
         for (int i = 0; i < number; i++)
         {
             Color playerColor = pi.getPlayerColor(players[i]);
             AButton button = new AButton(ga.getPlayer(players[i]).getName(), playerColor);
-            button.setSize(button.getPreferredSize());
+            bwidth = Math.max(bwidth, button.getSize().width); // find max width
+            bheight = Math.max(bheight, button.getSize().height); // find max height
             button.addActionListener(this);
             buttons[i] = button;
             add(button);
         }
+        for (int i = 0; i< number; i++) {
+          buttons[i].setSize(bwidth, bheight); // make sizes equal
+        }
+
+        int space = 10; // between buttons
+        int vspace = 10; // vertical whitespace above & below & between?
+        //  twidth = [space/2, bwidth, space, ..., bwidth, space/2]
+        int twidth = buttons.length * (buttons[0].getWidth() + space);
+        // Insets not yet instantiated, use 28 for top;
+        int theight = 28 + 4 * vspace + msg.getHeight() + bheight ;
+        setSize(Math.max(msg.getWidth() + 2 * space, twidth), theight);
     }
 
     /**
@@ -100,31 +115,33 @@ class SOCChoosePlayerDialog extends SOCDialog implements ActionListener
      */
     public void doLayout()
     {
-        int x = getInsets().left;
-        int y = getInsets().top;
+
+        int space = 10;
+        int vspace = 10;
+        int bwidth = buttons[0].getWidth();
+        int bheight = buttons[0].getHeight();
+        int twidth = buttons.length * (buttons[0].getWidth() + space);
+
+        int theight = getInsets().top + 2 * vspace + msg.getHeight() + bheight + getInsets().bottom;
+        setSize(Math.max(msg.getWidth() + 2 * space, twidth), theight);
+
         int width = getSize().width - getInsets().left - getInsets().right;
         int height = getSize().height - getInsets().top - getInsets().bottom;
-        int space = 10;
-        int vhite = 20;
-
-        // int piX = pi.getInsets().left;
-        // int piY = pi.getInsets().top;
-        // int piWidth = pi.getSize().width - pi.getInsets().left - pi.getInsets().right;
-        // int piHeight = pi.getSize().height - pi.getInsets().top - pi.getInsets().bottom;
-
-        int bwidth = (width - ((number - 1 + 2) * space)) / number;
+        int x = getInsets().left + (width - msg.getWidth()) / 2; // in case msgWidth < twidth
+        int y = getInsets().top + vspace;
 
         /* put the dialog in the center of the game window */
-        //setLocation(piX + ((piWidth - width) / 2), piY + ((piHeight - height) / 2));
         centerInBounds();
 
+        int bx0 = (width - twidth + space) / 2;
+        int bby = (getInsets().top + height) - (bheight + vspace);
         try
         {
-            msg.setBounds(x, y, width, vhite);
+            msg.setLocation(x, y);
 
             for (int i = 0; i < number; i++)
             {
-                buttons[i].setBounds(x + space + (i * (bwidth + space)), (getInsets().top + height) - (vhite + space), bwidth, vhite);
+                buttons[i].setLocation(bx0 + i * (bwidth + space), bby);
             }
         }
         catch (NullPointerException e) {}

@@ -45,6 +45,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
     static final String STLMT = "stlmt";
     static final String CITY = "city";
     static final String CARD = "card";
+    static final String DASH = "----";
     Label title;
     AButton roadBut;
     AButton settlementBut;
@@ -74,6 +75,15 @@ public class SOCBuildingPanel extends Panel implements ActionListener
     ColorSquare cardSheep;
     ColorSquare cardOre;
     SOCPlayerInterface pi;
+
+    AButton buildButton(String action) {
+        AButton button = new AButton("Cancel"); // max width
+        button.setText(DASH);  // initial contents
+        add(button);
+        button.setActionCommand(action);
+        button.addActionListener(this);
+        return button;
+    }
 
     /**
      * make a new building panel
@@ -107,10 +117,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         add(roadWood);
         roadClay = new ColorSquare(ColorSquare.CLAY, 1);
         add(roadClay);
-        roadBut = new AButton("---");
-        add(roadBut);
-        roadBut.setActionCommand(ROAD);
-        roadBut.addActionListener(this);
+        roadBut = buildButton(ROAD);
 
         settlementT = new Label("Settlement: ");
         add(settlementT);
@@ -127,10 +134,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         add(settlementSheep);
         settlementWheat = new ColorSquare(ColorSquare.WHEAT, 1);
         add(settlementWheat);
-        settlementBut = new AButton("---");
-        add(settlementBut);
-        settlementBut.setActionCommand(STLMT);
-        settlementBut.addActionListener(this);
+        settlementBut = buildButton(STLMT);
 
         cityT = new Label("City Upgrade: ");
         add(cityT);
@@ -143,7 +147,8 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         add(cityWheat);
         cityOre = new ColorSquare(ColorSquare.ORE, 3);
         add(cityOre);
-        cityBut = new AButton("---");
+        cityBut = new AButton("Cancel");
+        cityBut.setText(DASH);
         add(cityBut);
         cityBut.setActionCommand(CITY);
         cityBut.addActionListener(this);
@@ -161,10 +166,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         add(cardSheep);
         cardOre = new ColorSquare(ColorSquare.ORE, 1);
         add(cardOre);
-        cardBut = new AButton("---");
-        add(cardBut);
-        cardBut.setActionCommand(CARD);
-        cardBut.addActionListener(this);
+        cardBut = buildButton(CARD);
     }
 
     /**
@@ -180,7 +182,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         int rowSpaceH = (dim.height - (8 * lineH)) / 3;
         // int halfLineH = lineH / 2;
         int costW = fm.stringWidth(new String("Cost: "));
-        int butW = 50;
+        int butW = roadBut.getWidth(); // all the same width: "Cancel"
         int margin = 2;
 
         /*
@@ -203,7 +205,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         curX += (ColorSquare.WIDTH + 3);
         roadClay.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
         roadClay.setLocation(curX, curY);
-        roadBut.setSize(butW, lineH);
+        // roadBut.setSize(butW, lineH);
         roadBut.setLocation(dim.width - (butW + margin), curY);
         curY += (rowSpaceH + lineH);
 
@@ -228,7 +230,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         curX += (ColorSquare.WIDTH + 3);
         settlementWheat.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
         settlementWheat.setLocation(curX, curY);
-        settlementBut.setSize(butW, lineH);
+        // settlementBut.setSize(butW, lineH);
         settlementBut.setLocation(dim.width - (butW + margin), curY);
         curY += (rowSpaceH + lineH);
 
@@ -247,7 +249,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         curX += (ColorSquare.WIDTH + 3);
         cityOre.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
         cityOre.setLocation(curX, curY);
-        cityBut.setSize(butW, lineH);
+        // cityBut.setSize(butW, lineH);
         cityBut.setLocation(dim.width - (butW + margin), curY);
         curY += (rowSpaceH + lineH);
 
@@ -269,7 +271,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         curX += (ColorSquare.WIDTH + 3);
         cardOre.setSize(ColorSquare.WIDTH, ColorSquare.HEIGHT);
         cardOre.setLocation(curX, curY);
-        cardBut.setSize(butW, lineH);
+        // cardBut.setSize(butW, lineH);
         cardBut.setLocation(dim.width - (butW + margin), curY);
     }
 
@@ -353,7 +355,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
             }
             else
             {
-                roadBut.setLabel("---");
+                roadBut.setLabel(DASH);
             }
 
             if ((game.getCurrentPlayerNumber() == player.getPlayerNumber()) && (game.getGameState() == SOCGame.PLACING_SETTLEMENT))
@@ -366,7 +368,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
             }
             else
             {
-                settlementBut.setLabel("---");
+                settlementBut.setLabel(DASH);
             }
 
             if ((game.getCurrentPlayerNumber() == player.getPlayerNumber()) && (game.getGameState() == SOCGame.PLACING_CITY))
@@ -379,7 +381,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
             }
             else
             {
-                cityBut.setLabel("---");
+                cityBut.setLabel(DASH);
             }
 
             if (game.couldBuyDevCard(player.getPlayerNumber()))
@@ -388,7 +390,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
             }
             else
             {
-                cardBut.setLabel("---");
+                cardBut.setLabel(DASH);
             }
         }
     }
