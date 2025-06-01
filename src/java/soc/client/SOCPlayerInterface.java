@@ -21,6 +21,7 @@
 package soc.client;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -32,14 +33,19 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.TextArea;
 import java.awt.TextField;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.StringTokenizer;
 
+import javax.swing.SwingUtilities;
+
 import soc.disableDebug.D;
 import soc.game.SOCGame;
+import soc.game.SOCTradeOffer;
+import soc.message.SOCMakeOffer;
 
 
 /**
@@ -129,6 +135,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
 
     // also: SOCHandPanel.font "Helvetica"
     public static Font monocoFont = new Font("Monoco", Font.PLAIN, SOCHandPanel.fontSize);
+    public static Font monocoFont2 = new Font("Monoco", Font.PLAIN, SOCHandPanel.fontSize - 2);
     public static Font genevaFont = new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize);
     public static Font genevaFont2 = new Font("Geneva", Font.PLAIN, SOCHandPanel.fontSize + 2);
 
@@ -332,7 +339,30 @@ public class SOCPlayerInterface extends Frame implements ActionListener
         }
     }
 
+    Frame getFrame(Component comp) {
+        return (Frame) SwingUtilities.getWindowAncestor(comp);
+    }
+
     void processText(String s) {
+        if (s.startsWith(".op.")) {
+            String offerStr = "My Game,1,true,false,true,true,0,0,0,0,0,0,0,1,1,1";
+            SOCMakeOffer moffer = SOCMakeOffer.parseDataStr(offerStr);
+            int fromPlayer = 1;
+            SOCTradeOffer offer = moffer.getOffer();
+            getGame().getPlayer(fromPlayer).setCurrentOffer(offer);
+            SOCHandPanel hp = getPlayerHandPanel(fromPlayer);
+            hp.setVisible(true);
+            hp.inPlay = true;
+            getFrame(hp).pack(); // may will update size?
+            System.out.println("Frame is a "+getFrame(hp).getClass().getName());
+            try { Thread.sleep(10); }
+            catch (InterruptedException ex) {
+              Thread.currentThread().interrupt();
+            };
+            // hp.offer.setBounds(20, 80, 220, 120);
+            // hp.offer.offerPanel.setSize(220, 120);
+            hp.updateCurrentOffer();
+        } else
         if (s.startsWith(".cp.")) {
             choosePlayer(4, new int[]{ 0, 1, 2, 3 });
         } else

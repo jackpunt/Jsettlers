@@ -81,11 +81,11 @@ public class SOCHandPanel extends Panel implements ActionListener
     protected static final String GIVE = "I Give: ";
     protected static final String GET = "I Get: ";
     protected static final Color LCOLOR = new Color(142, 45, 10);
-    protected Button sitBut;
-    protected Button robotBut;
-    protected Button startBut;
-    protected Button takeOverBut;
-    protected Button seatLockBut;
+    protected AButton sitBut;
+    protected AButton robotBut;
+    protected AButton startBut;
+    protected AButton takeOverBut;
+    protected AButton seatLockBut;
     protected SOCFaceButton faceImg;
     protected Label pname;
     protected Label vpLab;
@@ -116,17 +116,17 @@ public class SOCHandPanel extends Panel implements ActionListener
     protected Label knightsLab;
     //protected Label cardLab; // no longer used?
     protected List cardList;
-    protected Button playCardBut;
+    protected AButton playCardBut;
     protected SquaresPanel sqPanel;
     protected Label giveLab;
     protected Label getLab;
-    protected Button sendBut;
-    protected Button clearBut;
-    protected Button bankBut;
+    protected AButton sendBut;
+    protected AButton clearBut;
+    protected AButton bankBut;
     protected ColorSquare[] playerSend;
-    protected Button rollBut;
-    protected Button doneBut;
-    protected Button quitBut;
+    protected AButton rollBut;
+    protected AButton doneBut;
+    protected AButton quitBut;
     protected SOCPlayerInterface playerInterface;
     protected SOCPlayerClient client;
     protected SOCGame game;
@@ -251,28 +251,28 @@ public class SOCHandPanel extends Panel implements ActionListener
         developmentSq = new ColorSquare(ColorSquare.GREY, 0);
         add(developmentSq);
         
-        seatLockBut = new Button(UNLOCKSEAT);
+        seatLockBut = new AButton(UNLOCKSEAT);
         seatLockBut.addActionListener(this);
         seatLockBut.setEnabled(interactive);
         add(seatLockBut);
 
-        takeOverBut = new Button(TAKEOVER);
+        takeOverBut = new AButton(TAKEOVER);
         takeOverBut.addActionListener(this);
         takeOverBut.setEnabled(interactive);
         add(takeOverBut);
 
-        sitBut = new Button(SIT);
-        sitBut.setSize(new Dimension(sitWidth, sitHeight));
+        sitBut = new AButton(SIT);
+        sitBut.setSize(sitBut.getPreferredSize());
         sitBut.addActionListener(this);
         sitBut.setEnabled(interactive);
         add(sitBut);
 
-        robotBut = new Button(ROBOT);
+        robotBut = new AButton(ROBOT);
         robotBut.addActionListener(this);
         robotBut.setEnabled(interactive);
         add(robotBut);
 
-        playCardBut = new Button(CARD);
+        playCardBut = new AButton(CARD);
         // int tw = fm.stringWidth(CARD);
         // int th = fm.getHeight();
         // playCardBut.setSize(new Dimension(tw+2, th+2));
@@ -291,17 +291,17 @@ public class SOCHandPanel extends Panel implements ActionListener
         add(sqPanel);
         sqPanel.setVisible(false); // else it's visible in all (dunno why?)
         
-        sendBut = new Button(SEND);
+        sendBut = new AButton(SEND);
         sendBut.addActionListener(this);
         sendBut.setEnabled(interactive);
         add(sendBut);
         
-        clearBut = new Button(CLEAR);
+        clearBut = new AButton(CLEAR);
         clearBut.addActionListener(this);
         clearBut.setEnabled(interactive);
         add(clearBut);
         
-        bankBut = new Button(BANK);
+        bankBut = new AButton(BANK);
         bankBut.addActionListener(this);
         bankBut.setEnabled(interactive);
         add(bankBut);
@@ -325,17 +325,17 @@ public class SOCHandPanel extends Panel implements ActionListener
             }
         }
 
-        rollBut = new Button(ROLL);
+        rollBut = new AButton(ROLL);
         rollBut.addActionListener(this);
         rollBut.setEnabled(interactive);
         add(rollBut);
         
-        doneBut = new Button(DONE);
+        doneBut = new AButton(DONE);
         doneBut.addActionListener(this);
         doneBut.setEnabled(interactive);
         add(doneBut);
 
-        quitBut = new Button(QUIT);
+        quitBut = new AButton(QUIT);
         quitBut.addActionListener(this);
         quitBut.setEnabled(interactive);
         add(quitBut);
@@ -348,7 +348,7 @@ public class SOCHandPanel extends Panel implements ActionListener
         pname.setFont(new Font("Serif", Font.PLAIN, 14));
         add(pname);
 
-        startBut = new Button(START);
+        startBut = new AButton(START);
         startBut.addActionListener(this);
         // this button always enabled
         add(startBut);
@@ -496,7 +496,7 @@ public class SOCHandPanel extends Panel implements ActionListener
                     giveSum += give[i];
                     getSum += get[i];
                 }
-		int m1 = -SOCResourceConstants.MIN;
+	            	int m1 = -SOCResourceConstants.MIN;
                 SOCResourceSet giveSet = new SOCResourceSet(give[m1+SOCResourceConstants.CLAY],
 							    give[m1+SOCResourceConstants.ORE],
 							    give[m1+SOCResourceConstants.SHEEP],
@@ -680,7 +680,7 @@ public class SOCHandPanel extends Panel implements ActionListener
         if (game.getPlayer(client.getNickname()) == null &&
             game.getGameState() == game.NEW)
 	    {
-		sitBut.setVisible(true);
+	        	sitBut.setVisible(true);
 	    }
 
         /* This is our hand */
@@ -830,7 +830,7 @@ public class SOCHandPanel extends Panel implements ActionListener
             }
 
             
-	    // show what we know of other players' hands
+	          // show what we know of other players' hands
             claySq.setVisible(true);
             clayLab.setVisible(true);
             oreSq.setVisible(true);
@@ -842,7 +842,7 @@ public class SOCHandPanel extends Panel implements ActionListener
             woodSq.setVisible(true);
             woodLab.setVisible(true);
 
-	    startBut.setVisible(false);
+	          startBut.setVisible(false);
             vpLab.setVisible(true);
             vpSq.setVisible(true);
 
@@ -1197,15 +1197,15 @@ public class SOCHandPanel extends Panel implements ActionListener
         int space = 2;
 
         if (!inPlay)
-	    {
-        /* just show the 'sit' button */
-        /* and the 'robot' button     */
-        sitBut.setBounds((dim.width - sitWidth) / 2, (dim.height - sitHeight) / 2, sitWidth, sitHeight);
-        return;
-	    }
+        {
+            /* just show the 'sit' button */
+            /* and the 'robot' button     */
+            sitBut.setBounds((dim.width - sitWidth) / 2, (dim.height - sitHeight) / 2, sitWidth, sitHeight);
+            return;
+        }
 
         boolean isRobot = player.isRobot();
-        boolean ourHand = player.getName().equals(client.getNickname());
+        boolean ourHand = (player.getName() != null) && player.getName().equals(client.getNickname());
         FontMetrics fm = this.getFontMetrics(this.getFont());
         int lineH = ColorSquare.HEIGHT;
         int labelW = fm.stringWidth(knightsLab.getText());

@@ -26,11 +26,14 @@ import java.awt.BorderLayout;
 // import java.awt.Button;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.TextField;
@@ -152,8 +155,8 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
     protected TextField game;
     protected java.awt.List chlist;
     protected java.awt.List gmlist;
-    protected Button jc;
-    protected Button jg;
+    protected AButton jc;
+    protected AButton jg;
     protected Label messageLabel;
     protected AppletContext ac;
     protected String lastMessage;
@@ -226,12 +229,22 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         port = p;
     }
 
+    Panel mainPane;
+    GridBagLayout gbl;
+    GridBagConstraints c;
+    void addGrid(Component comp, int gridWidth ) {
+        c.gridwidth = gridWidth;
+        gbl.setConstraints(comp, c);
+        mainPane.add(comp);
+
+    }
+
     /**
      * init the visual elements
      */
     protected void initVisualElements()
     {
-        setFont(new Font("Monaco", Font.PLAIN, SOCHandPanel.fontSize - 2));
+        setFont(SOCPlayerInterface.monocoFont2);
         
         nick = new TextField(20);
 	      nick.setText("MyName");
@@ -246,8 +259,8 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         chlist.add(" ");
         gmlist = new java.awt.List(10, false);
         gmlist.add(" ");
-        jc = new Button("Join Channel");
-        jg = new Button("Join Game");
+        jc = new AButton("Join Channel");
+        jg = new AButton("Join Game");
 
         nick.addActionListener(this);
         pass.addActionListener(this);
@@ -262,7 +275,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
 
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
-        Panel mainPane = new Panel(gbl);
+        mainPane = new Panel(gbl);
 
         c.fill = GridBagConstraints.BOTH;
         c.gridwidth = GridBagConstraints.REMAINDER;
@@ -1908,7 +1921,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
             case SOCPlayerElement.SHEEP:
             case SOCPlayerElement.WHEAT:
             case SOCPlayerElement.WOOD:
-		handleResourceElement(pl, pi, mes, mes.getElementType());
+		            handleResourceElement(pl, pi, mes, mes.getElementType());
                 break;
 
             }
@@ -1930,43 +1943,43 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
      * A resource of type {@code rsc} was lost or gained.
      */
     void handleResourceElement(SOCPlayer pl, SOCPlayerInterface pi, SOCPlayerElement mes, int rsc) {
-	SOCResourceSet rs = pl.getResources();
-	SOCResourceSet ur = pl.getUResources();
+        SOCResourceSet rs = pl.getResources();
+        SOCResourceSet ur = pl.getUResources();
 
-	int mv = mes.getValue();
+        int mv = mes.getValue();
 
-	switch (mes.getAction())
-	    {
-	    case SOCPlayerElement.SET:
-		rs.setAmount(mv, rsc);
-		ur.setAmount(0, rsc);
-		break;
+        switch (mes.getAction())
+            {
+            case SOCPlayerElement.SET:
+                rs.setAmount(mv, rsc);
+                ur.setAmount(0, rsc);
+                break;
 
-	    case SOCPlayerElement.GAIN:
-		rs.add(mv, rsc);
-		break;
+            case SOCPlayerElement.GAIN:
+                rs.add(mv, rsc);
+                break;
 
-	    case SOCPlayerElement.LOSE:
-		int xs = mv - rs.getAmount(rsc);
-		rs.subtract(mv, rsc);
-		if (xs > 0) ur.subtract(xs, rsc);
+            case SOCPlayerElement.LOSE:
+                int xs = mv - rs.getAmount(rsc);
+                rs.subtract(mv, rsc);
+                if (xs > 0) ur.subtract(xs, rsc);
 
-		int ut = rs.getAmount(SOCResourceConstants.UNKNOWN);
-		for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
-		    ur.setAmount(Math.min(ur.getAmount(rt), ut), rt);
-		}
+                int ut = rs.getAmount(SOCResourceConstants.UNKNOWN);
+                for (int rt = SOCResourceConstants.MIN; rt < SOCResourceConstants.MAX; rt++) {
+                    ur.setAmount(Math.min(ur.getAmount(rt), ut), rt);
+                }
 
-		break;
-	    }
-	
-	if (nickname.equals(pl.getName())) {
-	    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(panelResources[rsc]);
-	} else {
-	    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
-	    if (SHOWALL) {
-		pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(panelResources[rsc]);
-	    }
-	}
+                break;
+            }
+        
+            if (nickname.equals(pl.getName())) {
+                pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(panelResources[rsc]);
+            } else {
+                pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
+                if (SHOWALL) {
+              pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(panelResources[rsc]);
+            }
+        }
     }
 
     /**
@@ -2086,7 +2099,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
                  */
                 if (nickname.equals(pl.getName()) || SHOWALL)
                 {
-		    int pn = mes.getPlayerNumber();
+		                int pn = mes.getPlayerNumber();
                     pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.CLAY);
                     pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.ORE);
                     pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.SHEEP);
@@ -3271,17 +3284,24 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
     }
 
     void startGUI() {
-      SOCPlayerClient client = this;
-      SwingUtilities.invokeLater(() -> {
+        SOCPlayerClient client = this;
+        // apply recommended idiom to do all AWT on the event queue:
         System.out.println("Available Look and Feels on this system:");
         for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
             System.out.println("  Name: '" + info.getName() + "' | Class: " + info.getClassName());
         }
-        String laf = setLookAndFeel("Aqua"); // or "Metal", "Motif", "Synth", "Nimbus"
+        String laf = setLookAndFeel("Mac OS X"); // or "Metal", "Motif", "Synth", "Nimbus"
         System.out.println("L&F = " + laf);
-        JFrame frame = new JFrame("SOCPlayerClient");
-        frame.getContentPane().setBackground(new Color(0x61AF71));
-        frame.getContentPane().setForeground(Color.black);
+        Frame frame = new Frame("SOCPlayerClient");
+
+        Color bgColor = new Color(0x61AF71);
+        if (frame instanceof JFrame) {
+            ((JFrame)frame).getContentPane().setBackground(bgColor);
+            ((JFrame)frame).getContentPane().setForeground(Color.black);
+        } else {
+            frame.setBackground(bgColor);
+            frame.setForeground(Color.black);
+        }
         // Add a listener for the close event
         frame.addWindowListener(client.createWindowAdapter());
         
@@ -3292,7 +3312,6 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         frame.setVisible(true);
 
         client.connect();
-      });
     }
 
     /** 
@@ -3341,5 +3360,47 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         {
             nick.requestFocus();
         }
+    }
+
+    void showStatus(SOCPlayerClient client) {
+        // --- Gemini inspired Diagnostics (keep these in for re-testing) ---
+        System.out.println("--- Button jc Diagnostics (After Fix) ---");
+        System.out.println("jc.isVisible(): " + jc.isVisible());
+        System.out.println("jc.isShowing(): " + jc.isShowing());
+        System.out.println("jc.isValid(): " + jc.isValid());
+        System.out.println("jc.getSize(): " + jc.getSize());
+        System.out.println("jc.getLocation(): " + jc.getLocation());
+        System.out.println("jc.getParent().isVisible(): " + jc.getParent().isVisible());
+        System.out.println("jc.getParent().isValid(): " + jc.getParent().isValid());
+
+        System.out.println("--- Button jg Diagnostics (After Fix) ---");
+        System.out.println("jg.isVisible(): " + jg.isVisible());
+        System.out.println("jg.isShowing(): " + jg.isShowing());
+        System.out.println("jg.isValid(): " + jg.isValid());
+        System.out.println("jg.getSize(): " + jg.getSize());
+        System.out.println("jg.getLocation(): " + jg.getLocation());
+        System.out.println("jg.getParent().isVisible(): " + jg.getParent().isVisible());
+        System.out.println("jg.getParent().isValid(): " + jg.getParent().isValid());
+        // --- End Diagnostics ---
+
+        System.out.println("--- Applet (client) Diagnostics ---");
+        System.out.println("client.isVisible(): " + client.isVisible());
+        System.out.println("client.isShowing(): " + client.isShowing());
+        System.out.println("client.isValid(): " + client.isValid());
+        System.out.println("client.getSize(): " + client.getSize());
+        System.out.println("client.getLocation(): " + client.getLocation());
+        System.out.println("client.getParent().isVisible(): " + client.getParent().isVisible()); // This parent is 'frame'
+        System.out.println("client.getParent().isValid(): " + client.getParent().isValid());
+
+        System.out.println("--- mainPane Diagnostics ---");
+        // Assuming mainPane is an instance variable accessible here, or get it via client.getComponent(index)
+        // Or pass mainPane as an argument if initVisualElements creates it locally.
+        System.out.println("mainPane.isVisible(): " + mainPane.isVisible());
+        System.out.println("mainPane.isShowing(): " + mainPane.isShowing());
+        System.out.println("mainPane.isValid(): " + mainPane.isValid());
+        System.out.println("mainPane.getSize(): " + mainPane.getSize());
+        System.out.println("mainPane.getLocation(): " + mainPane.getLocation());
+        System.out.println("mainPane.getParent().isVisible(): " + mainPane.getParent().isVisible()); // This parent is 'client' (Applet)
+        System.out.println("mainPane.getParent().isValid(): " + mainPane.getParent().isValid());
     }
 }

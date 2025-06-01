@@ -46,10 +46,10 @@ public class SOCBuildingPanel extends Panel implements ActionListener
     static final String CITY = "city";
     static final String CARD = "card";
     Label title;
-    Button roadBut;
-    Button settlementBut;
-    Button cityBut;
-    Button cardBut;
+    AButton roadBut;
+    AButton settlementBut;
+    AButton cityBut;
+    AButton cardBut;
     Label roadT;
     Label roadV;
     Label roadC;
@@ -107,7 +107,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         add(roadWood);
         roadClay = new ColorSquare(ColorSquare.CLAY, 1);
         add(roadClay);
-        roadBut = new Button("---");
+        roadBut = new AButton("---");
         add(roadBut);
         roadBut.setActionCommand(ROAD);
         roadBut.addActionListener(this);
@@ -127,7 +127,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         add(settlementSheep);
         settlementWheat = new ColorSquare(ColorSquare.WHEAT, 1);
         add(settlementWheat);
-        settlementBut = new Button("---");
+        settlementBut = new AButton("---");
         add(settlementBut);
         settlementBut.setActionCommand(STLMT);
         settlementBut.addActionListener(this);
@@ -143,7 +143,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         add(cityWheat);
         cityOre = new ColorSquare(ColorSquare.ORE, 3);
         add(cityOre);
-        cityBut = new Button("---");
+        cityBut = new AButton("---");
         add(cityBut);
         cityBut.setActionCommand(CITY);
         cityBut.addActionListener(this);
@@ -161,7 +161,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         add(cardSheep);
         cardOre = new ColorSquare(ColorSquare.ORE, 1);
         add(cardOre);
-        cardBut = new Button("---");
+        cardBut = new AButton("---");
         add(cardBut);
         cardBut.setActionCommand(CARD);
         cardBut.addActionListener(this);

@@ -36,7 +36,7 @@ import soc.game.SOCGame;
  */
 class SOCChoosePlayerDialog extends SOCDialog implements ActionListener
 {
-    Button[] buttons;
+    AButton[] buttons;
     int[] players;
     int number;
     Label msg;
@@ -65,14 +65,14 @@ class SOCChoosePlayerDialog extends SOCDialog implements ActionListener
         msg = new Label("Please choose a player to steal from:", Label.CENTER);
         add(msg);
 
-        buttons = new Button[number];
+        buttons = new AButton[number];
 
         SOCGame ga = pi.getGame();
 
         for (int i = 0; i < number; i++)
         {
             Color playerColor = pi.getPlayerColor(players[i]);
-            Button button = new Button(ga.getPlayer(players[i]).getName(), playerColor);
+            AButton button = new AButton(ga.getPlayer(players[i]).getName(), playerColor);
             button.setSize(button.getPreferredSize());
             button.addActionListener(this);
             buttons[i] = button;

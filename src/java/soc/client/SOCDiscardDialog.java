@@ -45,7 +45,7 @@ import soc.game.SOCResourceSet;
  */
 class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListener
 {
-    Button discardBut;
+    AButton discardBut;
     ColorSquare[] keep;
     ColorSquare[] disc;
     Label msg;
@@ -76,7 +76,7 @@ class SOCDiscardDialog extends SOCDialog implements ActionListener, MouseListene
         Font font = SOCPlayerInterface.genevaFont2;
         setFont(font);
 
-        discardBut = new Button("Discard");
+        discardBut = new AButton("Discard");
 
         setLayout(null);
         

@@ -123,7 +123,7 @@ public class SOCMakeOffer extends SOCMessage
      * Parse the command String into a MakeOffer message
      *
      * @param s   the String to parse
-     * @return    a MakeOffer message, or null of the data is garbled
+     * @return    a MakeOffer message, or null if the data is garbled
      */
     public static SOCMakeOffer parseDataStr(String s)
     {
@@ -137,7 +137,7 @@ public class SOCMakeOffer extends SOCMessage
         give = new SOCResourceSet();
         get = new SOCResourceSet();
 
-	D.ebugPrintln("MakeOffer.parseDataStr - "+s);
+	      D.ebugPrintln("MakeOffer.parseDataStr - "+s);
 
         StringTokenizer st = new StringTokenizer(s, sep2);
 

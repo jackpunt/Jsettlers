@@ -141,7 +141,7 @@ public class TradeOfferPanel extends Panel
         }
     }
 
-    private class OfferPanel extends Panel implements ActionListener
+    class OfferPanel extends Panel implements ActionListener
     {
         SpeechBalloon balloon;
         Label toWhom1;
@@ -163,23 +163,23 @@ public class TradeOfferPanel extends Panel
         boolean counterOfferMode = false;
 
         /** ACCEPT, REJECT, OFFER */
-        JButton[] offeredButtons;
+        AButton[] offeredButtons;
         String[] offeredNames = {
             ACCEPT, REJECT, OFFER,
         };
         /** SEND, CLEAR, CANCEL */
-        JButton[] counterButtons;
+        AButton[] counterButtons;
         String[] counterNames = {
             SEND, CLEAR, CANCEL,
         };
 
-        JButton addButton(String name, boolean visible) 
+        AButton addButton(String name, boolean visible) 
         {
           FontMetrics fm = getFontMetrics(getFont());
           String cname = name.substring(0,1).toUpperCase() + name.substring(1).toLowerCase();
-          JButton button = new JButton(cname); 
-          button.setSize(new Dimension(fm.stringWidth(name)+2, fm.getHeight()));
-          button.setOpaque(true);          // MacOS paints the background of panel? (Stack Overflow)
+          AButton button = new AButton(cname); 
+          // button.setSize(new Dimension(fm.stringWidth(name)+2, fm.getHeight()));
+          // button.setOpaque(true);          // MacOS paints the background of panel? (Stack Overflow)
           button.setVisible(visible);
           button.setActionCommand(name);
           button.addActionListener(this);
@@ -187,12 +187,13 @@ public class TradeOfferPanel extends Panel
           return button;
         }
 
-        JButton[] addButtons(String[] names, boolean vis) {
-          Stack<JButton> stk = new Stack<JButton>();
+        /** add offered or countered buttons */
+        AButton[] addButtons(String[] names, boolean vis) {
+          Stack<AButton> stk = new Stack<AButton>();
           for (String name : names) {
             stk.push(addButton(name, vis));
           }
-          return stk.toArray(new JButton[stk.size()]);
+          return stk.toArray(new AButton[stk.size()]);
         }
 
         /**
@@ -281,14 +282,14 @@ public class TradeOfferPanel extends Panel
                 offerBox.setInterior(ourPlayerColor);
             }
         
-            FontMetrics fm = this.getFontMetrics(this.getFont());
+            FontMetrics fm = getFontMetrics(this.getFont());
             String names1 = "Offered to: ";  // first line of names
             String names2 = null;            // second line
 
             for (int cnt = 0; cnt < SOCGame.MAXPLAYERS; cnt++) {
                 if (offerList[cnt]) {
                     String name = ga.getPlayer(cnt).getName();
-		                int eol = getWidth() - 2*inset;
+		                int eol = getWidth() - 2*inset + 1; // why does it not calc eol?
                     
                     if (fm.stringWidth(names1+", "+name) < eol) { // getWidth()-2*inset
                         if (names1.endsWith(" ")) {
@@ -383,7 +384,7 @@ public class TradeOfferPanel extends Panel
 
                 liney += vspace;
                 int buttonX = inset;
-                for (JButton button : counterButtons) {
+                for (AButton button : counterButtons) {
                     button.setBounds(buttonX, liney, buttonW, buttonH); 
                     buttonX += buttonW + ibs;
                 }
@@ -392,7 +393,7 @@ public class TradeOfferPanel extends Panel
             } else {
                 if (offered) {
                   int buttonX = inset;
-                  for (JButton button : offeredButtons) {
+                  for (AButton button : offeredButtons) {
                       button.setBounds(buttonX, liney, buttonW, buttonH); 
                       buttonX += buttonW + ibs;
                   }
@@ -503,7 +504,7 @@ public class TradeOfferPanel extends Panel
             getLab2.setVisible(visible);
             offerSquares.setVisible(visible);
 
-            for (JButton button : counterButtons) {
+            for (AButton button : counterButtons) {
               button.setVisible(visible);
             }
             offerBox.setVisible(visible);

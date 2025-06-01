@@ -166,6 +166,7 @@ public abstract class SOCMessage implements Serializable, Cloneable
                 data = "";
             }
 
+            // System.out.format("msgId=%d data=%s\n", msgId, data);
             /**
              * convert the data part and create the message
              */

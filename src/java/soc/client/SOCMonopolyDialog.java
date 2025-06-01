@@ -33,7 +33,7 @@ import soc.game.SOCResourceConstants;
 
 class SOCMonopolyDialog extends SOCDialog implements ActionListener
 {
-    Button[] rsrcBut;
+    AButton[] rsrcBut;
     Label msg;
     int msgWidth;
     int msgHeight;
@@ -69,20 +69,20 @@ class SOCMonopolyDialog extends SOCDialog implements ActionListener
         setSize(msgWidth + 20, 170);        // setSize(280, 160);
 
         // make button to determine preferred size:
-        Button max = new Button(SOCResourceConstants.names[SOCResourceConstants.WHEAT], ColorSquare.WHEAT);
+        AButton max = new AButton(SOCResourceConstants.names[SOCResourceConstants.WHEAT], ColorSquare.WHEAT);
         max.setFont(font);
         Dimension buttonD = max.getPreferredSize();
         buttonW = buttonD.width;
         buttonH = buttonD.height;
 
-        rsrcBut = new Button[5];
+        rsrcBut = new AButton[5];
 
       	// five buttons for five resource names:
         for (int i = 0; i < 5; i++)
         {
             // color button to match resource
             Color color = ColorSquare.RES_COLORS[i];
-            Button button = new Button(SOCResourceConstants.names[SOCResourceConstants.MIN + i], color);
+            AButton button = new AButton(SOCResourceConstants.names[SOCResourceConstants.MIN + i], color);
             button.setFont(font);
             button.setSize(buttonD);
             add(button);
