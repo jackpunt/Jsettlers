@@ -6,13 +6,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Insets;
-import java.awt.Rectangle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 
 /**
  * Button using JButton, can be colored.\
