@@ -70,9 +70,8 @@ public class SOCBuildingPanel extends Panel implements ActionListener
       BuildRow(String action, String name, String v, ColorSquare[] res) {
         button = buildButton(action);
         buildC = new Label("Cost: ");
-        buildT = new Label(name);
-        buildV = new Label(v);
-        buildV.setAlignment(Label.LEFT);
+        buildT = new Label(name, Label.LEFT); // "City Upgrade: " or whatever
+        buildV = new Label(v, Label.RIGHT);    // "1 VP ", value of purchase
         squares = res;
         add(buildC);
         add(buildT);
@@ -99,7 +98,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         setForeground(Color.black);
         setFont(SOCHandPanel.font); // original panel size
 
-        road = new BuildRow(ROAD, "Road:", "0 VP  (longest road = 2 VP) ", new ColorSquare[] {
+        road = new BuildRow(ROAD, "Road: ", "0 VP  (longest road = 2 VP)", new ColorSquare[] {
           null,
           null,
           null,
@@ -107,7 +106,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
           new ColorSquare(ColorSquare.WOOD, 1),
         });
 
-        setl = new BuildRow(STLMT, "Settlement: ", "1 VP ", new ColorSquare[] {
+        setl = new BuildRow(STLMT, "Settlement: ", "1 VP  (can upgrade to City)", new ColorSquare[] {
           null,
           new ColorSquare(ColorSquare.WHEAT, 1),
           new ColorSquare(ColorSquare.SHEEP, 1),
@@ -115,12 +114,12 @@ public class SOCBuildingPanel extends Panel implements ActionListener
           new ColorSquare(ColorSquare.WOOD, 1),
         });
 
-        city = new BuildRow(CITY, "City Upgrade: ", "2 VP  (receives 2x rsrc.) ", new ColorSquare[] {
+        city = new BuildRow(CITY, "City Upgrade: ", "2 VP  (receives 2x rsrc.)", new ColorSquare[] {
           new ColorSquare(ColorSquare.ORE, 3),
           new ColorSquare(ColorSquare.WHEAT, 2),
         });
 
-        card = new BuildRow(CARD, "Dev Card: ", "? VP  (largest army = 2 VP) ", new ColorSquare[] {
+        card = new BuildRow(CARD, "Dev Card: ", "? VP  (largest army = 2 VP)", new ColorSquare[] {
           new ColorSquare(ColorSquare.ORE, 1),
           new ColorSquare(ColorSquare.WHEAT, 1),
           new ColorSquare(ColorSquare.SHEEP, 1),
@@ -155,24 +154,26 @@ public class SOCBuildingPanel extends Panel implements ActionListener
         int rowSpaceH = (dim.height - (8 * lineH)) / 3;
 
         int costW = fm.stringWidth(new String("Cost: "));
-        int longT = fm.stringWidth(city.buildT.getText()); // longest line "City Upgrade:"
+        int longT = fm.stringWidth(city.buildT.getText()); // longest name "City Upgrade:"
+        int longV = fm.stringWidth(road.buildV.getText()); // longest value "0 VP ..."
         int butW = road.button.getWidth(); // all the same width: "Cancel"
         int margin = 2;
-        int margin2 = longT + 5;
-        int costx = margin2 + butW + 5;
+        int tab1 = longT + 5;
+        int tab2 = tab1 + butW + 5;
+        int tab3 = dim.width - (longV + margin);
 
         LineBuilder aLine = (int lineY, BuildRow row) -> {
           // buildT: button Cost: squares buildV
-            row.buildT.setSize(fm.stringWidth(row.buildT.getText()), lineH);
-            row.buildT.setLocation(margin, lineY);
-            row.button.setLocation(margin2, lineY);
+            int twidth = fm.stringWidth(row.buildT.getText());
+            row.buildT.setSize(twidth, lineH);
             row.buildC.setSize(costW, lineH);        // "Cost: "
-            row.buildC.setLocation(costx, lineY);
-            int sqX = costx + costW + 3;
-            placeSquares(sqX, lineY, row.squares);
-            int buildVW = fm.stringWidth(row.buildV.getText());
-            row.buildV.setSize(buildVW, lineH);
-            row.buildV.setLocation(dim.width - (buildVW + margin), lineY); // todo: use ALIGN_RIGHT
+            row.buildV.setSize(fm.stringWidth(row.buildV.getText()), lineH);
+
+            row.buildT.setLocation(tab1 - twidth, lineY);
+            row.button.setLocation(tab1, lineY);
+            row.buildC.setLocation(tab2, lineY);
+            placeSquares(tab2 + costW + 3, lineY, row.squares);
+            row.buildV.setLocation(tab3, lineY);
         };
 
         int curY = lineH / 2;
