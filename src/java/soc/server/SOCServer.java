@@ -27,6 +27,7 @@ import java.util.Hashtable;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 import soc.debug.D;		// isableD
 import soc.game.SOCBoard;
@@ -130,6 +131,11 @@ public class SOCServer extends Server
      * Name used when sending messages from the server.
      */
     public static final String SERVERNAME = "Server";
+
+    /** 90 minutes */
+    public static final long TIME_LIMIT = TimeUnit.MINUTES.toMillis(90);
+    public static final long TIME_EXTENSION = TimeUnit.MINUTES.toMillis(30);
+    public static final long TIME_WARNING = TimeUnit.MINUTES.toMillis(5);
 
     /**
      * So we can get random numbers.
@@ -1395,7 +1401,7 @@ public class SOCServer extends Server
                         if (gameData != null)
                         {
                             // add 30 min. to the expiration date
-                            gameData.setExpiration(gameData.getExpiration() + 1800000);
+                            gameData.setExpiration(gameData.getExpiration() + SOCServer.TIME_EXTENSION);
                             messageToGame(game, new SOCGameTextMsg(game, SERVERNAME, "> This game will expire in " + ((gameData.getExpiration() - System.currentTimeMillis()) / 60000) + " minutes."));
                         }
                     } else
@@ -5201,15 +5207,15 @@ public class SOCServer extends Server
      */
     public void checkForExpiredGames()
     {
-        Vector expired = new Vector();
+        Vector<String> expired = new Vector<String>();
 
         gameList.takeMonitor();
 
         try
         {
-            for (Enumeration k = gameList.getGames(); k.hasMoreElements();)
+            for (Enumeration<String> k = gameList.getGames(); k.hasMoreElements();)
             {
-                String gameName = (String) k.nextElement();
+                String gameName = k.nextElement();
                 SOCGame gameData = gameList.getGameData(gameName);
 
                 if (gameData.getExpiration() <= System.currentTimeMillis())
@@ -5221,9 +5227,9 @@ public class SOCServer extends Server
                 //
                 //  Give people a 5 minute warning
                 //
-                if ((gameData.getExpiration() - 300000) <= System.currentTimeMillis())
+                if ((gameData.getExpiration() - SOCServer.TIME_WARNING) <= System.currentTimeMillis())
                 {
-                    gameData.setExpiration(System.currentTimeMillis() + 300000);
+                    gameData.setExpiration(System.currentTimeMillis() + SOCServer.TIME_WARNING);
                     messageToGame(gameName, new SOCGameTextMsg(gameName, SERVERNAME, ">>> Less than 5 minutes remaining.  Type *ADDTIME* to extend this game another 30 minutes."));
                 }
             }

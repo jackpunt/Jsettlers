@@ -99,7 +99,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
 
         setBackground(new Color(156, 179, 94));
         setForeground(Color.black);
-        setFont(new Font("Helvetica", Font.PLAIN, 10)); // original panel size
+        setFont(SOCHandPanel.font); // original panel size
 
         /*
            title = new Label("Building Costs:");

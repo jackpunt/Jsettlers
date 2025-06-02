@@ -41,7 +41,7 @@ import java.util.Vector;
 public class SOCGameList
 {
     protected Hashtable gameMutexes;
-    protected Hashtable gameMembers;
+    protected Hashtable<String, Vector> gameMembers;
     protected Hashtable gameData;
     protected boolean inUse;
 
@@ -170,7 +170,7 @@ public class SOCGameList
     /**
      * @return an enumeration of game names
      */
-    public Enumeration getGames()
+    public Enumeration<String> getGames()
     {
         return gameMembers.keys();
     }
@@ -294,7 +294,7 @@ public class SOCGameList
             SOCGame game = new SOCGame(gaName);
 
             // set the expiration to 90 min. from now
-            game.setExpiration(game.getStartTime().getTime() + 5400000);
+            game.setExpiration(game.getStartTime().getTime() + SOCServer.TIME_LIMIT);
             gameData.put(gaName, game);
         }
     }

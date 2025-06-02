@@ -77,8 +77,8 @@ class SOCDiscoveryDialog extends SOCDialog implements ActionListener
 
         FontMetrics fm = getFontMetrics(font);
 
-        clearBut = new AButton("Clear", null, font);
-        doneBut = new AButton("Done", null, font);
+        clearBut = new AButton(SOCHandPanel.CLEAR, null, font);
+        doneBut = new AButton(SOCHandPanel.DONE, null, font);
 
         buttonH = clearBut.getHeight();
         buttonW = clearBut.getWidth();

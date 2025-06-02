@@ -211,7 +211,7 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          * initialize the building interface and add it to the main interface
          */
         buildingPanel = new SOCBuildingPanel(this);
-        buildingPanel.setSize(SOCBoardPanel.getPanelX(), 160); // 160 ~ 11 * fontHeight
+        buildingPanel.setSize(SOCBoardPanel.getPanelX(), 8 * ColorSquare.HEIGHT + 5); // 160 ~ 11 * fontHeight
         add(buildingPanel);
 
         /**
