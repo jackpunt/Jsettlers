@@ -1935,7 +1935,8 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
     /** 
      * A resource of type {@code rsc} was lost or gained.
      */
-    void handleResourceElement(SOCPlayer pl, SOCPlayerInterface pi, SOCPlayerElement mes, int rsc) {
+    void handleResourceElement(SOCPlayer pl, SOCPlayerInterface pi, SOCPlayerElement mes, int rsc)
+    {
         SOCResourceSet rs = pl.getResources();
         SOCResourceSet ur = pl.getUResources();
 
@@ -1970,9 +1971,9 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
             } else {
                 pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
                 if (SHOWALL) {
-              pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(panelResources[rsc]);
+                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(panelResources[rsc]);
+                }
             }
-        }
     }
 
     /**
@@ -2098,6 +2099,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
                     pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.SHEEP);
                     pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.WHEAT);
                     pi.getPlayerHandPanel(pn).updateValue(SOCHandPanel.WOOD);
+                    pi.getPlayerHandPanel(mes.getPlayerNumber()).updateValue(SOCHandPanel.NUMRESOURCES);
                 }
                 else
                 {

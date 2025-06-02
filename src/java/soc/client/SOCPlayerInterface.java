@@ -198,7 +198,6 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          * initialize the player hand displays and add them to the interface
          */
         hands = new SOCHandPanel[SOCGame.MAXPLAYERS];
-        System.out.format("SOCPlayerInterface: handWidth = %d\n", handWidth);
 
         for (int i = 0; i < SOCGame.MAXPLAYERS; i++)
         {

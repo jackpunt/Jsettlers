@@ -96,6 +96,7 @@ public class SOCHandPanel extends Panel implements ActionListener
     protected ColorSquare sheepSq;
     protected ColorSquare wheatSq;
     protected ColorSquare woodSq;
+    protected ColorSquare[] rsrcSqs; // { oreSq, wheatSq, sheepSq, claySq, woodSq }
     protected Label clayLab;
     protected Label oreLab;
     protected Label sheepLab;
@@ -180,7 +181,6 @@ public class SOCHandPanel extends Panel implements ActionListener
         player = pl;
         interactive = in;
         setFont(font);   // Helvetica
-        FontMetrics fm = getFontMetrics(getFont());
 
         setBackground(playerInterface.getPlayerColor(player.getPlayerNumber()));
         setForeground(Color.black);
@@ -214,6 +214,8 @@ public class SOCHandPanel extends Panel implements ActionListener
         add(woodLab);
         woodSq = new ColorSquare(ColorSquare.WOOD, 0);
         add(woodSq);
+
+        rsrcSqs = new ColorSquare[] { oreSq, wheatSq, sheepSq, claySq, woodSq };
 
         //cardLab = new Label("Cards:");
         //add(cardLab);
@@ -1140,8 +1142,12 @@ public class SOCHandPanel extends Panel implements ActionListener
 
         case NUMRESOURCES:
 
-            resourceSq.setIntValue(player.getResources().getTotal());
-
+            // when NumResources is set, assert that each rsrc is <= that value (esp if numRsrc == 0)
+            int numRsrc = player.getResources().getTotal();
+            resourceSq.setIntValue(numRsrc);
+            for (ColorSquare res : rsrcSqs) {
+              res.setIntValue(Math.min(numRsrc, res.getIntValue()));
+            }
             break;
 
         case ROADS:
@@ -1177,13 +1183,15 @@ public class SOCHandPanel extends Panel implements ActionListener
             break;
         }
     }
+
     /** update the displayed resource count squares */
     void updateResouces() {
       int[] vts = { ORE, WHEAT, SHEEP, CLAY, WOOD };
-      for (int i = 0; i < vts.length; i++) {
-        updateValue(vts[i]);
+      for (int v : vts) {
+        updateValue(v);
       }
     }
+
     int faceW = 40;
     int inset = 6;		// 8?
     int space = 2;

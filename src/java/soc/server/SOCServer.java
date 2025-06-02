@@ -2974,7 +2974,7 @@ public class SOCServer extends Server
                             for (int i = 0; i < SOCGame.MAXPLAYERS; i++)
                             {
                                 SOCResourceSet rsrcs = ga.getResourcesGainedFromRoll(ga.getPlayer(i), curdice);
-				int total = rsrcs.getTotal();
+			                        	int total = rsrcs.getTotal();
 
                                 if (total == 0)
                                 {
@@ -2983,15 +2983,15 @@ public class SOCServer extends Server
                                 else
                                 {
                                     String message = "  " + ga.getPlayer(i).getName() + " got ";
-				    for (int rs = SOCResourceConstants.MIN; rs < SOCResourceConstants.MAX; rs++) {
-					int cnt = rsrcs.getAmount(rs);
-					messageToGame(gn, new SOCPlayerElement(gn, i, SOCPlayerElement.GAIN, rs, cnt));
-					if (cnt > 0) {
-					    message += (cnt + " " + SOCResourceConstants.names[rs]);
-					    total -= cnt;
-					    if (total > 0) message += ", "; else break;
-					}
-				    }
+                                    for (int rs = SOCResourceConstants.MIN; rs < SOCResourceConstants.MAX; rs++) {
+                                        int cnt = rsrcs.getAmount(rs);
+                                        messageToGame(gn, new SOCPlayerElement(gn, i, SOCPlayerElement.GAIN, rs, cnt));
+                                        if (cnt > 0) {
+                                            message += (cnt + " " + SOCResourceConstants.names[rs]);
+                                            total -= cnt;
+                                            if (total > 0) message += ", "; else break;
+                                        }
+                                    }
                                     message += ".";
                                     messageToGame(gn, new SOCGameTextMsg(gn, SERVERNAME, message));
                                 }
@@ -3003,10 +3003,10 @@ public class SOCServer extends Server
                                 {
                                     // send Player[i]'s details to player[i]
                                     SOCResourceSet resources = ga.getPlayer(i).getResources();
-				    for (int rs = SOCResourceConstants.MIN; rs < SOCResourceConstants.MAX; rs++) {
-					int cnt = resources.getAmount(rs);
-					messageToPlayer(playerCon, new SOCPlayerElement(gn, i, SOCPlayerElement.SET, rs, cnt));
-				    }
+                                    for (int rs = SOCResourceConstants.MIN; rs < SOCResourceConstants.MAX; rs++) {
+                                        int cnt = resources.getAmount(rs);
+                                        messageToPlayer(playerCon, new SOCPlayerElement(gn, i, SOCPlayerElement.SET, rs, cnt));
+                                    }
                                     messageToGame(ga.getName(), new SOCResourceCount(gn, i, resources.getTotal()));
                                 }
                             }
@@ -3034,14 +3034,14 @@ public class SOCServer extends Server
                              */
                             for (int i = 0; i < SOCGame.MAXPLAYERS; i++)
                             {
-				SOCPlayer plyr = ga.getPlayer(i);
-				int rscnt = plyr.getResources().getTotal();
+                                SOCPlayer plyr = ga.getPlayer(i);
+                                int rscnt = plyr.getResources().getTotal();
                                 if (rscnt > 7)
                                 {
-				    Connection con = connectionForPlayer(plyr.getName());
-				    if (con != null) {
-					con.put(SOCDiscardRequest.toCmd(ga.getName(), rscnt / 2));
-				    }
+                                    Connection con = connectionForPlayer(plyr.getName());
+                                    if (con != null) {
+                                        con.put(SOCDiscardRequest.toCmd(ga.getName(), rscnt / 2));
+                                    }
                                 }
                             }
                         }
@@ -3091,12 +3091,12 @@ public class SOCServer extends Server
                         /**
                          * tell the player client that the player discarded the resources
                          */
-			for (int rs = SOCResourceConstants.MIN; rs < SOCResourceConstants.MAX; rs++) {
-			    int cnt = mes.getResources().getAmount(rs);
-			    if (cnt > 0) {
-				messageToPlayer(c, new SOCPlayerElement(gn, player.getPlayerNumber(), SOCPlayerElement.LOSE, rs, cnt));
-			    }
-			}
+                        for (int rs = SOCResourceConstants.MIN; rs < SOCResourceConstants.MAX; rs++) {
+                            int cnt = mes.getResources().getAmount(rs);
+                            if (cnt > 0) {
+                                messageToPlayer(c, new SOCPlayerElement(gn, player.getPlayerNumber(), SOCPlayerElement.LOSE, rs, cnt));
+                            }
+                        }
 
                         /**
                          * tell everyone else that the player discarded unknown resources
