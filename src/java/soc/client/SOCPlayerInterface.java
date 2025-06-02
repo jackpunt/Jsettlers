@@ -185,7 +185,11 @@ public class SOCPlayerInterface extends Frame implements ActionListener
          * more initialization stuff
          */
         setLocation(50, 50);
-        setSize(980, 900); // (HexMap + 2*HandPanel, BoardPanel+TextPanel+BuildingPanel)
+        if (SOCBoardPanel.scalexy == 1) {
+            setSize(754, 600); // (HexMap + 2*HandPanel, BoardPanel+TextPanel+BuildingPanel)
+        } else {
+            setSize(980, 900); // (HexMap + 2*HandPanel, BoardPanel+TextPanel+BuildingPanel)
+        }
         validate();
     }
 

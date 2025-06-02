@@ -56,23 +56,27 @@ public class AButton extends JButton {
     if (!laf.equals("Mac OS X")) {
       // can paint button background! but use soft bevel:
       int pad = 6;  // space before/after text, for CDE/Motif
-      setBorder(BorderFactory.createRaisedSoftBevelBorder());
-      setMargin(new Insets(2, 2, 2, 2)); // smallest that work
+      if (isJButton) {
+          setBorder(BorderFactory.createRaisedSoftBevelBorder());
+          setMargin(new Insets(2, 2, 2, 2)); // smallest that work
+      }
       setSize(getExpectedSize(pad));
       // assert the given color, or a silver/grey for legacy 'match'
       setBackground(aColor);
-    } else 
-    if (color != null)
-    {
-      setBackground(color);
-      if (isJButton) {
-          // to get color, we need a non-Mac border:
-          setBorder(BorderFactory.createRaisedSoftBevelBorder()); // or new EmptyBorder(2, 2, 2, 2);
-          setBorderPainted(false);
-          setOpaque(true); // per StackOverflow - Aqua needs this
-       }
-    }
+    } else {
+      setSize(getPreferredSize());
+      if (color != null)
+      {
+        setBackground(color);
+        if (isJButton) {
+            // to get color, we need a non-Mac border:
+            setBorder(BorderFactory.createRaisedSoftBevelBorder()); // or new EmptyBorder(2, 2, 2, 2);
+            setBorderPainted(false);
+            setOpaque(true); // per StackOverflow - Aqua needs this
+        }
+      }
     // else: no color applied, use system coloration (Aqua -> grey)
+    }
   }
 
   Dimension getExpectedSize(int xpad) {

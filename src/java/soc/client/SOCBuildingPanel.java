@@ -54,7 +54,7 @@ public class SOCBuildingPanel extends Panel implements ActionListener
 
     AButton buildButton(String action) {
         AButton button = new AButton("Cancel"); // max width
-        button.setText(DASH);  // initial contents
+        button.setLabel(DASH);  // initial contents
         add(button);
         button.setActionCommand(action);
         button.addActionListener(this);

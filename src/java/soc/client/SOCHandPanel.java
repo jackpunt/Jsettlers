@@ -1270,7 +1270,7 @@ public class SOCHandPanel extends Panel implements ActionListener
         int tbY = tradeY + sqpDim.height + space;
         clearBut.setLocation(tbX             , tbY                );
         bankBut.setLocation(tbX              , tbY + lineH + space);
-        sendBut.setLocation(tbX + tbW + space, tbY + lineH + space);
+        sendBut.setLocation(tbX + bankBut.getWidth() + space, tbY + lineH + space);
             
         playerSend[0].setBounds(tbX + tbW + space                                  , tbY, ColorSquare.WIDTH, ColorSquare.HEIGHT);
         playerSend[1].setBounds(tbX + tbW + space + ((tbW - ColorSquare.WIDTH) / 2), tbY, ColorSquare.WIDTH, ColorSquare.HEIGHT);
