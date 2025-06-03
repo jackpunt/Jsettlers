@@ -2403,18 +2403,21 @@ public class SOCGame implements Serializable, Cloneable
      *
      * @param pick  the type of resource to monopolize
      */
-    public void doMonopolyAction(int pick)
+    public int doMonopolyAction(int pick)
     {
         int sum = 0;
 
         for (int i = 0; i < MAXPLAYERS; i++)
         {
+        if (currentPlayerNumber != i) {
             sum += players[i].getResources().getAmount(pick);
             players[i].getResources().setAmount(0, pick);
         }
+        }
 
-        players[currentPlayerNumber].getResources().setAmount(sum, pick);
+        players[currentPlayerNumber].getResources().add(sum, pick);
         gameState = oldGameState;
+        return sum;
     }
 
     /**

@@ -106,8 +106,8 @@ public class SOCResourceSet implements Serializable, Cloneable, SOCResourceConst
     /**
      * set the amount of a resource
      *
-     * @param rtype the type of resource
      * @param amt   the amount
+     * @param rtype the type of resource
      */
     public void setAmount(int amt, int rtype)
     {
@@ -117,8 +117,8 @@ public class SOCResourceSet implements Serializable, Cloneable, SOCResourceConst
     /**
      * add an amount to a resource
      *
-     * @param rtype the type of resource
      * @param amt   the amount
+     * @param rtype the type of resource
      */
     public void add(int amt, int rtype)
     {
