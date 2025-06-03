@@ -50,7 +50,7 @@ public class SOCGameTimeoutChecker extends Thread
         while (alive)
         {
             server.checkForExpiredGames();
-            yield();
+            Thread.yield();
 
             try
             {

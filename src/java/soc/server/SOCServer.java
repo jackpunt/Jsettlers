@@ -2248,7 +2248,7 @@ public class SOCServer extends Server
                             {
                                 if (pl.isPotentialSettlement(j))
                                 {
-                                    psList.addElement(new Integer(j));
+                                    psList.addElement((j));
                                 }
                             }
 
@@ -3937,22 +3937,25 @@ public class SOCServer extends Server
                     {
                         if (ga.canDoMonopolyAction())
                         {
-			    int rt = mes.getResource();
-                            String message = (String) c.data + " monopolized " + SOCResourceConstants.names[rt] + ".";
+			                      int rt = mes.getResource();
+                            String resName = SOCResourceConstants.names[rt];
 
-                            ga.doMonopolyAction(rt); // set game's count of resources
+                            int sum = ga.doMonopolyAction(rt); // set game's count of resources
+                            String message = (String) c.data + " monopolized " + sum + " " + resName + ".";
                             messageToGame(ga.getName(), new SOCGameTextMsg(ga.getName(), SERVERNAME, message));
 
                             /**
-                             * just send all the player's resource counts (zero mostly) for the
-                             * monopolized resource; but everyone sees perp's final count!
+                             * currentPlayer: GAIN(sum), other players: SET(0)
+                             * monopolized resource;
                              */
                             for (int i = 0; i < SOCGame.MAXPLAYERS; i++)
                             {
+                                int setOrGain = (i == ga.currentPlayer().getPlayerNumber()) ? SOCPlayerElement.GAIN : SOCPlayerElement.SET;
+                                int num = (i == ga.currentPlayer().getPlayerNumber()) ? sum : ga.getPlayer(i).getResources().getAmount(rt);
                                 /**
                                  * Note: This only works if SOCPlayerElement.CLAY == SOCResourceConstants.CLAY
                                  */
-                                messageToGame(ga.getName(), new SOCPlayerElement(ga.getName(), i, SOCPlayerElement.SET, rt, ga.getPlayer(i).getResources().getAmount(rt)));
+                                messageToGame(ga.getName(), new SOCPlayerElement(ga.getName(), i, setOrGain, rt, num));
                             }
 
                             sendGameState(ga);

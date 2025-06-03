@@ -74,7 +74,7 @@ public class SOCServerRobotPinger extends Thread
                 }
             }
 
-            yield();
+            Thread.yield();
 
             try
             {

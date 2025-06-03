@@ -817,7 +817,7 @@ public class SOCRobotNegotiator
 
                     if ((i != ourPlayerData.getPlayerNumber()) && isSellingResource[i][neededResource] && (game.getPlayer(i).getResources().getTotal() >= getResourceSet.getTotal()))
                     {
-                        SOCPlayerTracker tracker = (SOCPlayerTracker) playerTrackers.get(new Integer(i));
+                        SOCPlayerTracker tracker = (SOCPlayerTracker) playerTrackers.get((i));
 
                         if ((tracker != null) && (tracker.getWinGameETA() >= WIN_GAME_CUTOFF))
                         {
@@ -842,7 +842,7 @@ public class SOCRobotNegotiator
                 {
                     D.ebugPrintln("** isSellingResource[" + curpn + "][" + neededResource + "] = " + isSellingResource[curpn][neededResource]);
 
-                    SOCPlayerTracker tracker = (SOCPlayerTracker) playerTrackers.get(new Integer(curpn));
+                    SOCPlayerTracker tracker = (SOCPlayerTracker) playerTrackers.get((curpn));
 
                     if ((tracker != null) && (tracker.getWinGameETA() >= WIN_GAME_CUTOFF))
                     {
@@ -963,14 +963,14 @@ public class SOCRobotNegotiator
 
         D.ebugPrintln("targetPieces[" + receiverNum + "] = " + receiverTargetPiece);
 
-        SOCPlayerTracker receiverPlayerTracker = (SOCPlayerTracker) playerTrackers.get(new Integer(receiverNum));
+        SOCPlayerTracker receiverPlayerTracker = (SOCPlayerTracker) playerTrackers.get((receiverNum));
 
         if (receiverPlayerTracker == null)
         {
             return response;
         }
 
-        SOCPlayerTracker senderPlayerTracker = (SOCPlayerTracker) playerTrackers.get(new Integer(senderNum));
+        SOCPlayerTracker senderPlayerTracker = (SOCPlayerTracker) playerTrackers.get((senderNum));
 
         if (senderPlayerTracker == null)
         {
@@ -1252,7 +1252,7 @@ public class SOCRobotNegotiator
        ourOriginalFavoriteCity = decisionMaker.getFavoriteCity();
        ourOriginalFavoriteRoad = decisionMaker.getFavoriteRoad();
        ourOriginalPossibleCard = decisionMaker.getPossibleCard();
-       SOCPlayerTracker theirPlayerTracker = (SOCPlayerTracker)playerTrackers.get(new Integer(offer.getFrom()));
+       SOCPlayerTracker theirPlayerTracker = (SOCPlayerTracker)playerTrackers.get((offer.getFrom()));
     
        if (theirPlayerTracker != null) {
        theirOriginalWGETA = theirPlayerTracker.getWinGameETA();

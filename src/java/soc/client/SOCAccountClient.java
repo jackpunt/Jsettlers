@@ -20,8 +20,8 @@
  **/
 package soc.client;
 
-import java.applet.Applet;
-import java.applet.AppletContext;
+// import java.applet.Applet;
+// import java.applet.AppletContext;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.CardLayout;
@@ -60,7 +60,7 @@ import soc.util.Version;
  *
  * @author Robert S Thomas
  */
-public class SOCAccountClient extends Applet implements Runnable, ActionListener
+public class SOCAccountClient extends java.applet.Applet implements Runnable, ActionListener
 {
     private static final String MAIN_PANEL = "main";
     private static final String MESSAGE_PANEL = "message";
@@ -72,7 +72,7 @@ public class SOCAccountClient extends Applet implements Runnable, ActionListener
     protected TextField status;
     protected Button submit;
     protected Label messageLabel;
-    protected AppletContext ac;
+    // protected AppletContext ac;
     protected boolean submitLock;
 
     protected CardLayout cardLayout;
@@ -147,7 +147,7 @@ public class SOCAccountClient extends Applet implements Runnable, ActionListener
 
         submit.addActionListener(this);
 
-        ac = null;
+        // ac = null;
 
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();

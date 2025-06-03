@@ -272,7 +272,7 @@ public class SOCPlayerTracker
             while (posSettlementsIter.hasNext())
             {
                 SOCPossibleSettlement posSet = (SOCPossibleSettlement) posSettlementsIter.next();
-                SOCPossibleSettlement posSetCopy = (SOCPossibleSettlement) possibleSettlementsCopy.get(new Integer(posSet.getCoordinates()));
+                SOCPossibleSettlement posSetCopy = (SOCPossibleSettlement) possibleSettlementsCopy.get((posSet.getCoordinates()));
 
                 //D.ebugPrintln(">>> posSet     : "+posSet);
                 //D.ebugPrintln(">>> posSetCopy : "+posSetCopy);
@@ -287,7 +287,7 @@ public class SOCPlayerTracker
                     // now find the copy of this necessary road and 
                     // add it to the pos settlement copy's nec road list
                     //
-                    SOCPossibleRoad necRoadCopy = (SOCPossibleRoad) possibleRoadsCopy.get(new Integer(necRoad.getCoordinates()));
+                    SOCPossibleRoad necRoadCopy = (SOCPossibleRoad) possibleRoadsCopy.get((necRoad.getCoordinates()));
 
                     if (necRoadCopy != null)
                     {
@@ -318,7 +318,7 @@ public class SOCPlayerTracker
                     }
                     else
                     {
-                        SOCPossibleSettlement conflictCopy = (SOCPossibleSettlement) trackerCopy2.getPossibleSettlements().get(new Integer(conflict.getCoordinates()));
+                        SOCPossibleSettlement conflictCopy = (SOCPossibleSettlement) trackerCopy2.getPossibleSettlements().get((conflict.getCoordinates()));
 
                         if (conflictCopy == null)
                         {
@@ -1192,7 +1192,7 @@ public class SOCPlayerTracker
             while (prTrashEnum.hasMoreElements())
             {
                 SOCPossibleRoad prt = (SOCPossibleRoad) prTrashEnum.nextElement();
-                possibleRoads.remove(new Integer(prt.getCoordinates()));
+                possibleRoads.remove((prt.getCoordinates()));
                 removeFromNecessaryRoads(prt);
                 removeDependents(prt);
             }
@@ -1238,7 +1238,7 @@ public class SOCPlayerTracker
                     if (nr.isEmpty())
                     {
                         //D.ebugPrintln("$$$ removing this road");
-                        possibleRoads.remove(new Integer(newPos.getCoordinates()));
+                        possibleRoads.remove((newPos.getCoordinates()));
                         removeFromNecessaryRoads((SOCPossibleRoad) newPos);
                         removeDependents((SOCPossibleRoad) newPos);
                     }
@@ -1280,7 +1280,7 @@ public class SOCPlayerTracker
                     if (nr.isEmpty())
                     {
                         //D.ebugPrintln("$$$ removing this settlement");
-                        possibleSettlements.remove(new Integer(newPos.getCoordinates()));
+                        possibleSettlements.remove((newPos.getCoordinates()));
                         removeFromNecessaryRoads((SOCPossibleSettlement) newPos);
 
                         /**
@@ -1371,7 +1371,7 @@ public class SOCPlayerTracker
         /**
          * remove the possible city from the list
          */
-        possibleCities.remove(new Integer(city.getCoordinates()));
+        possibleCities.remove((city.getCoordinates()));
     }
 
     /**
@@ -1384,7 +1384,7 @@ public class SOCPlayerTracker
         /**
          * add the possible city to the list
          */
-        possibleCities.put(new Integer(city.getCoordinates()), city);
+        possibleCities.put((city.getCoordinates()), city);
     }
 
     /**
@@ -1487,7 +1487,7 @@ public class SOCPlayerTracker
 
                     if (tracker.getPlayer().getPlayerNumber() != ourPlayerNumber)
                     {
-                        SOCPossibleRoad posEnemyRoad = tracker.getPossibleRoads().get(new Integer(posRoad.getCoordinates()));
+                        SOCPossibleRoad posEnemyRoad = tracker.getPossibleRoads().get((posRoad.getCoordinates()));
 
                         if (posEnemyRoad != null)
                         {
@@ -1581,7 +1581,7 @@ public class SOCPlayerTracker
 
                     if (tracker.getPlayer().getPlayerNumber() != ourPlayerNumber)
                     {
-                        SOCPossibleRoad posEnemyRoad = (SOCPossibleRoad) tracker.getPossibleRoads().get(new Integer(posRoad.getCoordinates()));
+                        SOCPossibleRoad posEnemyRoad = (SOCPossibleRoad) tracker.getPossibleRoads().get((posRoad.getCoordinates()));
 
                         if (posEnemyRoad != null)
                         {
@@ -1680,7 +1680,7 @@ public class SOCPlayerTracker
 
                     if (tracker.getPlayer().getPlayerNumber() != ourPlayerNumber)
                     {
-                        SOCPossibleSettlement posEnemySet = (SOCPossibleSettlement) tracker.getPossibleSettlements().get(new Integer(posSet.getCoordinates()));
+                        SOCPossibleSettlement posEnemySet = (SOCPossibleSettlement) tracker.getPossibleSettlements().get((posSet.getCoordinates()));
 
                         if (posEnemySet != null)
                         {
@@ -1939,7 +1939,7 @@ public class SOCPlayerTracker
                 }
 
                 j = coord;
-                edge = new Integer(j);
+                edge = (j);
                 match = false;
 
                 if ((j >= SOCBoard.MINEDGE) && (j <= SOCBoard.MAXEDGE) && (player.isLegalRoad(j)))
@@ -1970,7 +1970,7 @@ public class SOCPlayerTracker
                 }
 
                 j = coord - 0x01;
-                edge = new Integer(j);
+                edge = (j);
                 match = false;
 
                 if ((j >= SOCBoard.MINEDGE) && (j <= SOCBoard.MAXEDGE) && (player.isLegalRoad(j)))
@@ -2001,7 +2001,7 @@ public class SOCPlayerTracker
                 }
 
                 j = coord - 0x10;
-                edge = new Integer(j);
+                edge = (j);
                 match = false;
 
                 if ((j >= SOCBoard.MINEDGE) && (j <= SOCBoard.MAXEDGE) && (player.isLegalRoad(j)))
@@ -2439,7 +2439,7 @@ public class SOCPlayerTracker
                             if (!chosenSet.getNecessaryRoads().isEmpty())
                             {
                                 necRoadQueue.clear();
-                                necRoadQueue.put(new Pair(new Integer(0), chosenSet.getNecessaryRoads()));
+                                necRoadQueue.put(new Pair((0), chosenSet.getNecessaryRoads()));
 
                                 while (!necRoadQueue.empty())
                                 {
@@ -2459,7 +2459,7 @@ public class SOCPlayerTracker
                                         while (necRoadEnum.hasMoreElements())
                                         {
                                             SOCPossibleRoad nr = (SOCPossibleRoad) necRoadEnum.nextElement();
-                                            necRoadQueue.put(new Pair(new Integer(totalNecRoads + 1), nr.getNecessaryRoads()));
+                                            necRoadQueue.put(new Pair((totalNecRoads + 1), nr.getNecessaryRoads()));
                                         }
                                     }
                                 }
@@ -2638,7 +2638,7 @@ public class SOCPlayerTracker
                                         fastestSetETA = posSetETA;
                                         tempPlayerNumbers.updateNumbers(posSet.getCoordinates(), player.getGame().getBoard());
 
-                                        Integer posSetCoords = new Integer(posSet.getCoordinates());
+                                        Integer posSetCoords = (posSet.getCoordinates());
 
                                         for (int portType : SOCBoard.ANY_PORTS)
                                         {
@@ -2671,7 +2671,7 @@ public class SOCPlayerTracker
                                         boolean[] veryTempPortFlags = new boolean[SOCBoard.MAX_PORT + 1];
                                         tempPlayerNumbers.updateNumbers(posSet.getCoordinates(), player.getGame().getBoard());
 
-                                        Integer posSetCoords = new Integer(posSet.getCoordinates());
+                                        Integer posSetCoords = (posSet.getCoordinates());
 
                                         for (int portType : SOCBoard.ANY_PORTS)
                                         {
@@ -2753,7 +2753,7 @@ public class SOCPlayerTracker
                                 if (!chosenSet[i].getNecessaryRoads().isEmpty())
                                 {
                                     necRoadQueue.clear();
-                                    necRoadQueue.put(new Pair(new Integer(0), chosenSet[i].getNecessaryRoads()));
+                                    necRoadQueue.put(new Pair((0), chosenSet[i].getNecessaryRoads()));
 
                                     while (!necRoadQueue.empty())
                                     {
@@ -2773,7 +2773,7 @@ public class SOCPlayerTracker
                                             while (necRoadEnum.hasMoreElements())
                                             {
                                                 SOCPossibleRoad nr = (SOCPossibleRoad) necRoadEnum.nextElement();
-                                                necRoadQueue.put(new Pair(new Integer(totalNecRoads + 1), nr.getNecessaryRoads()));
+                                                necRoadQueue.put(new Pair((totalNecRoads + 1), nr.getNecessaryRoads()));
                                             }
                                         }
                                     }
@@ -2784,14 +2784,14 @@ public class SOCPlayerTracker
 
                                 if ((i == 0) && (chosenSet[0] != null))
                                 {
-                                    posSetsCopy.remove(new Integer(chosenSet[0].getCoordinates()));
+                                    posSetsCopy.remove((chosenSet[0].getCoordinates()));
 
                                     Enumeration conflicts = chosenSet[0].getConflicts().elements();
 
                                     while (conflicts.hasMoreElements())
                                     {
                                         SOCPossibleSettlement conflict = (SOCPossibleSettlement) conflicts.nextElement();
-                                        Integer conflictInt = new Integer(conflict.getCoordinates());
+                                        Integer conflictInt = (conflict.getCoordinates());
                                         SOCPossibleSettlement possibleConflict = (SOCPossibleSettlement) posSetsCopy.get(conflictInt);
 
                                         if (possibleConflict != null)
@@ -2817,14 +2817,14 @@ public class SOCPlayerTracker
                             }
                         }
 
-                        posSetsCopy.put(new Integer(chosenSet[0].getCoordinates()), chosenSet[0]);
+                        posSetsCopy.put((chosenSet[0].getCoordinates()), chosenSet[0]);
 
                         Iterator posSetsToPutBackIter = posSetsToPutBack.iterator();
 
                         while (posSetsToPutBackIter.hasNext())
                         {
                             SOCPossibleSettlement tmpPosSet = (SOCPossibleSettlement) posSetsToPutBackIter.next();
-                            posSetsCopy.put(new Integer(tmpPosSet.getCoordinates()), tmpPosSet);
+                            posSetsCopy.put((tmpPosSet.getCoordinates()), tmpPosSet);
                         }
 
                         if (canBuild2Settlements && (twoSettlements <= fastestETA))
@@ -2922,7 +2922,7 @@ public class SOCPlayerTracker
                                     fastestSetETA = posSetETA;
                                     tempPlayerNumbers.updateNumbers(posSet.getCoordinates(), player.getGame().getBoard());
 
-                                    Integer posSetCoords = new Integer(posSet.getCoordinates());
+                                    Integer posSetCoords = (posSet.getCoordinates());
 
                                     for (int portType : SOCBoard.ANY_PORTS)
                                     {
@@ -2955,7 +2955,7 @@ public class SOCPlayerTracker
                                     boolean[] veryTempPortFlags = new boolean[SOCBoard.MAX_PORT + 1];
                                     tempPlayerNumbers.updateNumbers(posSet.getCoordinates(), player.getGame().getBoard());
 
-                                    Integer posSetCoords = new Integer(posSet.getCoordinates());
+                                    Integer posSetCoords = (posSet.getCoordinates());
 
                                     for (int portType : SOCBoard.ANY_PORTS)
                                     {
@@ -3043,7 +3043,7 @@ public class SOCPlayerTracker
                         if (!chosenSet[0].getNecessaryRoads().isEmpty())
                         {
                             necRoadQueue.clear();
-                            necRoadQueue.put(new Pair(new Integer(0), chosenSet[0].getNecessaryRoads()));
+                            necRoadQueue.put(new Pair((0), chosenSet[0].getNecessaryRoads()));
 
                             while (!necRoadQueue.empty())
                             {
@@ -3063,7 +3063,7 @@ public class SOCPlayerTracker
                                     while (necRoadEnum.hasMoreElements())
                                     {
                                         SOCPossibleRoad nr = (SOCPossibleRoad) necRoadEnum.nextElement();
-                                        necRoadQueue.put(new Pair(new Integer(totalNecRoads + 1), nr.getNecessaryRoads()));
+                                        necRoadQueue.put(new Pair((totalNecRoads + 1), nr.getNecessaryRoads()));
                                     }
                                 }
                             }
@@ -3191,8 +3191,8 @@ public class SOCPlayerTracker
 
                     if ((settlementPiecesLeft > 1) && (posSetsCopy.size() > 1) && (canBuild2Settlements) && (fastestETA == twoSettlements))
                     {
-                        Integer chosenSet0Int = new Integer(chosenSet[0].getCoordinates());
-                        Integer chosenSet1Int = new Integer(chosenSet[1].getCoordinates());
+                        Integer chosenSet0Int = (chosenSet[0].getCoordinates());
+                        Integer chosenSet1Int = (chosenSet[1].getCoordinates());
                         posSetsCopy.remove(chosenSet0Int);
                         posSetsCopy.remove(chosenSet1Int);
                         posCitiesCopy.put(chosenSet0Int, new SOCPossibleCity(player, chosenSet[0].getCoordinates()));
@@ -3206,7 +3206,7 @@ public class SOCPlayerTracker
                         while (conflicts.hasMoreElements())
                         {
                             SOCPossibleSettlement conflict = (SOCPossibleSettlement) conflicts.nextElement();
-                            Integer conflictInt = new Integer(conflict.getCoordinates());
+                            Integer conflictInt = (conflict.getCoordinates());
                             posSetsCopy.remove(conflictInt);
                         }
 
@@ -3215,7 +3215,7 @@ public class SOCPlayerTracker
                         while (conflicts.hasMoreElements())
                         {
                             SOCPossibleSettlement conflict = (SOCPossibleSettlement) conflicts.nextElement();
-                            Integer conflictInt = new Integer(conflict.getCoordinates());
+                            Integer conflictInt = (conflict.getCoordinates());
                             posSetsCopy.remove(conflictInt);
                         }
 
@@ -3228,8 +3228,8 @@ public class SOCPlayerTracker
                         tempPlayerNumbers.updateNumbers(chosenSet[0].getCoordinates(), player.getGame().getBoard());
                         tempPlayerNumbers.updateNumbers(chosenSet[1].getCoordinates(), player.getGame().getBoard());
 
-                        Integer chosenSet0Coords = new Integer(chosenSet[0].getCoordinates());
-                        Integer chosenSet1Coords = new Integer(chosenSet[1].getCoordinates());
+                        Integer chosenSet0Coords = (chosenSet[0].getCoordinates());
+                        Integer chosenSet1Coords = (chosenSet[1].getCoordinates());
 
                         for (int portType : SOCBoard.ANY_PORTS)
                         {
@@ -3261,7 +3261,7 @@ public class SOCPlayerTracker
                     }
                     else if (((cityPiecesLeft > 0) && (((settlementPiecesLeft > 0) && (citySpotsLeft >= 0)) || ((settlementPiecesLeft >= 0) && (citySpotsLeft > 0))) && !posSetsCopy.isEmpty()) && (fastestETA == oneOfEach))
                     {
-                        Integer chosenSet0Int = new Integer(chosenSet[0].getCoordinates());
+                        Integer chosenSet0Int = (chosenSet[0].getCoordinates());
                         posSetsCopy.remove(chosenSet0Int);
 
                         if (chosenSet[0].getCoordinates() != chosenCity[0].getCoordinates())
@@ -3269,7 +3269,7 @@ public class SOCPlayerTracker
                             posCitiesCopy.put(chosenSet0Int, new SOCPossibleCity(player, chosenSet[0].getCoordinates()));
                         }
 
-                        posCitiesCopy.remove(new Integer(chosenCity[0].getCoordinates()));
+                        posCitiesCopy.remove((chosenCity[0].getCoordinates()));
                         cityPiecesLeft -= 1;
 
                         //
@@ -3280,7 +3280,7 @@ public class SOCPlayerTracker
                         while (conflicts.hasMoreElements())
                         {
                             SOCPossibleSettlement conflict = (SOCPossibleSettlement) conflicts.nextElement();
-                            Integer conflictInt = new Integer(conflict.getCoordinates());
+                            Integer conflictInt = (conflict.getCoordinates());
                             posSetsCopy.remove(conflictInt);
                         }
 
@@ -3289,7 +3289,7 @@ public class SOCPlayerTracker
                         //
                         tempPlayerNumbers.updateNumbers(chosenSet[0].getCoordinates(), player.getGame().getBoard());
 
-                        Integer chosenSet0Coords = new Integer(chosenSet[0].getCoordinates());
+                        Integer chosenSet0Coords = (chosenSet[0].getCoordinates());
 
                         for (int portType : SOCBoard.ANY_PORTS)
                         {
@@ -3324,7 +3324,7 @@ public class SOCPlayerTracker
                     }
                     else if ((cityPiecesLeft > 1) && (citySpotsLeft > 1) && (fastestETA == twoCities))
                     {
-                        posCitiesCopy.remove(new Integer(chosenCity[0].getCoordinates()));
+                        posCitiesCopy.remove((chosenCity[0].getCoordinates()));
 
                         //
                         // update our building speed estimate
@@ -3396,7 +3396,7 @@ public class SOCPlayerTracker
                         }
                         else
                         {
-                            posCitiesCopy.remove(new Integer(chosenCity[1].getCoordinates()));
+                            posCitiesCopy.remove((chosenCity[1].getCoordinates()));
                         }
 
                         settlementPiecesLeft += 2;

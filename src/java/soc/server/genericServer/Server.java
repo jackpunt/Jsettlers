@@ -278,7 +278,7 @@ public abstract class Server extends Thread implements Serializable, Cloneable
                     System.out.println("Exception in treater (processCommand) - " + e);
                 }
 
-                yield();
+                Thread.yield();
 
 	          	// hokey NO-OP!
                 synchronized (inQueue) {

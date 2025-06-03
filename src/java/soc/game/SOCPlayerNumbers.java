@@ -216,7 +216,7 @@ public class SOCPlayerNumbers
 
                     if (pair.getB() == resource)
                     {
-                        numbers.addElement(new Integer(pair.getA()));
+                        numbers.addElement((pair.getA()));
                     }
                 }
             }
@@ -247,7 +247,7 @@ public class SOCPlayerNumbers
 
                     if (pair.getA() == number)
                     {
-                        resources.addElement(new Integer(pair.getB()));
+                        resources.addElement((pair.getB()));
                     }
                 }
             }
@@ -268,9 +268,9 @@ public class SOCPlayerNumbers
 	// only consider land/resource HEX:
         if ((resource >= SOCResourceConstants.MIN) && (resource < SOCResourceConstants.MAX))
         {
-            numbersForResource[resource].addElement(new Integer(number));
+            numbersForResource[resource].addElement((number));
 
-            Integer resourceInt = new Integer(resource);
+            Integer resourceInt = (resource);
 
             //if (!resourcesForNumber[number].contains(resourceInt)) {
             resourcesForNumber[number].addElement(resourceInt);

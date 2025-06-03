@@ -65,7 +65,7 @@ public class SOCRobotPinger extends Thread
                 alive = false;
             }
 
-            yield();
+            Thread.yield();
 
             try
             {

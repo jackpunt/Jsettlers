@@ -657,7 +657,7 @@ public class SOCBuildingSpeedEstimate
         int lastRoll = 0;
         int thisRoll = 1;
 
-        resourcesOnRoll[lastRoll].put(ourResources, new Float(1.0));
+        resourcesOnRoll[lastRoll].put(ourResources, (1.0));
 
         boolean targetReached = ourResources.contains(targetResources);
         SOCResourceSet targetReachedResources = null;
@@ -845,7 +845,7 @@ public class SOCBuildingSpeedEstimate
                     }
                     else
                     {
-                        resourcesOnRoll[thisRoll].put(newResources, new Float(newProb2));
+                        resourcesOnRoll[thisRoll].put(newResources, (newProb2));
                     }
                 }
             }

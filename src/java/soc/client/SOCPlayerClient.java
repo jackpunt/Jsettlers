@@ -20,8 +20,8 @@
  **/
 package soc.client;
 
-import java.applet.Applet;
-import java.applet.AppletContext;
+// import java.applet.Applet;
+// import java.applet.AppletContext;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -132,7 +132,7 @@ import soc.util.Version;
  *
  * @author Robert S Thomas
  */
-public class SOCPlayerClient extends Applet implements Runnable, ActionListener
+public class SOCPlayerClient extends java.applet.Applet implements Runnable, ActionListener
 {
     private static final String MAIN_PANEL = "main";
     private static final String MESSAGE_PANEL = "message";
@@ -151,7 +151,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
     protected AButton jc;
     protected AButton jg;
     protected Label messageLabel;
-    protected AppletContext ac;
+    // protected AppletContext ac;
     protected String lastMessage;
 
     protected CardLayout cardLayout;
@@ -264,7 +264,7 @@ public class SOCPlayerClient extends Applet implements Runnable, ActionListener
         jc.addActionListener(this);
         jg.addActionListener(this);
         
-        ac = null;
+        // ac = null;
 
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();

@@ -178,7 +178,7 @@ public class SOCPossibleSettlement extends SOCPossiblePiece
            //
            //  get new ports
            //
-           Integer coordInteger = new Integer(this.getCoordinates());
+           Integer coordInteger = (this.getCoordinates());
            boolean newPortFlags[] = new boolean[SOCBoard.MAX_PORT+1];
            for (int port = SOCBoard.MISC_PORT; port <= SOCBoard.MAX_PORT; port++) {
              newPortFlags[port] = player.getPortFlag(port);
