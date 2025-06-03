@@ -6,11 +6,11 @@ n=${1:-5}       ; shift
 out="${1:-/tmp/jserver.txt}"; shift
 bots=${@:-Able "''" Baker "''" Charlie "''" Dawn "''"}
 echo $(date) > $out
-echo jar dir=$dir port=$port n=$n  bots=$bots >> $out 2>>$out
+echo jar dir=$dir port=$port n=$n  bots=$bots >> "$out" 2>&1
 // as placed by: brew java on MacOS
 JAVA=/usr/local/opt/openjdk/bin/java
 
 (cd $dir ;\
- echo $PWD $port $n >> $out ;\
+ echo $PWD $port $n ;\
  $JAVA -cp JSettlers.jar -jar JSettlersServer.jar $port $n dbUser dbPwd  ${bots} \
-) 2>>$out
+) >> "$out" 2>&1
