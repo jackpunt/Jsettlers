@@ -9,7 +9,7 @@
   <property environment="env" />
 
   <!-- build with Java-1.4 -->
-  <property name="build.compiler.source"       value="1.8" />
+  <property name="build.compiler.release"       value="11" />
 
   <property name="debug"       value="true" />
   <property name="optimize"    value="true" />
@@ -179,7 +179,8 @@
              classpathref="classpath"
              debug="${debug}" 
              optimize="${optimize}"
-             source="${build.compiler.source}"
+             release="${build.compiler.release}"
+             includeantruntime="false"
              deprecation="${deprecation}" />
   </target>
  
@@ -243,7 +244,7 @@
              classpathref="classpath"
              debug="${debug}"
              optimize="${optimize}"
-             source="${build.compiler.source}"
+             release="${build.compiler.release}"
              deprecation="${deprecation}" />
   </target>
 
